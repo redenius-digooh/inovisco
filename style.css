@@ -1,0 +1,52 @@
+table {
+    border: 1px solid;
+    border-color: #90268F;
+    width: 40%;
+}
+
+tr {
+    border: 0;
+}
+
+td {
+    padding: 10px;
+    font-family: 'Oswald', sans-serif;
+    text-align: left;
+    border: 0;
+}
+
+th {
+    padding-left: 10px;
+    background-color: #90268F;
+    font-family: 'Oswald', sans-serif;
+}
+
+a {
+    color: white;
+}
+
+h2 {
+    color: white;
+}
+
+.button {
+    text-align: right;
+}
+
+.min {
+    max-width:30px;
+}
+
+.obenlinks {
+    text-align: left;
+}
+.obenrechts {
+    text-align: right;
+    align: right;
+    padding-right: 10px;
+}
+
+.link {
+    align: right;
+    color: #90268F;
+}
