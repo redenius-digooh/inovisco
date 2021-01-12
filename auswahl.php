@@ -7,15 +7,16 @@ require_once 'angemeldet.php';
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="style.css">
-	<script language="JavaScript" type="text/javascript" src="campaign.js" charset="UTF-8" ></script>	
+	<script language="JavaScript" type="text/javascript" src="campaign.js" 
+        charset="UTF-8"></script>	
         <title></title>
     </head>
     <body>
         <center>
                 <table>
-                    <?php
-                    require_once 'oben.php';
-                    ?>
+<?php
+require_once 'oben.php';
+?>
                             <table class="ohnerahmen">
                                 <tr>
                                     <td>
@@ -26,7 +27,7 @@ require_once 'angemeldet.php';
                                         </form>
                                     </td>
                                     <td>
-                                        <form action="buchung.php" method="post">
+                                        <form action="prozess.php" method="post">
                                             <button type="submit" name="neu" 
                                                 class="button_auswahl" value="1">
                                             Laufende Buchungsprozesse</button>

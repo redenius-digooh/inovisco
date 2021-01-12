@@ -34,7 +34,8 @@ if(isset($_GET['login'])) {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="style.css">
-	<script language="JavaScript" type="text/javascript" src="campaign.js" charset="UTF-8" ></script>	
+	<script language="JavaScript" type="text/javascript" src="campaign.js" 
+        charset="UTF-8"></script>	
         <title></title>
     </head>
     <body>
@@ -53,20 +54,23 @@ if(isset($_GET['login'])) {
                         <td colspan="2">
                             <table class="ohnerahmen">
                                 <tr>
-                                    <td colspan="2">Bitte melden Sie sich mit Ihrem Username 
-                                        und Passwort an.</td>
+                                    <td colspan="2">Bitte melden Sie sich mit 
+                                        Ihrem Username und Passwort an.</td>
                                 </tr>
                                 <tr>
                                     <td class="min">Username</td>
-                                    <td><input type="text" name="username" required></td>
+                                    <td><input type="text" name="username" 
+                                               required></td>
                                 </tr>
                                 <tr>
                                     <td class="min">Passwort</td>
-                                    <td><input type="password" name="password" required></td>
+                                    <td><input type="password" name="password" 
+                                               required></td>
                                 </tr>
                                 <tr>
                                     <td colspan="2" class="button">
-                                        <button type="submit" name="action" value="1">
+                                        <button type="submit" name="action" 
+                                                value="1">
                                             Abschicken</button>
                                     </td>
                                 </tr>
