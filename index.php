@@ -42,21 +42,35 @@ if(isset($_GET['login'])) {
             <form action="index.php?login=1" method="post">
                 <table>
                     <tr>
-                        <th colspan="2">
-                            <h2>Inovisco Direct</h2>
+                        <th>
+                            <h2 class="obenlinks">Inovisco Direct</h2>
+                        </th>  
+                        <th class="obenrechts">
+                            <h2>&nbsp;<br>&nbsp;<br></h2>
                         </th>
                     </tr>
                     <tr>
-                        <td class="min">Username</td>
-                        <td><input type="text" name="username" required></td>
-                    </tr>
-                    <tr>
-                        <td class="min">Passwort</td>
-                        <td><input type="password" name="password" required></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" class="button">
-                            <button type="submit" name="action" value="1">Abschicken</button>
+                        <td colspan="2">
+                            <table class="ohnerahmen">
+                                <tr>
+                                    <td colspan="2">Bitte melden Sie sich mit Ihrem Username 
+                                        und Passwort an.</td>
+                                </tr>
+                                <tr>
+                                    <td class="min">Username</td>
+                                    <td><input type="text" name="username" required></td>
+                                </tr>
+                                <tr>
+                                    <td class="min">Passwort</td>
+                                    <td><input type="password" name="password" required></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="button">
+                                        <button type="submit" name="action" value="1">
+                                            Abschicken</button>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                 </table>

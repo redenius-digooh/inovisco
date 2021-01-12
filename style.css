@@ -1,7 +1,8 @@
 table {
     border: 1px solid;
     border-color: #90268F;
-    width: 40%;
+    width: 800px;
+    border-spacing:0px;
 }
 
 tr {
@@ -13,16 +14,13 @@ td {
     font-family: 'Oswald', sans-serif;
     text-align: left;
     border: 0;
+    font-size: 20px;
 }
 
 th {
     padding-left: 10px;
     background-color: #90268F;
     font-family: 'Oswald', sans-serif;
-}
-
-a {
-    color: white;
 }
 
 h2 {
@@ -46,7 +44,23 @@ h2 {
     padding-right: 10px;
 }
 
-.link {
-    align: right;
+a {
     color: #90268F;
+    text-decoration: none;
+}
+
+.weiss {
+    color: white;
+}
+
+.button_auswahl {
+    background-color: #90268F;
+    color: white;
+    height: 100px;
+    width: 244px;
+    font-size: 26px;
+}
+
+.ohnerahmen {
+    border: 0;
 }

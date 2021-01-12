@@ -12,21 +12,32 @@ require_once 'angemeldet.php';
     </head>
     <body>
         <center>
-            <form action="?login=1" method="post">
                 <table>
                     <?php
                     require_once 'oben.php';
                     ?>
-                            <table border="0">
+                            <table class="ohnerahmen">
                                 <tr>
                                     <td>
-                                        <button type="submit" name="neu" value="1">Neuer Buchungsprozess</button>
+                                        <form action="buchung.php" method="post">
+                                            <button type="submit" name="neu" 
+                                                class="button_auswahl" value="1">
+                                            Neuer Buchungsprozess</button>
+                                        </form>
                                     </td>
                                     <td>
-                                        <button type="submit" name="neu" value="1">Laufende Buchungsprozesse</button>
+                                        <form action="buchung.php" method="post">
+                                            <button type="submit" name="neu" 
+                                                class="button_auswahl" value="1">
+                                            Laufende Buchungsprozesse</button>
+                                        </form>
                                     </td>
                                     <td>
-                                        <button type="submit" name="neu" value="1">Download Verf&uuml;gbarkeit</button>
+                                        <form action="download.php" method="post">
+                                            <button type="submit" name="neu" 
+                                                class="button_auswahl" value="1">
+                                            Download Verf&uuml;gbarkeit</button>
+                                        </form>
                                     </td>
                                 </tr>
                             </table>
