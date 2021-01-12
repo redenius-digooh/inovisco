@@ -61,6 +61,26 @@ a {
     font-size: 26px;
 }
 
+.button_zurueck {
+    background-color: #90268F;
+    color: white;
+    font-size: 26px;
+}
+
+.button_gruen {
+    background-color: greenyellow;
+    color: white;
+    font-size: 26px;
+}
+
 .ohnerahmen {
     border: 0;
+}
+
+.rot {
+    background-color: red;
+}
+
+.lila {
+    background-color: #90268F;
 }
