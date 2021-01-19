@@ -1,5 +1,6 @@
 <?php
 require_once 'angemeldet.php';
+require_once 'datenbank.php';
 ?>
 <!doctype html>
 <html lang="de">
@@ -17,13 +18,22 @@ require_once 'angemeldet.php';
 <?php
 require_once 'oben.php';
 
+$sql = "SELECT upload, invisco, digooh FROM buchung";
+$result = $conn->query($sql);
 ?>
                             <table class="ohnerahmen">
                                 <tr>
+                                    <td class="balken">
+                                        <table class="ohnerahmen">
+<?php
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+?>
+                                <tr>
                                     <td>
-                                        <table>
+                                        <table class="table_klein">
                                             <tr>
-                                                <?php if ($upload == 1) { ?>
+                                                <?php if ($row['upload'] == 1) { ?>
                                                 <td class="gruen">
                                                 <?php } else { ?>
                                                 <td class="rot">
@@ -32,10 +42,11 @@ require_once 'oben.php';
                                             </tr>
                                         </table>
                                     </td>
+                                    <td>&#10132;&#10132;</td>
                                     <td>
-                                        <table>
+                                        <table class="table_klein">
                                             <tr>
-                                                <?php if ($pruef_innovisco == 1) 
+                                                <?php if ($row['pruef_innovisco'] == 1) 
                                                 { ?>
                                                 <td class="gruen">
                                                 <?php } else { ?>
@@ -45,10 +56,11 @@ require_once 'oben.php';
                                             </tr>
                                         </table>
                                     </td>
+                                    <td>&#10132;&#10132;</td>
                                     <td>
-                                        <table>
+                                        <table class="table_klein">
                                             <tr>                                                
-                                                <?php if ($pruef_digooh == 1) 
+                                                <?php if ($row['pruef_digooh'] == 1) 
                                                 { ?>
                                                 <td class="gruen">
                                                 <?php } else { ?>
@@ -58,18 +70,27 @@ require_once 'oben.php';
                                             </tr>
                                         </table>
                                     </td>
+                                    <td>&#10132;&#10132;</td>
                                     <td>
-                                        <table>
+                                        <table class="table_klein">
                                             <tr>
-                                                <?php if ($upload == 1 &&
-                                                        $pruef_innovisco == 1 &&
-                                                        $pruef_digooh == 1) {?>
+                                                <?php if ($row['upload'] == 1 &&
+                                                $row['pruef_innovisco'] == 1 &&
+                                                $row['pruef_digooh'] == 1) {?>
                                                 <td class="gruen">
                                                 <?php } else { ?>
                                                 <td>
                                                 <?php } ?>
                                                 Buchung abgeschlossen</td>
                                             </tr>
+                                        </table>
+                                    </td>
+                                    <td>&#10132;&#10132;</td>
+                                </tr>
+<?php
+    }
+}
+?>
                                         </table>
                                     </td>
                                 </tr>
