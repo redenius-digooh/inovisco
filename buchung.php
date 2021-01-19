@@ -1,12 +1,15 @@
 <?php
 require_once 'angemeldet.php';
+require_once 'datenbank.php';
 
 if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
     $uploaded_dir = "./uploadfiles/";
-    $filename = $_FILES["datei"]["name"];
+    $tag = date("Y-m-d-H-i-s");
+    $filename = $_FILES["datei"]["name"] . "_" . $tag;
     $path = $uploaded_dir . $filename;
     move_uploaded_file($_FILES["datei"]["tmp_name"], $path);
     $upload = 1;
+    require_once 'import.php';
 }
 
 ?>
@@ -29,11 +32,6 @@ require_once 'oben.php';
                 <form action="buchung.php" method="post" 
                       enctype="multipart/form-data">
                     <table class="ohnerahmen">
-                        <tr>
-                            <td class="button" colspan="2">
-                                <a href="auswahl.php">zur&uuml;ck</a>
-                            </td>
-                        </tr>
                         <tr>
                             <td>
 <?php
