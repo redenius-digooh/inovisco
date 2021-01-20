@@ -93,7 +93,7 @@ a {
 
 main {
 	min-height: 100vh;
-	background: linear-gradient(to top right, #7a2265, #fa5386);
+	background: linear-gradient(to top right, #215975, #8FD5F7);
 	font-family: "Poppins", sans-serif;
 	display: flex;
 	align-items: center;
@@ -111,7 +111,7 @@ main {
     width: 22rem;
 	background: linear-gradient(
 		to right bottom,
-		rgba(255, 255, 255, 0.75),
+		rgba(255, 255, 255, 0.6),
 		rgba(255, 255, 255, 0.2)
 	);
 	border-radius: 2rem;
@@ -159,10 +159,9 @@ main {
 	height: 3rem;
     width:100%;
     color: white;
-	background: linear-gradient(
-        to top right,
-        #7a2265, #fa5386
-    );
+	background: 
+        #215975
+    ;
 	opacity: 0.6;
 	border: none;
 	padding: 0.5rem;
