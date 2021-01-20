@@ -34,51 +34,29 @@ if(isset($_GET['login'])) {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="style.css">
-	<script language="JavaScript" type="text/javascript" src="campaign.js" 
-        charset="UTF-8"></script>	
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+	    <script language="JavaScript" type="text/javascript" src="campaign.js" charset="UTF-8"></script>	
         <title></title>
     </head>
     <body>
-        <center>
-            <form action="index.php?login=1" method="post">
-                <table>
-                    <tr>
-                        <th>
-                            <h2 class="obenlinks">Inovisco Direct</h2>
-                        </th>  
-                        <th class="obenrechts">
-                            <h2>&nbsp;<br>&nbsp;<br></h2>
-                        </th>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <table class="ohnerahmen">
-                                <tr>
-                                    <td colspan="2">Bitte melden Sie sich mit 
-                                        Ihrem Username und Passwort an.</td>
-                                </tr>
-                                <tr>
-                                    <td class="min">Username</td>
-                                    <td><input type="text" name="username" 
-                                               required></td>
-                                </tr>
-                                <tr>
-                                    <td class="min">Passwort</td>
-                                    <td><input type="password" name="password" 
-                                               required></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2" class="button">
-                                        <button type="submit" name="action" 
-                                                value="1">
-                                            Abschicken</button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </form>
-        </center>
+        <main>
+            <section class="glass">
+                <div class="title">
+                    <h1 class="title">Inovisco Direct</h1>
+                </div>
+                <div class="input">
+                    <form action="index.php?login=1" method="post" >
+                        <input type="text" name="username" class="logininput"  required >
+
+                        <input type="password" name="password" class="logininput" required>
+
+                        <button type="submit" name="action"  value="1" class="loginbutton">
+                            Abschicken
+                        </button>
+                    </form>
+                </div>
+        </section>
+        <main>
     </body>
 </html>
