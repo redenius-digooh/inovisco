@@ -1,4 +1,8 @@
 <?php
+/*
+ * Selection: New booking process, ongoing booking processes, download 
+ * availability.
+ */
 require_once 'angemeldet.php';
 ?>
 <!doctype html>
@@ -27,7 +31,7 @@ require_once 'oben.php';
                                         </form>
                                     </td>
                                     <td>
-                                        <form action="prozess.php" method="post">
+                                        <form action="uebersicht.php" method="post">
                                             <button type="submit" name="neu" 
                                                 class="button_auswahl" value="1">
                                             Laufende Buchungsprozesse</button>

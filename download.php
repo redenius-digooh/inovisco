@@ -1,4 +1,7 @@
 <?php
+/*
+ * Download the availability.
+ */
 require_once 'angemeldet.php';
 ?>
 <!doctype html>

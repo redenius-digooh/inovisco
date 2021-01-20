@@ -1,4 +1,7 @@
 <?php
+/*
+ * Overview of the current booking processes.
+ */
 require_once 'angemeldet.php';
 require_once 'datenbank.php';
 ?>

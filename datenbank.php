@@ -1,8 +1,11 @@
 <?php
+/*
+ * Access to the database.
+ */
 $servername = "localhost";
 $username = "redenius";
 $password = "red10?";
-$dbname = "innovisco_direct";
+$dbname = "inovisco_direct";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
