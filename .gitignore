@@ -936,3 +936,4 @@ vendor/symfony/polyfill-mbstring/README.md
 vendor/symfony/polyfill-mbstring/Resources/unidata/lowerCase.php
 vendor/symfony/polyfill-mbstring/Resources/unidata/titleCaseRegexp.php
 vendor/symfony/polyfill-mbstring/Resources/unidata/upperCase.php
+composer.lock

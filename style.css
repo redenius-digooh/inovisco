@@ -136,6 +136,7 @@ main {
 .logininput {
     margin-bottom: 2rem;
     display:flex;
+    color:black;
     justify-content: center;
     font-weight: 100;
     font-size: 1.5rem;
