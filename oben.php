@@ -1,3 +1,8 @@
+<?php
+/*
+ * Upper area with the login data.
+ */
+?>
                     <tr>
                         <th>
                             <h2 class="obenlinks">Inovisco Direct</h2>
