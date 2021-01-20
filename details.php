@@ -1,11 +1,52 @@
-<?php echo"2";
+<?php
 require_once 'datenbank.php';
 
-$sql = "SELECT * FROM buchung";
+$sql = "SELECT start_date, end_date, play_times, campaign, display FROM buchung"
+        . " WHERE token_direct = '" . $_SESSION['token_direct'] . "' AND datum"
+        . "= '" . date("Y-m-d"). "'";
 $db_erg = mysqli_query($conn, $sql);
 
-$problem = 1;
-if ($problem) {
+while ($row = mysqli_fetch_array( $db_erg)) {
+    $start_date = $row['start_date'];
+    $end_date = $row['end_date'];
+    $play_times = $row['play_times'];
+}
+
+$sql = "SELECT start_date, end_date, play_type, play_times FROM kampagne WHERE "
+        . "start_date <= '" .$start_date . "' AND end_date >= '" . $start_date 
+        . "'";
+$erg = mysqli_query($conn, $sql);
+while ($row = mysqli_fetch_array( $erg)) {
+    $alleslots = 8640;
+    if ($row['play_type'] == 1) {
+        //Percentage
+        $slot = $alleslots / 100 * $row['play_times'];
+        $gesslot += $slot;
+    }
+    elseif ($row['play_type'] == 2) {
+        //Total Views
+        $slot = 0;
+        $gesslot += $slot;
+    }
+    elseif ($row['play_type'] == 9) {
+        //Every xth Slot
+        $slot = $alleslots / $row['play_times'];
+        $gesslot += $slot;
+    }
+    else {
+        //Times per Hour
+        $slot = $row['play_times'] * 24;
+        $gesslot += $slot;
+    }    
+}
+
+$zusammenslot = $gesslot + ($play_times * 24);
+if ($zusammenslot > $alleslots) {
+    $problem = 1;
+} else {
+    $problem = 0;
+}
+if ($problem == 1) {
 ?>
 Das Hochladen war erfolgreich. Nicht alle Displays oder Slots sind verf&uuml;gbar!
 F&uuml;r eine Buchung muss die Kampagne ge&auml;ndert und die Verf&uuml;gbarkeit 
@@ -32,26 +73,7 @@ die Kampagne kann zur Prüfung an Digooh gesendet werden!
                                         <td>03.01.</td>
                                         <td>04.01.</td>
                                     </tr>                                        
-<?php
-while ($row = mysqli_fetch_array( $db_erg, MYSQLI_ASSOC)) {
-    $client = new \GuzzleHttp\Client();
-    $response = $client->post(
-        'https://cms.digooh.com:8081/api/v1/campaigns',
-        [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ],
-            'json' => [
-                'players' => in_array($row['display'], 'players')
-            ],
-        ]
-    );
-    $body = $response->getBody();echo"<pre>";
-    print_r(json_decode((string) $body));
 
-?>
                                     <tr>
                                         <td><?php echo $row['name']; ?></td>
                                         <td><?php echo $row['display']; ?></td>
@@ -59,7 +81,8 @@ while ($row = mysqli_fetch_array( $db_erg, MYSQLI_ASSOC)) {
                                         <td>
                                             <?php
                                             $datum = '2021-01-14';
-                                            if($datum >= $row['start_date'] AND $datum <= $row['end_date']) {
+                                            if($datum >= $start_date AND 
+                                                $datum <= $end_date) {
                                             echo "X"; 
                                             }
                                             ?>
@@ -68,9 +91,6 @@ while ($row = mysqli_fetch_array( $db_erg, MYSQLI_ASSOC)) {
                                         <td></td>
                                         <td></td>
                                     </tr>
-<?php
-}
-?>
                                 </table>
                                 
                             </td>
