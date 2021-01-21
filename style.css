@@ -10,7 +10,7 @@ tr {
 }
 
 td {
-	padding: 10px;
+	padding: 5px;
 	font-family: "Oswald", sans-serif;
 	text-align: left;
 	border: 0;
@@ -24,6 +24,10 @@ th {
 }
 
 h2 {
+	color: white;
+}
+
+h4 {
 	color: white;
 }
 
@@ -75,10 +79,15 @@ a {
 
 .ohnerahmen {
 	border: 0;
+        padding: 2px;
 }
 
 .rot {
 	background-color: red;
+}
+
+.gruen {
+        background-color: greenyellow;
 }
 
 .lila {
@@ -168,4 +177,9 @@ main {
 	padding: 0.5rem;
 	border-radius: 2rem;
 
+}
+
+.table_klein {
+    width:80px;
+    padding: 2px;
 }
