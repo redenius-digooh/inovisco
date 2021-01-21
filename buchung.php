@@ -33,8 +33,7 @@ if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
 require_once 'oben.php';
 if ($upload == 1) {
 ?>
-            <form action="buchung.php" method="post" 
-                  enctype="multipart/form-data">
+            
                 <table class="ohnerahmen">
                     <tr>
                         <td>
@@ -44,10 +43,11 @@ if ($upload == 1) {
                         </td>
                     </tr>
                 </table>
-            </form>
 <?php
 } else {
 ?>
+                <form action="buchung.php" method="post" 
+                  enctype="multipart/form-data">
                 <table class="ohnerahmen">
                     <tr>
                         <td>
@@ -61,16 +61,21 @@ if ($upload == 1) {
                         </td>
                     </tr>
                     <tr>
+                        <td class="button">
+                            <button type="submit" name="neu" value="1">
+                                hochladen</button>
+                        </td>
+                    </tr>
+                </table>
+                </form>
+                <table class="ohnerahmen">
+                    <tr>
                         <td class="mittig" width: 33,33%>
                             <form action="auswahl.php" method="post">
                                 <button type="submit" name="neu2" 
                                     class="lila" value="1">
                                 Zur &Uuml;bersicht</button>
                             </form>
-                        </td>
-                        <td class="button">
-                            <button type="submit" name="neu" value="1">
-                                hochladen</button>
                         </td>
                     </tr>
                 </table>
