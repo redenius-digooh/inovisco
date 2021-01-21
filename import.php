@@ -53,7 +53,7 @@ foreach($data as $key => $row) {
             $neu_start_date . "', '" . $neu_end_date . "', '" . $play_times . "')";
 
         if (mysqli_query($conn, $query)) {
-            
+            unlink($filename);
         }
     }
     $zahl++;
