@@ -22,11 +22,6 @@ require_once 'oben.php';
 ?>
                             <table class="ohnerahmen">
                                 <tr>
-                                    <td class="button" colspan="2">
-                                        <a href="auswahl.php">zur&uuml;ck</a>
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td>
                                         Verf&uuml;gbarkeit herunterladen.
                                     </td>
@@ -37,6 +32,15 @@ require_once 'oben.php';
                                     </td>
                                 </tr>
                             </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="mittig" width: 33,33%>
+                            <form action="auswahl.php" method="post">
+                                <button type="submit" name="neu2" 
+                                    class="lila" value="1">
+                                Zur &Uuml;bersicht</button>
+                            </form>
                         </td>
                     </tr>
                 </table>

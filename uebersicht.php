@@ -98,11 +98,18 @@ if ($result->num_rows > 0) {
                                     </td>
                                 </tr>
                             </table>
-                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="mittig" width: 33,33%>
+                            <form action="auswahl.php" method="post">
+                                <button type="submit" name="neu2" 
+                                    class="lila" value="1">
+                                Zur &Uuml;bersicht</button>
+                            </form>
                         </td>
                     </tr>
                 </table>
-            </form>
         </center>
     </body>
 </html>
