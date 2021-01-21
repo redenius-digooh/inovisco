@@ -28,8 +28,9 @@ while ($row = mysqli_fetch_array( $erg)) {
         $gesslot += $slot;
     }
     elseif ($row['play_type'] == 2) {
+        $interval = date_diff($row['start_date'], $row['end_date']);
         //Total Views
-        $slot = 0;
+        $slot = $row['play_times'] / $interval;
         $gesslot += $slot;
     }
     elseif ($row['play_type'] == 9) {

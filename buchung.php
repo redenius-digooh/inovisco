@@ -5,14 +5,14 @@
 require_once 'angemeldet.php';
 require_once 'datenbank.php';
 
-if (isset($_FILES['datei']) && $_POST['neu'] == 1) {echo"w";
+if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
     $uploaded_dir = "./uploadfiles/";
     $tag = date("Y-m-d-H-i-s");
     $filename = $_FILES["datei"]["name"] . "_" . $tag;
     $path = $uploaded_dir . $filename;
     move_uploaded_file($_FILES["datei"]["tmp_name"], $path);
     $upload = 1;
-//    require_once 'import.php';
+    require_once 'import.php';
 }
 
 ?>
