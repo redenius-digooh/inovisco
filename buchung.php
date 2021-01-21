@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * Upload Excel file and display details.
  */
