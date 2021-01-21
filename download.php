@@ -15,11 +15,11 @@ require_once 'angemeldet.php';
     </head>
     <body>
         <center>
-            <form action="download.php" method="post">
                 <table>                
 <?php
 require_once 'oben.php';
 ?>
+                        <form action="download.php" method="post">
                             <table class="ohnerahmen">
                                 <tr>
                                     <td>
@@ -32,6 +32,7 @@ require_once 'oben.php';
                                     </td>
                                 </tr>
                             </table>
+                        </form>
                         </td>
                     </tr>
                     <tr>
@@ -44,7 +45,6 @@ require_once 'oben.php';
                         </td>
                     </tr>
                 </table>
-            </form>
         </center>
     </body>
 </html>
