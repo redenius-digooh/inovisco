@@ -937,3 +937,6 @@ vendor/symfony/polyfill-mbstring/Resources/unidata/lowerCase.php
 vendor/symfony/polyfill-mbstring/Resources/unidata/titleCaseRegexp.php
 vendor/symfony/polyfill-mbstring/Resources/unidata/upperCase.php
 composer.lock
+/nbproject/private/
+nbproject/project.properties
+nbproject/project.xml
