@@ -21,7 +21,7 @@ require_once 'datenbank.php';
 <?php
 require_once 'oben.php';
 
-$sql = "SELECT upload, invisco, digooh FROM buchung";
+$sql = "SELECT upload, inovisco, digooh FROM buchung";
 $result = $conn->query($sql);
 ?>
                             <table class="ohnerahmen">
@@ -33,7 +33,7 @@ if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
 ?>
                                 <tr>
-                                    <td>
+                                    <td width="90px">
                                         <table class="table_klein">
                                             <tr>
                                                 <?php if ($row['upload'] == 1) { ?>
@@ -45,11 +45,11 @@ if ($result->num_rows > 0) {
                                             </tr>
                                         </table>
                                     </td>
-                                    <td>&#10132;&#10132;</td>
-                                    <td>
+                                    <td width="80px">&#10132;&#10132;&#10132;</td>
+                                    <td width="90px">
                                         <table class="table_klein">
                                             <tr>
-                                                <?php if ($row['pruef_innovisco'] == 1) 
+                                                <?php if ($row['inovisco'] == 1) 
                                                 { ?>
                                                 <td class="gruen">
                                                 <?php } else { ?>
@@ -59,11 +59,11 @@ if ($result->num_rows > 0) {
                                             </tr>
                                         </table>
                                     </td>
-                                    <td>&#10132;&#10132;</td>
-                                    <td>
+                                    <td width="80px">&#10132;&#10132;&#10132;</td>
+                                    <td width="90px">
                                         <table class="table_klein">
                                             <tr>                                                
-                                                <?php if ($row['pruef_digooh'] == 1) 
+                                                <?php if ($row['digooh'] == 1) 
                                                 { ?>
                                                 <td class="gruen">
                                                 <?php } else { ?>
@@ -73,13 +73,13 @@ if ($result->num_rows > 0) {
                                             </tr>
                                         </table>
                                     </td>
-                                    <td>&#10132;&#10132;</td>
-                                    <td>
+                                    <td width="80px">&#10132;&#10132;&#10132;</td>
+                                    <td width="90px">
                                         <table class="table_klein">
                                             <tr>
                                                 <?php if ($row['upload'] == 1 &&
-                                                $row['pruef_innovisco'] == 1 &&
-                                                $row['pruef_digooh'] == 1) {?>
+                                                $row['inovisco'] == 1 &&
+                                                $row['digooh'] == 1) {?>
                                                 <td class="gruen">
                                                 <?php } else { ?>
                                                 <td>
@@ -88,7 +88,7 @@ if ($result->num_rows > 0) {
                                             </tr>
                                         </table>
                                     </td>
-                                    <td>&#10132;&#10132;</td>
+                                    <td>&#10132;&#10132;&#10132;&#10132;</td>
                                 </tr>
 <?php
     }
