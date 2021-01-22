@@ -17,10 +17,31 @@
         <center>
                 <table>
                     <tr>
-                        <th>
+                        <th width="150px">
                             <h2 class="obenlinks">Inovisco Direct</h2>
                         </th>
-                        <th class="obenrechts">
+                        <th width="200px">
+                            <form action="buchung.php" method="post">
+                                <button type="submit" name="neu" 
+                                    class="button_auswahl" value="1">
+                                Neuer<br>Buchungsprozess</button>
+                            </form>
+                        </th>
+                        <th width="200px">
+                            <form action="uebersicht.php" method="post">
+                                <button type="submit" name="neu" 
+                                    class="button_auswahl" value="1">
+                                Laufende Buchungsprozesse</button>
+                            </form>
+                        </th>
+                        <th width="200px">
+                            <form action="download.php" method="post">
+                                <button type="submit" name="neu" 
+                                    class="button_auswahl" value="1">
+                                Download Verf&uuml;gbarkeit</button>
+                            </form>
+                        </th>
+                        <th width="200px" class="obenrechts">
                             <h4>Angemeldet als: <?php echo $_SESSION['user']; ?>
                                 <br>
                                 <img src="abbrechenkl.png" alt="abbrechen"> 
@@ -29,4 +50,4 @@
                         </th>
                     </tr>
                     <tr>
-                        <td colspan="2">
+                        <td colspan="5">
