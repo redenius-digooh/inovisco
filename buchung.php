@@ -2,8 +2,6 @@
 /*
  * Upload Excel file and display details.
  */
-require_once 'angemeldet.php';
-require_once 'datenbank.php';
 
 if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
     $uploaded_dir = "./uploadfiles/";
@@ -15,21 +13,6 @@ if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
     require_once 'import.php';
 }
 
-?>
-<!doctype html>
-<html lang="de">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="style.css">
-	<script language="JavaScript" type="text/javascript" src="campaign.js" 
-        charset="UTF-8"></script>	
-        <title></title>
-    </head>
-    <body>
-        <center>
-            <table>
-<?php
 require_once 'oben.php';
 if ($upload == 1) {
 ?>

@@ -2,7 +2,6 @@
 /*
  * The data from the uploaded file is saved in the buchung table.
  */
-require_once 'datenbank.php';
 require __DIR__ .  '/vendor/autoload.php';
 echo $filename;
 $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('uploadfiles/' . $filename); 

@@ -3,7 +3,6 @@
  * It is checked whether there are still enough slots that are needed in the 
  * campaign.
  */
-require_once 'datenbank.php';
 
 $sql = "SELECT start_date, end_date, play_times, campaign, display FROM buchung"
         . " WHERE token_direct = '" . $_SESSION['token_direct'] . "' AND datum"
