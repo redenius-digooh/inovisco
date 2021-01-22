@@ -3,7 +3,7 @@
  * The data from the uploaded file is saved in the buchung table.
  */
 require __DIR__ .  '/vendor/autoload.php';
-echo $filename;
+
 $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('uploadfiles/' . $filename); 
 
 $data = array(1,$spreadsheet->getActiveSheet()->toArray(null,true,true,true)); 
