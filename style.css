@@ -1,6 +1,6 @@
 table {
 	border: 1px solid;
-	border-color: #90268f;
+	border-color: #4a7d96;
 	width: 800px;
 	border-spacing: 0px;
 }
@@ -19,7 +19,7 @@ td {
 
 th {
 	padding-left: 10px;
-	background-color: #90268f;
+	background-color: #4a7d96;
 	font-family: "Oswald", sans-serif;
 }
 
@@ -49,7 +49,7 @@ h4 {
 }
 
 a {
-	color: #90268f;
+	color: #4a7d96;
 	text-decoration: none;
 }
 
@@ -58,14 +58,14 @@ a {
 }
 
 .button_auswahl {
-	background-color: #90268f;
+	background-color: #4a7d96;
 	color: white;
 	font-size: 20px;
         padding: 2px;
 }
 
 .button_zurueck {
-	background-color: #90268f;
+	background-color: #4a7d96;
 	color: white;
 	font-size: 26px;
 }
@@ -90,7 +90,7 @@ a {
 }
 
 .lila {
-	background-color: #90268f;
+	background-color: #4a7d96;
         color: white;
 }
 
