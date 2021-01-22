@@ -2,6 +2,7 @@
 /*
  * Download the availability.
  */
+require_once 'db.php';
 require_once 'oben.php';
 ?>
                         <form action="download.php" method="post">

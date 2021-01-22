@@ -2,6 +2,7 @@
 /*
  * Overview of the current booking processes.
  */
+require_once 'db.php';
 require_once 'oben.php';
 
 $sql = "SELECT upload, inovisco, digooh FROM buchung WHERE user = '" . 
