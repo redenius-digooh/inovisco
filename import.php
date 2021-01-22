@@ -18,6 +18,8 @@ foreach($data as $key => $row) {
         $start_date  = $data[1][$zahl]['D'];
         $end_date  = $data[1][$zahl]['E'];
         $play_times  = $data[1][$zahl]['F'];
+        $campaign = $data[1][$zahl]['G'];
+        $display = $data[1][$zahl]['H'];
 
         $arr = explode('/', $start_date);
         if (strlen($arr[0]) == 1) {
@@ -59,10 +61,12 @@ foreach($data as $key => $row) {
             $neu_end_date = substr($neu_end_date, 0, -1);
         }
 
-        $query = "INSERT INTO buchung (user, name, players, start_date, "
-                . "end_date, play_times) VALUES ('" . $_SESSION['user'] 
-                . "', '" . $name . "', '" . $players . "', '" . $neu_start_date 
-                . "', '" . $neu_end_date . "', '" . $play_times . "')";
+        $query = "INSERT INTO buchung (user, name, campaign, display, players, "
+                . "start_date, end_date, play_times) VALUES ('" 
+                . $_SESSION['user'] . "', '" . $name . "', '" . $campaign 
+                . "', '" . $display . "', '" . $players 
+                . "', '" . $neu_start_date . "', '" . $neu_end_date . "', '" 
+                . $play_times . "')";
 
         if (mysqli_query($conn, $query)) {
             unlink($filename);
