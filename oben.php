@@ -2,8 +2,6 @@
 /*
  * Upper area with the login data.
  */
-require_once 'angemeldet.php';
-require_once 'datenbank.php';
 ?>
 <!doctype html>
 <html lang="de">
