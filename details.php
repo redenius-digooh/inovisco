@@ -5,8 +5,8 @@
  */
 
 $sql = "SELECT start_date, end_date, play_times, campaign, display FROM buchung"
-        . " WHERE token_direct = '" . $_SESSION['token_direct'] . "' AND datum"
-        . "= '" . date("Y-m-d"). "'";
+        . " WHERE user = '" . $_SESSION['user'] . "' AND datum"
+        . "= '" . date("Y-m-d"). "'";echo $sql;
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {

@@ -4,7 +4,8 @@
  */
 require __DIR__ .  '/vendor/autoload.php';
 
-$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('uploadfiles/' . $filename); 
+$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('uploadfiles/' 
+        . $filename); 
 
 $data = array(1,$spreadsheet->getActiveSheet()->toArray(null,true,true,true)); 
 
@@ -58,10 +59,10 @@ foreach($data as $key => $row) {
             $neu_end_date = substr($neu_end_date, 0, -1);
         }
 
-        $query = "
-        INSERT INTO buchung (token_direct, name, players, start_date, end_date, play_times)
-        VALUES ('" . $token_direct . "', '" . $name . "', '" . $players . "', '" . 
-            $neu_start_date . "', '" . $neu_end_date . "', '" . $play_times . "')";
+        $query = "INSERT INTO buchung (user, name, players, start_date, "
+                . "end_date, play_times) VALUES ('" . $_SESSION['user'] 
+                . "', '" . $name . "', '" . $players . "', '" . $neu_start_date 
+                . "', '" . $neu_end_date . "', '" . $play_times . "')";
 
         if (mysqli_query($conn, $query)) {
             unlink($filename);
