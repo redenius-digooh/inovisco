@@ -31,6 +31,12 @@ foreach($data as $key => $row) {
         $monat = $arr[1];
         $jahr = $arr[2];
         $neu_start_date = $jahr . "-" . $tag . "-" . $monat;
+        if (substr($neu_start_date, 0, 1) == '-') {
+            $neu_start_date = substr($neu_start_date, 1);
+        }
+        if (substr($neu_start_date, -1) == '-') {
+            $neu_start_date = substr($neu_start_date, 0, -1);
+        }
 
         $arr = explode('/', $end_date);
         if (strlen($arr[0]) == 1) {
@@ -45,6 +51,12 @@ foreach($data as $key => $row) {
         $monat = $arr[1];
         $jahr = $arr[2];
         $neu_end_date = $jahr . "-" . $tag . "-" . $monat;
+        if (substr($neu_end_date, 0, 1) == '-') {
+            $neu_end_date = substr($neu_end_date, 1);
+        }
+        if (substr($neu_end_date, -1) == '-') {
+            $neu_end_date = substr($neu_end_date, 0, -1);
+        }
 
         $query = "
         INSERT INTO buchung (token_direct, name, players, start_date, end_date, play_times)
