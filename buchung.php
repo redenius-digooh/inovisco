@@ -3,7 +3,6 @@
  * Upload Excel file and display details.
  */
 require_once 'db.php';
-require_once 'oben.php';
 
 if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
     $uploaded_dir = "./uploadfiles/";
@@ -14,6 +13,8 @@ if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
     $upload = 1;
     require_once 'import.php';
 }
+
+require_once 'oben.php';
 
 if ($upload == 1) {
 ?>
