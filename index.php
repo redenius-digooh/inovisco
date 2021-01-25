@@ -18,14 +18,16 @@ if(isset($_GET['login'])) {
             ],
         ]
     );
-    $body = $response->getBody();
-    $a = json_decode((string) $body);
-    $access_token = $a->access_token;
-    $user = $a->user->name;
-    $_SESSION['token_direct'] = $access_token;
-    $_SESSION['user'] = $user;
-    
-    header("Location: http://88.99.184.137/inovisco_direct/auswahl.php");
+    if ($response->getBody()) {
+        $access_token = $a->access_token;
+        $user = $a->user->name;
+        $a = json_decode((string) $body);
+        $_SESSION['token_direct'] = $access_token;
+        $_SESSION['user'] = $user;
+        header("Location: http://88.99.184.137/inovisco_direct/auswahl.php");
+    } else {
+        $nichtangemeldet = 1;
+    }
 }
 ?>
 <!doctype html>
@@ -41,6 +43,13 @@ if(isset($_GET['login'])) {
     </head>
     <body>
         <main>
+<?php
+if ($nichtangemeldet == 1) {
+?>
+           Der Login war leider nicht korrekt, bitte versuchen Sie es noch einmal. 
+<?php
+}
+?>
             <section class="glass">
                 <div class="title">
                     <h1 class="title">Inovisco Direct</h1>
