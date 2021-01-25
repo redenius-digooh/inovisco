@@ -4,29 +4,32 @@ session_start();
 if(isset($_GET['login'])) {
     require __DIR__ .  '/vendor/autoload.php';
 
-    $client = new GuzzleHttp\Client();
-    $response = $client->post(
-        'https://cms.digooh.com:8081/api/v1/authorizations',
-        [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ],
-            'json' => [
-                'username' => $_POST['username'],
-                'password' => $_POST['password'],
-            ],
-        ]
-    );
-    if ($response->getBody()) {
+    try {
+        $client = new GuzzleHttp\Client();
+        $response = $client->post(
+            'https://cms.digooh.com:8081/api/v1/authorizations',
+            [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ],
+                'json' => [
+                    'username' => $_POST['username'],
+                    'password' => $_POST['password'],
+                ],
+            ]
+        );
+        $body = $response->getBody();
+        $a = json_decode((string) $body);
         $access_token = $a->access_token;
         $user = $a->user->name;
-        $a = json_decode((string) $body);
         $_SESSION['token_direct'] = $access_token;
         $_SESSION['user'] = $user;
         header("Location: http://88.99.184.137/inovisco_direct/auswahl.php");
-    } else {
+    }
+    catch (Exception $e) {
         $nichtangemeldet = 1;
+        // echo $e->getMessage();
     }
 }
 ?>
@@ -43,14 +46,15 @@ if(isset($_GET['login'])) {
     </head>
     <body>
         <main>
-<?php
+            <section class="glass">
+                <?php
 if ($nichtangemeldet == 1) {
 ?>
-           Der Login war leider nicht korrekt, bitte versuchen Sie es noch einmal. 
+            <div class="loginfehler"><b>Leider sind Sie nicht korrekt eingeloggt. 
+                Bitte versuchen Sie es erneut.</b></div>
 <?php
 }
 ?>
-            <section class="glass">
                 <div class="title">
                     <h1 class="title">Inovisco Direct</h1>
                 </div>

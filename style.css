@@ -183,3 +183,7 @@ main {
     width:80px;
     padding: 2px;
 }
+
+.loginfehler {
+    padding: 5px;
+}
