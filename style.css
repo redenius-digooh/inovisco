@@ -187,3 +187,7 @@ main {
 .loginfehler {
     padding: 5px;
 }
+
+.fehler {
+    color: red;
+}
