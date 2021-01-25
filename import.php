@@ -11,15 +11,16 @@ $data = array(1,$spreadsheet->getActiveSheet()->toArray(null,true,true,true));
 
 $zahl = 1;
 foreach($data as $key => $row) {
-    if ($key != 0) {    
-        $name  = $data[1][$zahl]['A'];
-        $token_direct  = $data[1][$zahl]['B'];
-        $players  = $data[1][$zahl]['C'];
-        $start_date  = $data[1][$zahl]['D'];
-        $end_date  = $data[1][$zahl]['E'];
-        $play_times  = $data[1][$zahl]['F'];
-        $campaign = $data[1][$zahl]['G'];
-        $display = $data[1][$zahl]['H'];
+    if ($key != 0) {
+        $agentur = $data[1][$zahl]['A'];
+        $name  = $data[1][$zahl]['B'];
+        $token_direct  = $data[1][$zahl]['C'];
+        $players  = $data[1][$zahl]['D'];
+        $start_date  = $data[1][$zahl]['E'];
+        $end_date  = $data[1][$zahl]['F'];
+        $play_times  = $data[1][$zahl]['G'];
+        $campaign = $data[1][$zahl]['H'];
+        $display = $data[1][$zahl]['I'];
 
         $arr = explode('/', $start_date);
         if (strlen($arr[0]) == 1) {
@@ -62,11 +63,11 @@ foreach($data as $key => $row) {
         }
 
         $query = "INSERT INTO buchung (user, name, campaign, display, players, "
-                . "start_date, end_date, play_times) VALUES ('" 
+                . "start_date, end_date, play_times, agentur) VALUES ('" 
                 . $_SESSION['user'] . "', '" . $name . "', '" . $campaign 
                 . "', '" . $display . "', '" . $players 
                 . "', '" . $neu_start_date . "', '" . $neu_end_date . "', '" 
-                . $play_times . "')";
+                . $play_times . "', '" . $agentur . "')";
 
         if (mysqli_query($conn, $query)) {
             unlink($filename);

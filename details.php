@@ -3,8 +3,8 @@
  * It is checked whether there are still enough slots that are needed in the 
  * campaign.
  */
-$sql = "SELECT name, start_date, end_date, play_times, campaign, display FROM "
-        . "buchung WHERE user = '" . $_SESSION['user'] . "' AND datum"
+$sql = "SELECT name, start_date, end_date, play_times, campaign, display, "
+        . "agentur FROM buchung WHERE user = '" . $_SESSION['user'] . "' AND datum"
         . "= '" . date("Y-m-d"). "'";
 $db_erg = mysqli_query($conn, $sql);
 
@@ -14,6 +14,7 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     $play_times = $row['play_times'];
     $name = $row['name'];
     $display = $row['display'];
+    $agentur = $row['agentur'];
 
     $sql = "SELECT start_date, end_date, play_type, play_times FROM kampagne WHERE "
             . "start_date <= '" .$start_date . "' AND end_date >= '" . $start_date 
@@ -51,8 +52,8 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     } else {
         $problem = 0;
     }
-    $buchungen[] = array('name' => $name, 'display' => $display,
-                        'problem' => $problem);
+    $buchungen[] = array('agentur' => $agentur, 'name' => $name,
+        'display' => $display, 'problem' => $problem);
 }
 if ($gesproblem == 1) {
 ?>
@@ -73,6 +74,7 @@ die Kampagne kann zur Pr&uuml;fung an Digooh gesendet werden!
                             <td>
                                 <table>
                                     <tr>
+                                        <td>Agentur</td>
                                         <td>Kampagne</td>
                                         <td>DisplayID</td>
                                         <td>Slot</td>
@@ -85,6 +87,7 @@ die Kampagne kann zur Pr&uuml;fung an Digooh gesendet werden!
 foreach ($buchungen as $key => $inhalt) {
 ?>
                                     <tr>
+                                        <td><?php echo $inhalt['agentur']; ?></td>
                                         <td><?php echo $inhalt['name']; ?></td>
                                         <td>
                                             <?php
@@ -134,13 +137,6 @@ if ($problem) {
                                         class="lila" value="1">
                                     Verf&uuml;gbarkeit<br>erneut pr&uuml;fen
                                     </button>
-                                </form>
-                                        </td>
-                                        <td class="mittig" width: 33,33%>
-                                <form action="auswahl.php" method="post">
-                                    <button type="submit" name="neu2" 
-                                        class="lila" value="1">
-                                    Zur &Uuml;bersicht</button>
                                 </form>
                                         </td>
                                         <td class="mittig" width: 33,33%>
