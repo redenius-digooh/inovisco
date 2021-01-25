@@ -191,3 +191,11 @@ main {
 .fehler {
     color: red;
 }
+
+.blau {
+    color: #4a7d96;
+}
+
+.rahmen {
+	border: 1;
+}

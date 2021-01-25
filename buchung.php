@@ -26,7 +26,7 @@ if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
             $eins = $data[1][1]['A'];
             $zwei = $data[1][1]['B'];
             
-            if ($eins != 'Agentur' || $zwei != 'Name') {
+            if ($eins != 'Agentur' || $zwei != 'Name') {echo"w";
                 $namefehlt = 1;
                 $upload = 0;
             }
@@ -43,20 +43,16 @@ if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
 require_once 'oben.php';
 
 if ($upload == 1) {
+    require_once 'details.php';
+} else {
 ?>
-            
                 <table class="ohnerahmen">
                     <tr>
-                        <td>
-<?php
-    require_once 'details.php';
-?>
+                        <td class="blau">
+                            Prozessschritt: Upload Buchungsexcel​
                         </td>
                     </tr>
                 </table>
-<?php
-} else {
-?>
                 <form action="buchung.php" method="post" 
                   enctype="multipart/form-data">
                 <table class="ohnerahmen">
