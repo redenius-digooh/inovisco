@@ -27,15 +27,16 @@ elseif ($_POST['wo'] == 'down') {
 }
 else {}
 
-$sql = "SELECT name, upload, inovisco, digooh FROM buchung WHERE user = '" . 
+$sql = "SELECT name, agentur, upload, inovisco, digooh FROM buchung WHERE user"
+        . " = '" . 
         $_SESSION['user'] . "'" . $was;
 $result = $conn->query($sql);
 ?>
-                            <table class="ohnerahmen">
-                                <tr>
-                                    <td class="balken">
-                                        <form action="uebersicht.php" method="post">
-                                        <table class="ohnerahmen">
+                        <table class="ohnerahmen">
+                            <tr>
+                                <td class="balken">
+                                    <form action="uebersicht.php" method="post">
+                                    <table class="ohnerahmen">
             <tr>
                 <td colspan="3">
                     Alle Buchungen mit:
@@ -47,7 +48,7 @@ $result = $conn->query($sql);
                         <option value="digooh">Pr&uuml;fung Digooh</option>
                     </select>
                 </td>
-                <td colspan="5">
+                <td colspan="6">
                     Sortierung:
                     <select name="wo">
                         <option value="-">---</option>
@@ -64,6 +65,7 @@ if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
 ?>
                             <tr>
+                                <td><?php echo $row['agentur']; ?></td>
                                 <td><?php echo $row['name']; ?></td>
                                 <td width="90px">
                                     <table class="table_klein">
