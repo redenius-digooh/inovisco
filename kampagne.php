@@ -5,8 +5,8 @@
 require_once 'db.php';
 
 $sql = "SELECT id, name, start_date, end_date, play_times, campaign, display, "
-        . "agentur FROM buchung WHERE user = '" . $_SESSION['user'] . "' AND "
-        . "id = " . $_GET['kampagne'];
+        . "agentur, user FROM buchung WHERE user = '" . $_SESSION['user'] 
+        . "' AND id = " . $_GET['kampagne'];
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {
@@ -21,6 +21,29 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     $buchungen[] = array('agentur' => $agentur, 'name' => $name,
         'display' => $display, 'problem' => $problem, 'start_date' =>
         $start_date, 'end_date' => $end_date);
+}
+
+require __DIR__ .  '/vendor/autoload.php';
+
+$client = new \GuzzleHttp\Client();
+$response = $client->get(
+    'https://cms.digooh.com:8081/api/v1/users',
+    [
+        'headers' => [
+            'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+        ],
+        'query' => [
+            'sort'=> '-name',
+            'filter[name]'=> $_SESSION['user'],
+        ]
+    ]
+);
+$body = $response->getBody();
+$data = json_decode((string) $body);
+foreach ($data->data as $key => $value) {
+    $company = $value->company->name;
 }
 require_once 'oben.php';
 ?>
@@ -52,7 +75,7 @@ require_once 'oben.php';
                     </tr>
                     <tr>
                         <td><?php 
-                        echo "Kampganenzeitraum " . $buchungen[0]['start_date'];
+                        echo "Kampganenzeitraum: " . $buchungen[0]['start_date'];
                         echo " - ";
                         echo $buchungen[0]['end_date'];
                         ?>
@@ -80,14 +103,7 @@ foreach ($buchungen as $key => $inhalt) {
                             <tr>
                                 <td><?php echo $inhalt['agentur']; ?></td>
                                 <td><?php echo $inhalt['name']; ?></td>
-                                <td><?php
-                                    if ($inhalt['problem'] == 1) {
-                                    $prob = '<font style="color: red">';
-                                    } else {
-                                    $prob = '<font style="color: green">';
-                                    }
-                                    echo $prob . $inhalt['display'] . '</font>';
-                                    ?></td>
+                                <td><?php echo $inhalt['display']; ?></td>
                                 <td>1<?php echo $row['slot']; ?></td>
                                 <td>X</td>
                                 <td></td>

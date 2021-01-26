@@ -16,6 +16,17 @@ if ($_POST['delete'] == 1) {
     }
 }
 
+if ($_POST['digooh'] == 1) {echo"1";
+    $empfaenger = "redenius@digooh.com";
+    $betreff = "Prüfung einer Kampagne";
+    $from = "info@digooh.com";
+    $text = "Es wurde eine neue Kampagne eingetragen: "
+            . '<a href="http://88.99.184.137/inovisco_direct/details.php?'
+            . 'pruefen=1&user=' . $_SESSION['user'] . ">";
+    $headers = "From:" . $from;
+    mail($empfaenger, $betreff, $text, $headers);
+}
+
 require __DIR__ .  '/vendor/autoload.php';
 
 $client = new \GuzzleHttp\Client();
@@ -39,8 +50,14 @@ foreach ($data->data as $key => $value) {
     $company = $value->company->name;
 }
 
+if ($_GET['pruefen == 1']) {
+    $user = $_GET['user'];
+} else {
+    $user = $_SESSION['user'];
+}
+
 $sql = "SELECT id, name, start_date, end_date, play_times, campaign, display, "
-        . "agentur FROM buchung WHERE user = '" . $_SESSION['user'] . "' AND datum"
+        . "agentur FROM buchung WHERE user = '" . $user . "' AND datum"
         . "= '" . date("Y-m-d"). "'";
 $db_erg = mysqli_query($conn, $sql);
 
@@ -143,7 +160,7 @@ die Kampagne kann zur Pr&uuml;fung an Digooh gesendet werden!
                     </tr>
                     <tr>
                         <td><?php 
-                        echo "Kampganenzeitraum " . $buchungen[0]['start_date'];
+                        echo "Kampganenzeitraum: " . $buchungen[0]['start_date'];
                         echo " - ";
                         echo $buchungen[0]['end_date'];
                         ?>
@@ -235,8 +252,8 @@ if ($problem) {
                         </form>
                                 </td>
                                 <td class="mittig">
-                        <form action="prozess.php" method="post">
-                            <button type="submit" name="neu5" 
+                        <form action="details.php" method="post">
+                            <button type="submit" name="digooh" 
                                 class="gruen" value="1">
                             Zur Pruefung an<br>Digooh senden</button>
                         </form>
