@@ -34,6 +34,13 @@ $result = $conn->query($sql);
 ?>
                         <table class="ohnerahmen">
                             <tr>
+                                <td class="blau">
+                                    Laufende Buchungsprozesse
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="ohnerahmen">
+                            <tr>
                                 <td class="balken">
                                     <form action="uebersicht.php" method="post">
                                     <table class="ohnerahmen">

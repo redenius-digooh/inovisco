@@ -5,7 +5,14 @@
 require_once 'db.php';
 require_once 'oben.php';
 ?>
-                        <form action="download.php" method="post">
+                            <table class="ohnerahmen">
+                                <tr>
+                                    <td class="blau">
+                                        Download Verf&uuml;gbarkeit
+                                    </td>
+                                </tr>
+                            </table>
+                            <form action="download.php" method="post">
                             <table class="ohnerahmen">
                                 <tr>
                                     <td>

@@ -33,6 +33,13 @@ session_regenerate_id(true);
                     <td colspan="2">
                         <table class="ohnerahmen">
                             <tr>
+                                <td class="blau">
+                                    Abmeldung
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="ohnerahmen">
+                            <tr>
                                 <td class="button" colspan="2">
 
                                 </td>
