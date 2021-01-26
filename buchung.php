@@ -43,7 +43,7 @@ if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
 require_once 'oben.php';
 
 if ($upload == 1) {
-    require_once 'details.php';
+    header("Location: http://88.99.184.137/inovisco_direct/details.php");
 } else {
 ?>
                 <table class="ohnerahmen">
