@@ -43,8 +43,8 @@ if ($result->num_rows > 0) {
     }
 }
 
-$sql = "SELECT name, agentur, upload, inovisco, digooh FROM buchung WHERE user"
-        . " = '" . 
+$sql = "SELECT id, name, agentur, upload, inovisco, digooh FROM buchung WHERE "
+        . "user = '" . 
         $_SESSION['user'] . "'" . $was . $agent . $order;
 $result = $conn->query($sql);
 ?>
@@ -62,6 +62,7 @@ $result = $conn->query($sql);
                                     <table class="ohnerahmen">
             <tr>
                 <td colspan="9">
+                    <center>F&uuml;r Details Kampagne anklicken!</center><br>
                     <table class="ohnerahmen">
                         <tr>
 <td>
@@ -115,7 +116,9 @@ if ($result->num_rows > 0) {
 ?>
                             <tr>
                                 <td><?php echo $row['agentur']; ?></td>
-                                <td><?php echo $row['name']; ?></td>
+                                <td><a href="kampagne.php?kampagne=
+                                    <?php echo $row['id']; ?>">
+                                        <?php echo $row['name']; ?></a></td>
                                 <td width="90px">
                                     <table class="table_klein">
                                         <tr>
