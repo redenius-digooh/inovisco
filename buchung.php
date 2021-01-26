@@ -26,7 +26,7 @@ if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
             $eins = $data[1][1]['A'];
             $zwei = $data[1][1]['B'];
             
-            if ($eins != 'Agentur' || $zwei != 'Name') {echo"w";
+            if ($eins != 'Agentur' || $zwei != 'Name') {
                 $namefehlt = 1;
                 $upload = 0;
             }
