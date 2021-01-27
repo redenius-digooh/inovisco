@@ -293,12 +293,12 @@ if ($problem) {
                             <tr>
                                 <td class="mittig" width: 50%>
                             <button type="submit" name="inogut" 
-                                class="green" value="1">
+                                class="gruen" value="1">
                             Buchung best&auml;tigen</button>
                                 </td>
                                 <td class="mittig">
                             <button type="submit" name="inoschlecht" 
-                                class="red" value="1">
+                                class="rot" value="1">
                             Buchung ablehnen</button>
                                 </td>
                             </tr>
@@ -341,12 +341,12 @@ if ($problem) {
                             <tr>
                                 <td class="mittig" width: 50%>
                             <button type="submit" name="gut" 
-                                class="green" value="1">
+                                class="gruen" value="1">
                             Buchung best&auml;tigen</button>
                                 </td>
                                 <td class="mittig">
                             <button type="submit" name="schlecht" 
-                                class="red" value="1">
+                                class="rot" value="1">
                             Buchung ablehnen</button>
                                 </td>
                             </tr>
