@@ -1,7 +1,7 @@
 table {
 	border: 1px solid;
 	border-color: #4a7d96;
-	width: 800px;
+	width: 900px;
 	border-spacing: 0px;
 }
 
@@ -83,15 +83,21 @@ a {
 
 .rot {
 	background-color: red;
+	font-size: 15px;
+        padding: 5px;
 }
 
 .gruen {
         background-color: greenyellow;
+	font-size: 15px;
+        padding: 5px;
 }
 
 .lila {
 	background-color: #4a7d96;
+	font-size: 15px;
         color: white;
+        padding: 5px;
 }
 
 * {
