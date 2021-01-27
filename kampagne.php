@@ -1,6 +1,6 @@
 <?php
 /*
- *  The data from the campaigns table are saved in the kampagne table.
+ *  Detailed view of a campaign.
  */
 require_once 'db.php';
 
