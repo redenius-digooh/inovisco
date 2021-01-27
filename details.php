@@ -9,22 +9,60 @@ if ($_POST['neuupload'] == 1) {
     header("Location: http://88.99.184.137/inovisco_direct/buchung.php");
 }
 
-if ($_POST['delete'] == 1) {
-    foreach ($_POST['delete_kampagne'] as $delid) {
-        $sql = "DELETE FROM buchung WHERE id = " . $delid;
+if ($_GET['delete'] == 1) {
+    if ($_GET['id'] != '') {
+        $sql = "DELETE FROM buchung WHERE id = " . $_GET['id'];
         $erg = mysqli_query($conn, $sql);
+    } else {
+        foreach ($_POST['delete_kampagne'] as $delid) {
+            $sql = "DELETE FROM buchung WHERE id = " . $delid;
+            $erg = mysqli_query($conn, $sql);
+        }
     }
 }
 
-if ($_POST['digooh'] == 1) {echo"1";
+if ($_POST['digooh'] == 1) {
     $empfaenger = "redenius@digooh.com";
-    $betreff = "Prüfung einer Kampagne";
+    $betreff = "Neue Buchung zur Prüfung";
     $from = "info@digooh.com";
-    $text = "Es wurde eine neue Kampagne eingetragen: "
+    $text = "Es wurden neue Kampagnen eingetragen: "
             . '<a href="http://88.99.184.137/inovisco_direct/details.php?'
-            . 'pruefen=1&user=' . $_SESSION['user'] . ">";
+            . 'pruefen=1&user=' . $_SESSION['user'] . '">';
     $headers = "From:" . $from;
     mail($empfaenger, $betreff, $text, $headers);
+}
+
+if ($_GET['user'] != '') {
+    $_POST['user'] = $_GET['user'];
+}
+if ($_GET['pruefen'] == 1 || $_POST['pruefen'] == 1) {
+    $user = $_POST['user'];
+} else {
+    $user = $_SESSION['user'];
+}
+
+if ($_POST['inogut'] == 1) {
+    $sql = "UPDATE buchung SET inovisco = 1 WHERE user = '" . $_POST['user'] 
+            . "' AND datum = '" . date("Y-m-d"). "'";
+    $erg = mysqli_query($conn, $sql);
+}
+
+if ($_POST['inoschlecht'] == 1) {
+    $sql = "UPDATE buchung SET inovisco = 0 WHERE user = '" . $_POST['user'] 
+            . "' AND datum = '" . date("Y-m-d"). "'";
+    $erg = mysqli_query($conn, $sql);
+}
+
+if ($_POST['gut'] == 1) {
+    $sql = "UPDATE buchung SET digooh = 1 WHERE user = '" . $_POST['user'] 
+            . "' AND datum = '" . date("Y-m-d"). "'";
+    $erg = mysqli_query($conn, $sql);
+}
+
+if ($_POST['schlecht'] == 1) {
+    $sql = "UPDATE buchung SET digooh = 0 WHERE user = '" . $_POST['user'] 
+            . "' AND datum = '" . date("Y-m-d"). "'";
+    $erg = mysqli_query($conn, $sql);
 }
 
 require __DIR__ .  '/vendor/autoload.php';
@@ -50,15 +88,9 @@ foreach ($data->data as $key => $value) {
     $company = $value->company->name;
 }
 
-if ($_GET['pruefen == 1']) {
-    $user = $_GET['user'];
-} else {
-    $user = $_SESSION['user'];
-}
-
 $sql = "SELECT id, name, start_date, end_date, play_times, campaign, display, "
-        . "agentur FROM buchung WHERE user = '" . $user . "' AND datum"
-        . "= '" . date("Y-m-d"). "'";
+        . "agentur, inovisco, digooh FROM buchung WHERE user = '" . $user . 
+        "' AND datum = '" . date("Y-m-d"). "'";
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {
@@ -69,10 +101,12 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     $display = $row['display'];
     $agentur = $row['agentur'];
     $id = $row['id'];
+    $inovisco = $row['inovisco'];
+    $digooh = $row['digooh'];
 
-    $sql = "SELECT start_date, end_date, play_type, play_times FROM kampagne WHERE "
-            . "start_date <= '" .$start_date . "' AND end_date >= '" . $start_date 
-            . "'";
+    $sql = "SELECT start_date, end_date, play_type, play_times FROM kampagne "
+            . " WHERE start_date <= '" .$start_date . "' AND end_date >= '"
+            . $start_date . "'";
     $erg = mysqli_query($conn, $sql);
     while ($row = mysqli_fetch_array( $erg)) {
         $alleslots = 8640;
@@ -111,7 +145,6 @@ while ($row = mysqli_fetch_array( $db_erg)) {
         'display' => $display, 'problem' => $problem, 'start_date' =>
         $start_date, 'end_date' => $end_date);
 }
-
 require_once 'oben.php';
 ?>
             <table class="ohnerahmen">
@@ -134,6 +167,8 @@ Das Hochladen war erfolgreich. Alle Displays und Slots sind verf&uuml;gbar,
 die Kampagne kann zur Pr&uuml;fung an Digooh gesendet werden!
 <?php
 }
+echo '<a href="http://88.99.184.137/inovisco_direct/details.php?pruefen=1&user='
+. $_SESSION['user'] . '">versenden</a>';
 ?>
                     </td>
                 </tr>
@@ -173,6 +208,7 @@ die Kampagne kann zur Pr&uuml;fung an Digooh gesendet werden!
                     <td>
                         <table>
                             <tr>
+                                <td>Aktion</td>
                                 <td>Agentur</td>
                                 <td>Kampagne</td>
                                 <td>DisplayID</td>
@@ -186,6 +222,12 @@ die Kampagne kann zur Pr&uuml;fung an Digooh gesendet werden!
 foreach ($buchungen as $key => $inhalt) {
 ?>
                             <tr>
+                                <td>
+                                    <a href="details.php?id=<?php echo $id; ?>
+                                       &delete=1">
+                                  <img src="abbrechenkl.png" alt="l&ouml;schen">
+                                    </a>
+                                </td>
                                 <td><?php echo $inhalt['agentur']; ?></td>
                                 <td><?php echo $inhalt['name']; ?></td>
                                 <td><?php
@@ -224,7 +266,7 @@ if ($problem) {
                                 <td class="mittig" width: 33,33%>
                             <button type="submit" name="delete" 
                                 class="rot" value="1">
-                            Kampagne<br>l&ouml;schen</button>  
+                            Kampagnen<br>l&ouml;schen</button>  
                                 </td>
                             </tr>
                         </table>
@@ -239,30 +281,91 @@ if ($problem) {
                 </tr>
 <?php
 } else {
+    if ($inovisco == '') {
 ?>
                 <tr>
                     <td>
+                        <form action="details.php" method="post">
+                        <input type="hidden" name="pruefen" value="1">
+                        <input type="hidden" name="andigooh" value="1">
+        <input type="hidden" name="user" value="<?php echo $user; ?>">
                         <table class="ohnerahmen" width="100%">
                             <tr>
                                 <td class="mittig" width: 50%>
-                        <form action="auswahl.php" method="post">
-                            <button type="submit" name="neu4" 
-                                class="lila" value="1">
-                            Buchung &uuml;berarbeiten</button>
-                        </form>
+                            <button type="submit" name="inogut" 
+                                class="green" value="1">
+                            Buchung best&auml;tigen</button>
                                 </td>
                                 <td class="mittig">
-                        <form action="details.php" method="post">
-                            <button type="submit" name="digooh" 
-                                class="gruen" value="1">
-                            Zur Pruefung an<br>Digooh senden</button>
-                        </form>
+                            <button type="submit" name="inoschlecht" 
+                                class="red" value="1">
+                            Buchung ablehnen</button>
                                 </td>
                             </tr>
                         </table>
+                        </form>
                     </td>
                 </tr>
 <?php
+    }
+    else {
+        if ($_POST['andigooh'] == 1) {
+?>
+                <tr>
+                    <td>
+                        <form action="details.php" method="post">
+                  <input type="hidden" name="user" value="<?php echo $user; ?>">
+                  <input type="hidden" name="pruefen" value="1">
+                        <table class="ohnerahmen" width="100%">
+                            <tr>
+                                <td class="mittig">
+                                    <button type="submit" name="digooh" 
+                                    class="gruen" value="1">
+                                    Zur Pruefung an<br>Digooh senden</button>
+                                </td>
+                            </tr>
+                        </table>
+                        </form>
+                    </td>
+                </tr>
+<?php
+        }
+        if ($_GET['pruefen'] == 1) {
+?>
+                <tr>
+                    <td>
+                        <form action="details.php" method="post">
+                  <input type="hidden" name="user" value="<?php echo $user; ?>">
+                  <input type="hidden" name="geprueft" value="1">
+                        <table class="ohnerahmen" width="100%">
+                            <tr>
+                                <td class="mittig" width: 50%>
+                            <button type="submit" name="gut" 
+                                class="green" value="1">
+                            Buchung best&auml;tigen</button>
+                                </td>
+                                <td class="mittig">
+                            <button type="submit" name="schlecht" 
+                                class="red" value="1">
+                            Buchung ablehnen</button>
+                                </td>
+                            </tr>
+                        </table>
+                        </form>
+                    </td>
+                </tr>
+<?php
+        }
+        if ($_POST['geprueft'] == 1) {
+?>
+                <tr>
+                    <td>
+                        Die Pr&uuml;fung ist abgeschlossen.
+                    </td>
+                </tr>
+<?php
+        }
+    }
 }
 ?>
             </table>
