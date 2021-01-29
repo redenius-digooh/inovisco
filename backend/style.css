@@ -1,0 +1,221 @@
+table {
+	border: 1px solid;
+	border-color: #4a7d96;
+	border-spacing: 0px;
+}
+
+tr {
+	border: 0;
+}
+
+td {
+	padding: 5px;
+	font-family: "Oswald", sans-serif;
+	text-align: left;
+	border: 0;
+	font-size: 20px;
+}
+
+th {
+	padding-left: 10px;
+	background-color: #4a7d96;
+	font-family: "Oswald", sans-serif;
+}
+
+h2 {
+	color: white;
+}
+
+h4 {
+	color: white;
+}
+
+.button {
+	text-align: right;
+}
+
+.min {
+	max-width: 30px;
+}
+
+.obenlinks {
+	text-align: left;
+        padding: 15px;
+}
+.obenrechts {
+	text-align: right;
+	align: right;
+	padding-right: 10px;
+}
+
+a {
+	color: #4a7d96;
+	text-decoration: none;
+}
+
+.weiss {
+	color: white;
+}
+
+.button_auswahl {
+	background-color: #4a7d96;
+	color: white;
+	font-size: 20px;
+        padding: 2px;
+}
+
+.button_zurueck {
+	background-color: #4a7d96;
+	color: white;
+	font-size: 26px;
+}
+
+.button_gruen {
+	background-color: greenyellow;
+	color: white;
+	font-size: 26px;
+}
+
+.ohnerahmen {
+	border: 0;
+        padding: 2px;
+}
+
+.rot {
+	background-color: red;
+	font-size: 15px;
+        padding: 5px;
+}
+
+.gruen {
+        background-color: greenyellow;
+	font-size: 15px;
+        padding: 5px;
+}
+
+.lila {
+	background-color: #4a7d96;
+	font-size: 15px;
+        color: white;
+        padding: 5px;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+main {
+	min-height: 100vh;
+	background: linear-gradient(to top right, #215975, #8FD5F7);
+	font-family: "Poppins", sans-serif;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.glass {
+    display: flex;
+	padding-top: 2rem;
+    align-items: center;
+    justify-content: center;
+	background: white;
+	flex-direction: column;
+	min-height: 32rem;
+    width: 22rem;
+	background: linear-gradient(
+		to right bottom,
+		rgba(255, 255, 255, 0.6),
+		rgba(255, 255, 255, 0.2)
+	);
+	border-radius: 2rem;
+}
+
+.title {
+    height:20%;
+	color: white;
+	font-weight: 450;
+	font-size: 2.75rem;
+}
+
+
+
+.input {
+    height: 20rem;
+    margin-top: 4rem;
+	border: none;
+	border-radius: 2rem;
+}
+
+.logininput {
+    margin-bottom: 2rem;
+    display:flex;
+    color:black;
+    justify-content: center;
+    font-weight: 100;
+    font-size: 1.5rem;
+	background: linear-gradient(
+		to right bottom,
+		rgba(255, 255, 255, 0.7),
+		rgba(255, 255, 255, 0.3)
+    );
+    padding: 0.5rem; padding-left: 1rem;
+	border: none;
+	border-radius: 2rem;
+	
+}
+
+
+.loginbutton {
+    display:flex;
+    justify-content: center;
+    font-weight: 100;
+	font-size: 1.5rem;
+	height: 3rem;
+    width:100%;
+    color: white;
+	background: 
+        #215975
+    ;
+	opacity: 0.6;
+	border: none;
+	padding: 0.5rem;
+	border-radius: 2rem;
+
+}
+
+.table_klein {
+    width:80px;
+    padding: 2px;
+}
+
+.loginfehler {
+    padding: 5px;
+}
+
+.fehler {
+    color: red;
+}
+
+.blau {
+    color: #4a7d96;
+}
+
+.rahmen {
+	border: 1;
+}
+
+.nav {
+    background-color: #4a7d96;
+    color: white;
+    width: 200px;
+}
+
+.navi {
+    color: white;
+}
+
+.inhalt {
+    width: 700px;
+}
