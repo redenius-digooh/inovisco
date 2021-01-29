@@ -1,7 +1,7 @@
 table {
 	border: 1px solid;
 	border-color: #4a7d96;
-	width: 900px;
+	width: 1150px;
 	border-spacing: 0px;
 }
 
@@ -79,6 +79,17 @@ a {
 .ohnerahmen {
 	border: 0;
         padding: 2px;
+}
+
+.mitrahmen {
+	border: 1px solid;
+	border-color: #4a7d96;
+	border-spacing: 0px;
+        width: 400px;
+}
+
+.rechts {
+    text-align: right;
 }
 
 .rot {
@@ -204,4 +215,13 @@ main {
 
 .rahmen {
 	border: 1;
+}
+
+.nav {
+    background-color: #4a7d96;
+    color: white;
+}
+
+.strikeout {
+    text-decoration: line-through;
 }

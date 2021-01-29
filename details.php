@@ -3,19 +3,32 @@
  * It is checked whether there are still enough slots that are needed in the 
  * campaign.
  */
+session_start();
 require_once 'db.php';
 
 if ($_POST['neuupload'] == 1) {
     header("Location: http://88.99.184.137/inovisco_direct/buchung.php");
 }
 
-if ($_GET['delete'] == 1) {
+if ($_POST['update'] == 1) {
+    foreach ($_POST['ids'] as $value) {
+        $sql = "UPDATE buchung SET "
+        . "start_date = '" . $_POST['start_date'] . "', "
+        . "end_date = '" . $_POST['end_date'] . "', "
+        . "play_times = '" . $_POST['play_times'] . "', "
+        . "name = '" . $_POST['name'] . "', "
+        . "kunde = '" . $_POST['kunde'] . "' WHERE id = " . $value;
+        $erg = mysqli_query($conn, $sql);
+    }
+}
+
+if ($_GET['delete'] == 1 || $_POST['delete'] == 1) {
     if ($_GET['id'] != '') {
-        $sql = "DELETE FROM buchung WHERE id = " . $_GET['id'];
+        $sql = "UPDATE buchung SET deleted = 1 WHERE id = " . $_GET['id'];
         $erg = mysqli_query($conn, $sql);
     } else {
         foreach ($_POST['delete_kampagne'] as $delid) {
-            $sql = "DELETE FROM buchung WHERE id = " . $delid;
+            $sql = "UPDATE buchung SET deleted = 1 WHERE id = " . $delid;
             $erg = mysqli_query($conn, $sql);
         }
     }
@@ -88,62 +101,70 @@ foreach ($data->data as $key => $value) {
     $company = $value->company->name;
 }
 
-$sql = "SELECT id, name, start_date, end_date, play_times, campaign, display, "
-        . "agentur, inovisco, digooh FROM buchung WHERE user = '" . $user . 
-        "' AND datum = '" . date("Y-m-d"). "'";
+$sql = "SELECT id, display, kunde, name, start_date, end_date, play_times,"
+        . " deleted FROM buchung WHERE user = '" . $user
+        . "' AND datum = '" . date("Y-m-d"). "'";
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {
+    $display = $row['display'];
+    $id = $row['id'];
+    $alleid[] = $row['id'];
     $start_date = $row['start_date'];
     $end_date = $row['end_date'];
     $play_times = $row['play_times'];
     $name = $row['name'];
-    $display = $row['display'];
-    $agentur = $row['agentur'];
-    $id = $row['id'];
-    $inovisco = $row['inovisco'];
-    $digooh = $row['digooh'];
+    $kunde = $row['kunde'];
+    $deleted = $row['deleted'];
 
-    $sql = "SELECT start_date, end_date, play_type, play_times FROM kampagne "
-            . " WHERE start_date <= '" .$start_date . "' AND end_date >= '"
-            . $start_date . "'";
-    $erg = mysqli_query($conn, $sql);
-    while ($row = mysqli_fetch_array( $erg)) {
-        $alleslots = 8640;
-        if ($row['play_type'] == 1) {
-            //Percentage
-            $slot = $alleslots / 100 * $row['play_times'];
-            $gesslot += $slot;
-        }
-        elseif ($row['play_type'] == 2) {
-            $interval = date_diff($row['start_date'], $row['end_date']);
-            //Total Views
-            $slot = $row['play_times'] / $interval;
-            $gesslot += $slot;
-        }
-        elseif ($row['play_type'] == 9) {
-            //Every xth Slot
-            $slot = $alleslots / $row['play_times'];
-            $gesslot += $slot;
-        }
-        else {
-            //Times per Hour
-            $slot = $row['play_times'] * 24;
-            $gesslot += $slot;
-        }    
-    }
+    require __DIR__ .  '/vendor/autoload.php';
 
-    $zusammenslot = $gesslot + ($play_times * 24);
-    if ($zusammenslot > $alleslots) {
-        $problem = 1;
-        $gesproblem = 1;
-        $probleme[] = $id;
-    } else {
-        $problem = 0;
+    $client = new \GuzzleHttp\Client();
+
+    if ($start_date != '') {
+        try {
+            $response = $client->post(
+                'https://cms.digooh.com:8081/api/v1/campaigns/least',
+                [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
+                        'Content-Type' => 'application/json',
+                        'Accept' => 'application/json',
+                    ],
+                    'json' => [
+                        'start_date' => $start_date,
+                        'end_date' => $end_date,
+                        'players' => $display
+                    ]
+                ]
+            );
+            $body = $response->getBody();
+            $data = json_decode((string) $body);
+
+            foreach ($data as $key => $value) {
+                $lfsph = $value;
+            }
+
+            $restzeit = $lfsph - $play_times;
+        }
+        catch (Exception $e) {
+            echo $e->getMessage();
+        }
+
+        if ($restzeit < 0) {
+            $problem = 1;
+            $gesproblem = 1;
+            $probleme[] = $id;
+        } else {
+            $problem = 0;
+        }
     }
+    
     $buchungen[] = array('agentur' => $agentur, 'name' => $name,
         'display' => $display, 'problem' => $problem, 'start_date' =>
-        $start_date, 'end_date' => $end_date);
+        $start_date, 'end_date' => $end_date, 'id' => $id, 
+        'deleted' => $deleted, 'restzeit' => $restzeit, 'lfsph' => $lfsph,
+        'play_times' => $play_times);
 }
 require_once 'oben.php';
 ?>
@@ -174,81 +195,110 @@ echo '<a href="http://88.99.184.137/inovisco_direct/details.php?pruefen=1&user='
                 </tr>
         <tr>
             <td style="align: left;">
+                <form action="details.php" method="post">
+                    <input type="hidden" name="update" value="1">
+                    <?php
+                    foreach ($alleid as $val) {
+                    ?>
+                    <input type="hidden" name="ids[]" value="<?php echo $val; ?>">
+                    <?php
+                    }
+                    ?>
                 <table class="ohnerahmen" style="align: left;">
                     <tr>
-                        <td>Buchung durch: <?php echo $company; ?>
+                        <td width="280">Buchung durch:</td>
+                        <td><?php echo $company; ?> / 
+                            <?php echo $user; ?>
                         </td>
                     </tr>
                     <tr>
-                        <td><?php 
-                        echo "Agentur: ".$buchungen[0]['agentur']; ?>
+                        <td>Kundenname:</td>
+                        <td>
+        <input type="text" name="kunde" value="<?php echo $kunde; ?>" size="40">
                         </td>
                     </tr>
                     <tr>
-                        <td>Endkunde:
+                        <td>Kampagnenname:</td>
+                        <td>
+        <input type="text" name="name" value="<?php echo $name; ?>" size="40">
                         </td>
                     </tr>
                     <tr>
-                        <td><?php 
-                        echo "Kampagnenname: " . $buchungen[0]['name']; ?>
+                        <td>Zeitraum:</td>
+                        <td>
+    von <input type="text" name="start_date" value="<?php echo $start_date; ?>" 
+        size="10">
+    bis <input type="text" name="end_date" value="<?php echo $end_date; ?>" 
+        size="10">
                         </td>
                     </tr>
                     <tr>
-                        <td><?php 
-                        echo "Kampganenzeitraum: " . $buchungen[0]['start_date'];
-                        echo " - ";
-                        echo $buchungen[0]['end_date'];
-                        ?>
+                        <td>Einblendungen pro Stunde:</td>
+                        <td>
+        <input type="text" name="play_times" value="<?php echo $play_times; ?>" 
+            size="10">
+                        </td>
+                        <td>
+                        <input type="submit" name="speichern" value="Speichern">
                         </td>
                     </tr>
                 </table>
+                </form>
             </td>
         </tr>
                 <tr>
-                    <td>
-                        <table>
+                    <td><center>
+                        <table class="mitrahmen">
                             <tr>
-                                <td>Aktion</td>
-                                <td>Agentur</td>
-                                <td>Kampagne</td>
-                                <td>DisplayID</td>
-                                <td>Slot</td>
-                                <td>01.01.</td>
-                                <td>02.01.</td>
-                                <td>03.01.</td>
-                                <td>04.01.</td>
+                                <td valign="bottom">Aktion</td>
+                                <td>Angebots-nummer</td>
+                                <td valign="bottom">Kampagne</td>
+                                <td valign="bottom">DisplayID</td>
+                                <td>verf&uuml;gbar vorher</td>
+                                <td>verf&uuml;gbar nachher</td>
                             </tr>                                        
 <?php
 foreach ($buchungen as $key => $inhalt) {
+    if ($inhalt['deleted']) {
+        echo '<tr class="strikeout">';
+    } else {
+        echo "<tr>";
+    }
 ?>
-                            <tr>
+                            
                                 <td>
+                    <?php
+                    if ($inhalt['problem'] == 1 && $inhalt['deleted'] != 1) {
+                    ?>
                                     <a href="details.php?id=<?php echo $id; ?>
                                        &delete=1">
                                   <img src="abbrechenkl.png" alt="l&ouml;schen">
                                     </a>
+                    <?php } ?>
                                 </td>
-                                <td><?php echo $inhalt['agentur']; ?></td>
+                                <td class="rechts">
+                                    <?php echo $inhalt['id']; ?>
+                                </td>
                                 <td><?php echo $inhalt['name']; ?></td>
-                                <td><?php
-                                    if ($inhalt['problem'] == 1) {
-                                    $prob = '<font style="color: red">';
+                                <td class="rechts"><?php
+                                    if ($inhalt['restzeit'] < 0) {
+                                        $prob = '<font style="color: red">';
+                                    } else if ($inhalt['restzeit'] < $inhalt['play_times']) {
+                                        $prob = '<font style="color: orange">';
                                     } else {
                                     $prob = '<font style="color: green">';
                                     }
                                     echo $prob . $inhalt['display'] . '</font>';
-                                    ?></td>
-                                <td>1<?php echo $row['slot']; ?></td>
-                                <td>X</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                    ?>
+                                </td>
+                                <td><?php echo $inhalt['lfsph']; ?></td>
+                                <td><?php echo $inhalt['restzeit']; ?></td>
                             </tr>
 <?php
 }
 ?>
                         </table>
-                    </td>
+                </center></td>
                 </tr>
 <?php
 if ($problem) {
