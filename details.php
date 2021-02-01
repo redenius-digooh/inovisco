@@ -7,22 +7,34 @@ session_start();
 require_once 'db.php';
 
 if ($_POST['neuupload'] == 1) {
+    // new upload
     header("Location: http://88.99.184.137/inovisco_direct/buchung.php");
 }
 
 if ($_POST['update'] == 1) {
+    // update
     foreach ($_POST['ids'] as $value) {
         $sql = "UPDATE buchung SET "
         . "start_date = '" . $_POST['start_date'] . "', "
         . "end_date = '" . $_POST['end_date'] . "', "
         . "play_times = '" . $_POST['play_times'] . "', "
         . "name = '" . $_POST['name'] . "', "
+        . "agentur = '" . $_POST['agentur'] . "', "
         . "kunde = '" . $_POST['kunde'] . "' WHERE id = " . $value;
         $erg = mysqli_query($conn, $sql);
     }
 }
 
+if ($_POST['teildelete'] == 1) {
+    // partial deletion 
+    foreach ($_POST['delete_teilkampagne'] as $delid) {
+        $sql = "UPDATE buchung SET deleted = 1 WHERE id = " . $delid;
+        $erg = mysqli_query($conn, $sql);
+    }
+}
+
 if ($_GET['delete'] == 1 || $_POST['delete'] == 1) {
+    // deletion
     if ($_GET['id'] != '') {
         $sql = "UPDATE buchung SET deleted = 1 WHERE id = " . $_GET['id'];
         $erg = mysqli_query($conn, $sql);
@@ -34,7 +46,14 @@ if ($_GET['delete'] == 1 || $_POST['delete'] == 1) {
     }
 }
 
+if ($_GET['undo'] == 1) {
+    // undo
+    $sql = "UPDATE buchung SET deleted = 0 WHERE id = " . $_GET['id'];
+    $erg = mysqli_query($conn, $sql);
+}
+
 if ($_POST['digooh'] == 1) {
+    // info to Digooh
     $empfaenger = "redenius@digooh.com";
     $betreff = "Neue Buchung zur Prüfung";
     $from = "info@digooh.com";
@@ -55,29 +74,34 @@ if ($_GET['pruefen'] == 1 || $_POST['pruefen'] == 1) {
 }
 
 if ($_POST['inogut'] == 1) {
+    // Inovisco approved
     $sql = "UPDATE buchung SET inovisco = 1 WHERE user = '" . $_POST['user'] 
             . "' AND datum = '" . date("Y-m-d"). "'";
     $erg = mysqli_query($conn, $sql);
 }
 
 if ($_POST['inoschlecht'] == 1) {
+    // Inovisco declined
     $sql = "UPDATE buchung SET inovisco = 0 WHERE user = '" . $_POST['user'] 
             . "' AND datum = '" . date("Y-m-d"). "'";
     $erg = mysqli_query($conn, $sql);
 }
 
 if ($_POST['gut'] == 1) {
+    // Digooh approved
     $sql = "UPDATE buchung SET digooh = 1 WHERE user = '" . $_POST['user'] 
             . "' AND datum = '" . date("Y-m-d"). "'";
     $erg = mysqli_query($conn, $sql);
 }
 
 if ($_POST['schlecht'] == 1) {
+    // Digooh declined
     $sql = "UPDATE buchung SET digooh = 0 WHERE user = '" . $_POST['user'] 
             . "' AND datum = '" . date("Y-m-d"). "'";
     $erg = mysqli_query($conn, $sql);
 }
 
+// username
 require __DIR__ .  '/vendor/autoload.php';
 
 $client = new \GuzzleHttp\Client();
@@ -101,9 +125,16 @@ foreach ($data->data as $key => $value) {
     $company = $value->company->name;
 }
 
+if ($_GET['angebot'] || $_POST['angebot']) {
+    $angebot = $_GET['angebot'] . $_POST['angebot'];
+}
+if ($angebot) {
+    $an = " AND angebot = " . $angebot;
+}
+
 $sql = "SELECT id, display, kunde, name, start_date, end_date, play_times,"
-        . " deleted FROM buchung WHERE user = '" . $user
-        . "' AND datum = '" . date("Y-m-d"). "'";
+        . " deleted, agentur, angebot FROM buchung WHERE user = '" . $user
+        . "' AND datum = '" . date("Y-m-d"). "'" . $an;
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {
@@ -116,6 +147,8 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     $name = $row['name'];
     $kunde = $row['kunde'];
     $deleted = $row['deleted'];
+    $agentur = $row['agentur'];
+    $angebot = $row['angebot'];
 
     require __DIR__ .  '/vendor/autoload.php';
 
@@ -142,20 +175,27 @@ while ($row = mysqli_fetch_array( $db_erg)) {
             $data = json_decode((string) $body);
 
             foreach ($data as $key => $value) {
-                $lfsph = $value;
+                $lfsph = $value / 10;
             }
 
-            $restzeit = $lfsph - $play_times;
+        //    $restzeit = ($lfsph - $play_times);
+            $restzeit = ($lfsph);
         }
         catch (Exception $e) {
             echo $e->getMessage();
         }
 
-        if ($restzeit < 0) {
+        if ($restzeit <= 0) {
             $problem = 1;
             $gesproblem = 1;
             $probleme[] = $id;
-        } else {
+        }
+        elseif ($restzeit < $play_times) {
+            $problem = 1;
+            $gesproblem = 1;
+            $teilprobleme[] = $id;
+        }
+        else {
             $problem = 0;
         }
     }
@@ -197,10 +237,11 @@ echo '<a href="http://88.99.184.137/inovisco_direct/details.php?pruefen=1&user='
             <td style="align: left;">
                 <form action="details.php" method="post">
                     <input type="hidden" name="update" value="1">
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
                     <?php
                     foreach ($alleid as $val) {
                     ?>
-                    <input type="hidden" name="ids[]" value="<?php echo $val; ?>">
+                <input type="hidden" name="ids[]" value="<?php echo $val; ?>">
                     <?php
                     }
                     ?>
@@ -210,40 +251,89 @@ echo '<a href="http://88.99.184.137/inovisco_direct/details.php?pruefen=1&user='
                         <td><?php echo $company; ?> / 
                             <?php echo $user; ?>
                         </td>
+                        <td>
+                            <?php if ($_POST['bearbeiten'] != 1) { ?>
+                            <button type="submit" name="bearbeiten" 
+                                class="grau" value="1">
+                            bearbeiten</button>
+                            <?php } ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Angebotsnummer:</td>
+                        <td colspan="2"><?php echo $angebot; ?></td>
                     </tr>
                     <tr>
                         <td>Kundenname:</td>
-                        <td>
-        <input type="text" name="kunde" value="<?php echo $kunde; ?>" size="40">
+                        <td colspan="2">
+        <?php if ($_POST['bearbeiten'] == 1) { ?>
+        <input type="text" name="kunde" value="<?php echo $kunde; ?>" 
+               size="40" required>
+        <?php } else { 
+            echo $kunde;
+        } ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Agenturname:</td>
+                        <td colspan="2">
+        <?php if ($_POST['bearbeiten'] == 1) { ?>
+    <input type="text" name="agentur" value="<?php echo $agentur; ?>" 
+           size="40" required>
+    <?php } else { 
+            echo $agentur;
+        } ?>
                         </td>
                     </tr>
                     <tr>
                         <td>Kampagnenname:</td>
-                        <td>
-        <input type="text" name="name" value="<?php echo $name; ?>" size="40">
+                        <td colspan="2">
+        <?php if ($_POST['bearbeiten'] == 1) { ?>
+        <input type="text" name="name" value="<?php echo $name; ?>" 
+               size="40" required>
+        <?php } else { 
+            echo $name;
+        } ?>
                         </td>
                     </tr>
                     <tr>
                         <td>Zeitraum:</td>
-                        <td>
-    von <input type="text" name="start_date" value="<?php echo $start_date; ?>" 
-        size="10">
-    bis <input type="text" name="end_date" value="<?php echo $end_date; ?>" 
-        size="10">
+                        <td colspan="2">
+        <?php if ($_POST['bearbeiten'] == 1) { ?>
+        <input type="text" name="start_date" value="<?php echo $start_date; ?>" 
+        size="10" required>
+    - <input type="text" name="end_date" value="<?php echo $end_date; ?>" 
+        size="10" required> (z.B. 2021-01-20)
+        <?php } else { 
+            echo $start_date . " - " . $end_date;
+        } ?>
                         </td>
                     </tr>
                     <tr>
                         <td>Einblendungen pro Stunde:</td>
                         <td>
+        <?php if ($_POST['bearbeiten'] == 1) { ?>
         <input type="text" name="play_times" value="<?php echo $play_times; ?>" 
-            size="10">
+            size="10" required>
+        <?php } else { 
+            echo $play_times;
+        } ?>
                         </td>
                         <td>
-                        <input type="submit" name="speichern" value="Speichern">
+                        <?php if ($_POST['bearbeiten'] == 1) { ?>
+                        <button type="submit" name="speichern" 
+                                class="gruen" value="Speichern">Speichern
+                        </button>
+                        <?php } ?>
                         </td>
                     </tr>
                 </table>
                 </form>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>&nbsp;</p>
             </td>
         </tr>
                 <tr>
@@ -251,11 +341,8 @@ echo '<a href="http://88.99.184.137/inovisco_direct/details.php?pruefen=1&user='
                         <table class="mitrahmen">
                             <tr>
                                 <td valign="bottom">Aktion</td>
-                                <td>Angebots-nummer</td>
-                                <td valign="bottom">Kampagne</td>
                                 <td valign="bottom">DisplayID</td>
-                                <td>verf&uuml;gbar vorher</td>
-                                <td>verf&uuml;gbar nachher</td>
+                                <td>verf&uuml;gbar / h</td>
                             </tr>                                        
 <?php
 foreach ($buchungen as $key => $inhalt) {
@@ -268,31 +355,41 @@ foreach ($buchungen as $key => $inhalt) {
                             
                                 <td>
                     <?php
-                    if ($inhalt['problem'] == 1 && $inhalt['deleted'] != 1) {
+                    if ($inhalt['problem'] == 1) {
+                        if ($inhalt['deleted'] == 1) {
                     ?>
-                                    <a href="details.php?id=<?php echo $id; ?>
-                                       &delete=1">
-                                  <img src="abbrechenkl.png" alt="l&ouml;schen">
+<a href="details.php?id=<?php echo $inhalt['id']; ?>&undo=1&angebot=<?php echo $angebot; ?>">
+                                <img src="abbrechengr.png" alt="l&ouml;schen">
                                     </a>
-                    <?php } ?>
+                    <?php
+                        } else {
+                    ?>
+<a href="details.php?id=<?php echo $inhalt['id']; ?>&delete=1&angebot=<?php echo $angebot; ?>">
+                                <img src="abbrechenkl.png" alt="l&ouml;schen">
+                                    </a>
+                    <?php
+                        }
+                    }
+                    ?>
+                                </td>
+                                <td class="rechts"><?php
+                    if ($inhalt['restzeit'] < 0) {
+                        $prob = '<font style="color: red">';
+                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] < 
+                            $inhalt['play_times']) {
+                        $prob = '<font style="color: orange">';
+                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] >= 
+                            $inhalt['play_times']){
+                        $prob = '<font style="color: green">';
+                    } else {
+                        $prob = '';
+                    }
+                    echo $prob . $inhalt['display'] . '</font>';
+                    ?>
                                 </td>
                                 <td class="rechts">
-                                    <?php echo $inhalt['id']; ?>
+                                    <?php echo $inhalt['lfsph']; ?>
                                 </td>
-                                <td><?php echo $inhalt['name']; ?></td>
-                                <td class="rechts"><?php
-                                    if ($inhalt['restzeit'] < 0) {
-                                        $prob = '<font style="color: red">';
-                                    } else if ($inhalt['restzeit'] < $inhalt['play_times']) {
-                                        $prob = '<font style="color: orange">';
-                                    } else {
-                                    $prob = '<font style="color: green">';
-                                    }
-                                    echo $prob . $inhalt['display'] . '</font>';
-                                    ?>
-                                </td>
-                                <td><?php echo $inhalt['lfsph']; ?></td>
-                                <td><?php echo $inhalt['restzeit']; ?></td>
                             </tr>
 <?php
 }
@@ -301,52 +398,61 @@ foreach ($buchungen as $key => $inhalt) {
                 </center></td>
                 </tr>
 <?php
-if ($problem) {
+if ($gesproblem == 1) {
 ?>
                 <tr>
                     <td width="100%">
                         <form action="details.php" method="post">
                         <table class="ohnerahmen">
                             <tr>
-                                <td class="mittig" width: 33,33%>
+                                <td valign="left">
                             <button type="submit" name="neuupload" 
-                                class="rot" value="1">
+                                class="grau" value="1">
                             Neuer Upload</button>
-                                </td>
-                                <td class="mittig" width: 33,33%>
+                            <button type="submit" name="teildelete" 
+                                class="rot" value="1">
+                            Alle unvollst&auml;ndigen<br>l&ouml;schen</button>  
                             <button type="submit" name="delete" 
                                 class="rot" value="1">
-                            Kampagnen<br>l&ouml;schen</button>  
-                                </td>
-                            </tr>
-                        </table>
+                            Alle nicht verf&uuml;gbaren<br>l&ouml;schen</button>
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
                             <?php
+                            foreach ($teilprobleme as $item) {
+                            ?>
+                            <input type="hidden" name="delete_teilkampagne[]" 
+                                   value="<?php echo $item; ?>">
+                            <?php
+                            }
                             foreach ($probleme as $item) {
                             ?>
                             <input type="hidden" name="delete_kampagne[]" 
                                    value="<?php echo $item; ?>">
-                            <?php } ?>
+                            <?php
+                            }
+                            ?>
+                                </td>
+                            </tr>
+                        </table>
                         </form>
                     </td>
                 </tr>
 <?php
-} else {
-    if ($inovisco == '') {
+}
+if ($inovisco == '') {
 ?>
                 <tr>
-                    <td>
+                    <td class="rechts">
                         <form action="details.php" method="post">
                         <input type="hidden" name="pruefen" value="1">
                         <input type="hidden" name="andigooh" value="1">
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
         <input type="hidden" name="user" value="<?php echo $user; ?>">
                         <table class="ohnerahmen" width="100%">
                             <tr>
-                                <td class="mittig" width: 50%>
+                                <td>
                             <button type="submit" name="inogut" 
                                 class="gruen" value="1">
                             Buchung best&auml;tigen</button>
-                                </td>
-                                <td class="mittig">
                             <button type="submit" name="inoschlecht" 
                                 class="rot" value="1">
                             Buchung ablehnen</button>
@@ -357,15 +463,16 @@ if ($problem) {
                     </td>
                 </tr>
 <?php
-    }
-    else {
-        if ($_POST['andigooh'] == 1) {
+}
+else {
+    if ($_POST['andigooh'] == 1) {
 ?>
                 <tr>
                     <td>
                         <form action="details.php" method="post">
                   <input type="hidden" name="user" value="<?php echo $user; ?>">
                   <input type="hidden" name="pruefen" value="1">
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
                         <table class="ohnerahmen" width="100%">
                             <tr>
                                 <td class="mittig">
@@ -379,14 +486,15 @@ if ($problem) {
                     </td>
                 </tr>
 <?php
-        }
-        if ($_GET['pruefen'] == 1) {
+    }
+    if ($_GET['pruefen'] == 1) {
 ?>
                 <tr>
                     <td>
                         <form action="details.php" method="post">
                   <input type="hidden" name="user" value="<?php echo $user; ?>">
                   <input type="hidden" name="geprueft" value="1">
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
                         <table class="ohnerahmen" width="100%">
                             <tr>
                                 <td class="mittig" width: 50%>
@@ -405,8 +513,8 @@ if ($problem) {
                     </td>
                 </tr>
 <?php
-        }
-        if ($_POST['geprueft'] == 1) {
+    }
+    if ($_POST['geprueft'] == 1) {
 ?>
                 <tr>
                     <td>
@@ -414,7 +522,6 @@ if ($problem) {
                     </td>
                 </tr>
 <?php
-        }
     }
 }
 ?>

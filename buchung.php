@@ -64,7 +64,7 @@ if ($upload == 1) {
                     </tr>
                     <tr>
                         <td class="button">
-                            <button type="submit" name="neu" value="1">
+                    <button type="submit" name="neu" class="gruen" value="1">
                                 hochladen</button>
                         </td>
                     </tr>

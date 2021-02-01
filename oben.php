@@ -28,13 +28,6 @@
                         </form>
                     </th>
                     <th width="200px">
-                        <form action="details.php" method="post">
-                            <button type="submit" name="neu" 
-                                class="button_auswahl" value="1">
-                            Aktuelle Buchungsprozesse</button>
-                        </form>
-                    </th>
-                    <th width="200px">
                         <form action="uebersicht.php" method="post">
                             <button type="submit" name="neu" 
                                 class="button_auswahl" value="1">

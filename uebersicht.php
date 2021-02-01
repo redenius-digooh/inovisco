@@ -43,8 +43,8 @@ if ($result->num_rows > 0) {
     }
 }
 
-$sql = "SELECT id, name, agentur, upload, inovisco, digooh FROM buchung WHERE "
-        . "user = '" . 
+$sql = "SELECT DISTINCT(angebot), name, agentur, upload, inovisco, digooh FROM "
+        . "buchung WHERE user = '" . 
         $_SESSION['user'] . "'" . $was . $agent . $order;
 $result = $conn->query($sql);
 ?>
@@ -116,8 +116,7 @@ if ($result->num_rows > 0) {
 ?>
                             <tr>
                                 <td><?php echo $row['agentur']; ?></td>
-                                <td><a href="kampagne.php?kampagne=
-                                    <?php echo $row['id']; ?>">
+            <td><a href="details.php?angebot=<?php echo $row['angebot']; ?>">
                                         <?php echo $row['name']; ?></a></td>
                                 <td width="90px">
                                     <table class="table_klein">
@@ -131,7 +130,7 @@ if ($result->num_rows > 0) {
                                         </tr>
                                     </table>
                                 </td>
-                                <td>&#10132;</td>
+                                <td>&#10132;&#10132;</td>
                                 <td width="90px">
                                     <table class="table_klein">
                                         <tr>
@@ -145,7 +144,7 @@ if ($result->num_rows > 0) {
                                         </tr>
                                     </table>
                                 </td>
-                                <td>&#10132;</td>
+                                <td>&#10132;&#10132;</td>
                                 <td width="90px">
                                     <table class="table_klein">
                                         <tr>                                                
@@ -159,7 +158,7 @@ if ($result->num_rows > 0) {
                                         </tr>
                                     </table>
                                 </td>
-                                <td>&#10132;</td>
+                                <td>&#10132;&#10132;</td>
                                 <td width="90px">
                                     <table class="table_klein">
                                         <tr>
