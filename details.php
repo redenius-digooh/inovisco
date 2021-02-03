@@ -11,17 +11,31 @@ if ($_POST['neuupload'] == 1) {
     header("Location: http://88.99.184.137/inovisco_direct/buchung.php");
 }
 
-if ($_POST['update'] == 1) {
+if (isset($_POST['speichern'])) {
     // update
-    foreach ($_POST['ids'] as $value) {
-        $sql = "UPDATE buchung SET "
-        . "start_date = '" . $_POST['start_date'] . "', "
-        . "end_date = '" . $_POST['end_date'] . "', "
-        . "play_times = '" . $_POST['play_times'] . "', "
-        . "name = '" . $_POST['name'] . "', "
-        . "agentur = '" . $_POST['agentur'] . "', "
-        . "kunde = '" . $_POST['kunde'] . "' WHERE id = " . $value;
-        $erg = mysqli_query($conn, $sql);
+    $sd = explode("-", $_POST['start_date']);
+    $ed = explode("-", $_POST['end_date']);
+    $checks = checkdate($sd[1],$sd[2],$sd[0]);
+    $checke = checkdate($ed[1],$ed[2],$ed[0]);
+    if (!$checks || !$checke) {
+        $error = "Das Startdatum oder Enddatum war nicht korrekt!";
+    }
+    if ($_POST['play_times'] < 0 || $_POST['play_times'] > 360) {
+        $error = 'Die "Einblendungen pro Stunde" m&uuml;ssen einen Wert zwischen'
+                . " 0 und 360 haben!";
+    }
+    else {
+        foreach ($_POST['ids'] as $value) {
+            $sql = "UPDATE buchung SET "
+            . "start_date = '" . $_POST['start_date'] . "', "
+            . "end_date = '" . $_POST['end_date'] . "', "
+            . "play_times = '" . $_POST['play_times'] . "', "
+            . "name = '" . $_POST['name'] . "', "
+            . "agentur = '" . $_POST['agentur'] . "', "
+            . "deleted = '0', "
+            . "kunde = '" . $_POST['kunde'] . "' WHERE id = " . $value;
+            $erg = mysqli_query($conn, $sql);
+        }
     }
 }
 
@@ -52,18 +66,6 @@ if ($_GET['undo'] == 1) {
     $erg = mysqli_query($conn, $sql);
 }
 
-if ($_POST['digooh'] == 1) {
-    // info to Digooh
-    $empfaenger = "redenius@digooh.com";
-    $betreff = "Neue Buchung zur Prüfung";
-    $from = "info@digooh.com";
-    $text = "Es wurden neue Kampagnen eingetragen: "
-            . '<a href="http://88.99.184.137/inovisco_direct/details.php?'
-            . 'pruefen=1&user=' . $_SESSION['user'] . '">';
-    $headers = "From:" . $from;
-    mail($empfaenger, $betreff, $text, $headers);
-}
-
 if ($_GET['user'] != '') {
     $_POST['user'] = $_GET['user'];
 }
@@ -76,28 +78,38 @@ if ($_GET['pruefen'] == 1 || $_POST['pruefen'] == 1) {
 if ($_POST['inogut'] == 1) {
     // Inovisco approved
     $sql = "UPDATE buchung SET inovisco = 1 WHERE user = '" . $_POST['user'] 
-            . "' AND datum = '" . date("Y-m-d"). "'";
+            . "' AND angebot = '" . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
+    
+    // info to Digooh
+    $empfaenger = "redenius@digooh.com";
+    $betreff = "Neue Buchung zur Prüfung";
+    $from = "info@digooh.com";
+    $text = "Es wurden neue Kampagnen eingetragen: "
+            . '<a href="http://88.99.184.137/inovisco_direct/details.php?'
+            . 'pruefen=1&user=' . $_SESSION['user'] . '">';
+    $headers = "From:" . $from;
+    mail($empfaenger, $betreff, $text, $headers);
 }
 
 if ($_POST['inoschlecht'] == 1) {
     // Inovisco declined
     $sql = "UPDATE buchung SET inovisco = 0 WHERE user = '" . $_POST['user'] 
-            . "' AND datum = '" . date("Y-m-d"). "'";
+            . "' AND angebot = '" . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
 }
 
 if ($_POST['gut'] == 1) {
     // Digooh approved
     $sql = "UPDATE buchung SET digooh = 1 WHERE user = '" . $_POST['user'] 
-            . "' AND datum = '" . date("Y-m-d"). "'";
+            . "' AND angebot = '" . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
 }
 
 if ($_POST['schlecht'] == 1) {
     // Digooh declined
     $sql = "UPDATE buchung SET digooh = 0 WHERE user = '" . $_POST['user'] 
-            . "' AND datum = '" . date("Y-m-d"). "'";
+            . "' AND angebot = '" . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
 }
 
@@ -127,14 +139,20 @@ foreach ($data->data as $key => $value) {
 
 if ($_GET['angebot'] || $_POST['angebot']) {
     $angebot = $_GET['angebot'] . $_POST['angebot'];
+} else {
+    $sql = "SELECT MAX(angebot) AS angebot FROM buchung WHERE user = '" . $user . "'";
+    $db_erg = mysqli_query($conn, $sql);
+    while ($row = mysqli_fetch_array( $db_erg)) {
+        $angebot = $row['angebot'];
+    }
 }
 if ($angebot) {
     $an = " AND angebot = " . $angebot;
 }
 
 $sql = "SELECT id, display, kunde, name, start_date, end_date, play_times,"
-        . " deleted, agentur, angebot FROM buchung WHERE user = '" . $user
-        . "' AND datum = '" . date("Y-m-d"). "'" . $an;
+        . " deleted, agentur, angebot, inovisco, digooh FROM buchung WHERE "
+        . "user = '" . $user . "'" . $an;
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {
@@ -149,12 +167,21 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     $deleted = $row['deleted'];
     $agentur = $row['agentur'];
     $angebot = $row['angebot'];
+    $digooh = $row['digooh'];
+    $inovisco = $row['inovisco'];
+    $digooh = $row['digooh'];
 
     require __DIR__ .  '/vendor/autoload.php';
+    
+    $sql = "SELECT name FROM player WHERE id = " . $display;
+    $db = mysqli_query($conn, $sql);
+    while ($row = mysqli_fetch_array( $db)) {
+        $displayname = $row['name'];
+    }
 
     $client = new \GuzzleHttp\Client();
 
-    if ($start_date != '') {
+    if ($start_date != '' && $end_date >= date("Y-m-d")) {
         try {
             $response = $client->post(
                 'https://cms.digooh.com:8081/api/v1/campaigns/least',
@@ -204,7 +231,8 @@ while ($row = mysqli_fetch_array( $db_erg)) {
         'display' => $display, 'problem' => $problem, 'start_date' =>
         $start_date, 'end_date' => $end_date, 'id' => $id, 
         'deleted' => $deleted, 'restzeit' => $restzeit, 'lfsph' => $lfsph,
-        'play_times' => $play_times);
+        'play_times' => $play_times, 'displayname' => $displayname,
+        'inovisco' => $inovisco, 'digooh' => $digooh);
 }
 require_once 'oben.php';
 ?>
@@ -228,8 +256,12 @@ Das Hochladen war erfolgreich. Alle Displays und Slots sind verf&uuml;gbar,
 die Kampagne kann zur Pr&uuml;fung an Digooh gesendet werden!
 <?php
 }
-echo '<a href="http://88.99.184.137/inovisco_direct/details.php?pruefen=1&user='
-. $_SESSION['user'] . '">versenden</a>';
+
+if ($error) {
+?>
+<p><span style="color: red"><?php echo $error; ?></span></p>
+<?php
+}
 ?>
                     </td>
                 </tr>
@@ -252,7 +284,8 @@ echo '<a href="http://88.99.184.137/inovisco_direct/details.php?pruefen=1&user='
                             <?php echo $user; ?>
                         </td>
                         <td>
-                            <?php if ($_POST['bearbeiten'] != 1) { ?>
+                            <?php if ($_POST['bearbeiten'] != 1 
+                                    && $digooh != 1) { ?>
                             <button type="submit" name="bearbeiten" 
                                 class="grau" value="1">
                             bearbeiten</button>
@@ -305,7 +338,7 @@ echo '<a href="http://88.99.184.137/inovisco_direct/details.php?pruefen=1&user='
     - <input type="text" name="end_date" value="<?php echo $end_date; ?>" 
         size="10" required> (z.B. 2021-01-20)
         <?php } else { 
-            echo $start_date . " - " . $end_date;
+            echo $start_date . "  -  " . $end_date;
         } ?>
                         </td>
                     </tr>
@@ -320,7 +353,8 @@ echo '<a href="http://88.99.184.137/inovisco_direct/details.php?pruefen=1&user='
         } ?>
                         </td>
                         <td>
-                        <?php if ($_POST['bearbeiten'] == 1) { ?>
+                        <?php if ($_POST['bearbeiten'] == 1
+                                && $digooh != 1) { ?>
                         <button type="submit" name="speichern" 
                                 class="gruen" value="Speichern">Speichern
                         </button>
@@ -336,14 +370,15 @@ echo '<a href="http://88.99.184.137/inovisco_direct/details.php?pruefen=1&user='
                 <p>&nbsp;</p>
             </td>
         </tr>
-                <tr>
-                    <td><center>
-                        <table class="mitrahmen">
-                            <tr>
-                                <td valign="bottom">Aktion</td>
-                                <td valign="bottom">DisplayID</td>
-                                <td>verf&uuml;gbar / h</td>
-                            </tr>                                        
+<tr>
+    <td><center>
+        <table class="mitrahmen">
+            <tr>
+                <td valign="bottom">Aktion</td>
+                <td valign="bottom">Displayname</td>
+                <td valign="bottom">DisplayID</td>
+                <td class="rechts">verf&uuml;gbare Einblendungen pro Stunde</td>
+            </tr>
 <?php
 foreach ($buchungen as $key => $inhalt) {
     if ($inhalt['deleted']) {
@@ -372,7 +407,9 @@ foreach ($buchungen as $key => $inhalt) {
                     }
                     ?>
                                 </td>
-                                <td class="rechts"><?php
+                                <td><?php echo utf8_encode($inhalt['displayname']); ?></td>
+                                <td class="rechts">
+                    <?php
                     if ($inhalt['restzeit'] < 0) {
                         $prob = '<font style="color: red">';
                     } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] < 
@@ -388,7 +425,20 @@ foreach ($buchungen as $key => $inhalt) {
                     ?>
                                 </td>
                                 <td class="rechts">
-                                    <?php echo $inhalt['lfsph']; ?>
+                    <?php
+                    if ($inhalt['restzeit'] < 0) {
+                        $prob = '<font style="color: red">';
+                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] < 
+                            $inhalt['play_times']) {
+                        $prob = '<font style="color: orange">';
+                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] >= 
+                            $inhalt['play_times']){
+                        $prob = '<font style="color: green">';
+                    } else {
+                        $prob = '';
+                    }
+                    echo $prob . $inhalt['lfsph'] . '</font>';
+                    ?>
                                 </td>
                             </tr>
 <?php
@@ -396,16 +446,16 @@ foreach ($buchungen as $key => $inhalt) {
 ?>
                         </table>
                 </center></td>
-                </tr>
-<?php
-if ($gesproblem == 1) {
-?>
+                </tr>                
                 <tr>
                     <td width="100%">
-                        <form action="details.php" method="post">
                         <table class="ohnerahmen">
                             <tr>
-                                <td valign="left">
+<?php
+if ($gesproblem == 1 && $inhalt['digooh'] != 1) {
+?>
+                                <td>
+                        <form action="details.php" method="post">
                             <button type="submit" name="neuupload" 
                                 class="grau" value="1">
                             Neuer Upload</button>
@@ -430,101 +480,59 @@ if ($gesproblem == 1) {
                             <?php
                             }
                             ?>
-                                </td>
-                            </tr>
-                        </table>
                         </form>
-                    </td>
-                </tr>
+                                </td>
 <?php
 }
-if ($inovisco == '') {
+if ($inhalt['inovisco'] != 1) {
 ?>
-                <tr>
-                    <td class="rechts">
+                                <td valign="top">
                         <form action="details.php" method="post">
                         <input type="hidden" name="pruefen" value="1">
                         <input type="hidden" name="andigooh" value="1">
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
         <input type="hidden" name="user" value="<?php echo $user; ?>">
-                        <table class="ohnerahmen" width="100%">
-                            <tr>
-                                <td>
                             <button type="submit" name="inogut" 
                                 class="gruen" value="1">
-                            Buchung best&auml;tigen</button>
+                            Inovisco: Buchung best&auml;tigen</button>
                             <button type="submit" name="inoschlecht" 
                                 class="rot" value="1">
-                            Buchung ablehnen</button>
-                                </td>
-                            </tr>
-                        </table>
+                            Inovisco: Buchung ablehnen</button>
                         </form>
-                    </td>
-                </tr>
+                                </td>
 <?php
 }
 else {
-    if ($_POST['andigooh'] == 1) {
+    if ($inhalt['digooh'] != 1) {
 ?>
-                <tr>
-                    <td>
-                        <form action="details.php" method="post">
-                  <input type="hidden" name="user" value="<?php echo $user; ?>">
-                  <input type="hidden" name="pruefen" value="1">
-            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
-                        <table class="ohnerahmen" width="100%">
-                            <tr>
-                                <td class="mittig">
-                                    <button type="submit" name="digooh" 
-                                    class="gruen" value="1">
-                                    Zur Pruefung an<br>Digooh senden</button>
-                                </td>
-                            </tr>
-                        </table>
-                        </form>
-                    </td>
-                </tr>
-<?php
-    }
-    if ($_GET['pruefen'] == 1) {
-?>
-                <tr>
-                    <td>
+                                <td valign="top">
                         <form action="details.php" method="post">
                   <input type="hidden" name="user" value="<?php echo $user; ?>">
                   <input type="hidden" name="geprueft" value="1">
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
-                        <table class="ohnerahmen" width="100%">
-                            <tr>
-                                <td class="mittig" width: 50%>
                             <button type="submit" name="gut" 
                                 class="gruen" value="1">
-                            Buchung best&auml;tigen</button>
-                                </td>
-                                <td class="mittig">
+                            Digooh: Buchung best&auml;tigen</button>
                             <button type="submit" name="schlecht" 
                                 class="rot" value="1">
-                            Buchung ablehnen</button>
-                                </td>
-                            </tr>
-                        </table>
+                            Digooh: Buchung ablehnen</button>
                         </form>
-                    </td>
-                </tr>
+                                </td>
 <?php
     }
-    if ($_POST['geprueft'] == 1) {
+    if ($inhalt['digooh'] == 1) {
 ?>
-                <tr>
-                    <td>
-                        Die Pr&uuml;fung ist abgeschlossen.
-                    </td>
-                </tr>
+                                <td>
+                            <center>Die Pr&uuml;fung ist abgeschlossen.</center>
+                                </td>
 <?php
     }
 }
 ?>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
             </table>
                     </td>
                 </tr>
