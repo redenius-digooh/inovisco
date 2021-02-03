@@ -25,7 +25,7 @@ if(isset($_GET['login'])) {
         $user = $a->user->name;
         $_SESSION['token_direct'] = $access_token;
         $_SESSION['user'] = $user;
-        header("Location: http://88.99.184.137/inovisco_direct/auswahl.php");
+        header("Location: http://88.99.184.137/inovisco_direct/uebersicht.php");
     }
     catch (Exception $e) {
         $nichtangemeldet = 1;
