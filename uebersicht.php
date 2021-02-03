@@ -103,21 +103,26 @@ $result = $conn->query($sql);
     </select>
 </td>
 <td>
-    <button type="submit" name="neu" value="1">
+    <button type="submit" name="neu" class="grau" value="1">
                 Suchen</button>
 </td>
         </tr>
     </table>
 </td>
                             </tr>
+                            <tr>
+                                <td class="rahmenunten">Kampagne</td>
+                                <td class="rahmenunten">Agentur</td>
+                                <td colspan="8"></td>
+                            </tr>
 <?php
 if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
 ?>
                             <tr>
-                                <td><?php echo $row['agentur']; ?></td>
             <td><a href="details.php?angebot=<?php echo $row['angebot']; ?>">
                                         <?php echo $row['name']; ?></a></td>
+                                <td><?php echo $row['agentur']; ?></td>
                                 <td width="90px">
                                     <table class="table_klein">
                                         <tr>
@@ -138,7 +143,7 @@ if ($result->num_rows > 0) {
                                             { ?>
                                             <td class="gruen">
                                             <?php } else { ?>
-                                            <td>
+                                            <td class="grau">
                                             <?php } ?>
                                                 Pr&uuml;fung Inovisco</td>
                                         </tr>
@@ -152,7 +157,7 @@ if ($result->num_rows > 0) {
                                             { ?>
                                             <td class="gruen">
                                             <?php } else { ?>
-                                            <td>
+                                            <td class="grau">
                                             <?php } ?>
                                                 Pr&uuml;fung Digooh</td>
                                         </tr>
@@ -167,7 +172,7 @@ if ($result->num_rows > 0) {
                                             $row['digooh'] == 1) {?>
                                             <td class="gruen">
                                             <?php } else { ?>
-                                            <td>
+                                            <td class="grau">
                                             <?php } ?>
                                             Buchung abgeschlossen</td>
                                         </tr>
