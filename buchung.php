@@ -18,6 +18,41 @@ if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
         move_uploaded_file($_FILES["datei"]["tmp_name"], $path);
         $upload = 1;
         require_once 'import.php';
+
+        try {
+            $client = new \GuzzleHttp\Client();
+            $response = $client->get(
+                'https://cms.digooh.com:8081/api/v1/players',
+                [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
+                        'Content-Type' => 'application/json',
+                        'Accept' => 'application/json',
+                    ]
+                ]
+            );
+            $body = $response->getBody();
+            $data = json_decode((string) $body);
+
+            $anzahl = count($data);
+            
+            mysqli_set_charset($conn,"utf8");
+            
+            $sql = "DELETE * FROM player";
+            $db_erg = mysqli_query($conn, $sql);
+            
+            foreach ($data->data as $key => $value) {
+                $id = $value->id;echo "I: " . $id;
+                $name = $value->name;
+
+                $sql = "INSERT INTO player (id, name) VALUES ('" . $id . "', '" . 
+                        $name . "')";
+                $db_erg = mysqli_query($conn, $sql);
+            }
+        }
+        catch (Exception $e) {
+            echo $e->getMessage();
+        }
     } else {
         $wrongtyp = 1;
     }
