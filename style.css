@@ -1,12 +1,16 @@
 table {
 	border: 1px solid;
 	border-color: #4a7d96;
-	width: 900px;
+	width: 950px;
 	border-spacing: 0px;
 }
 
 tr {
 	border: 0;
+}
+
+.rahmenunten {
+    border-bottom: 1pt solid #4a7d96;
 }
 
 td {
@@ -61,7 +65,7 @@ a {
 	background-color: #4a7d96;
 	color: white;
 	font-size: 20px;
-        padding: 2px;
+        padding: 5px;
 }
 
 .button_zurueck {
@@ -79,13 +83,14 @@ a {
 .ohnerahmen {
 	border: 0;
         padding: 2px;
+        border-collapse: collapse;
 }
 
 .mitrahmen {
 	border: 1px solid;
 	border-color: #4a7d96;
 	border-spacing: 0px;
-        width: 400px;
+        width: 900px;
 }
 
 .rechts {
