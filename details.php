@@ -39,6 +39,14 @@ if (isset($_POST['speichern'])) {
     }
 }
 
+if ($_POST['einfrieren'] == 1) {
+    // freeze
+    $sql = "UPDATE buchung SET "
+            . "einfrieren = 1"
+            . " WHERE angebot = " . $_POST['angebot'];
+    $erg = mysqli_query($conn, $sql);
+}
+
 if ($_POST['teildelete'] == 1) {
     // partial deletion 
     foreach ($_POST['delete_teilkampagne'] as $delid) {
@@ -94,21 +102,21 @@ if ($_POST['inogut'] == 1) {
 
 if ($_POST['inoschlecht'] == 1) {
     // Inovisco declined
-    $sql = "UPDATE buchung SET inovisco = 0 WHERE user = '" . $_POST['user'] 
+    $sql = "UPDATE buchung SET inovisco = 0 WHERE user = '" . $user 
             . "' AND angebot = '" . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
 }
 
 if ($_POST['gut'] == 1) {
     // Digooh approved
-    $sql = "UPDATE buchung SET digooh = 1 WHERE user = '" . $_POST['user'] 
+    $sql = "UPDATE buchung SET digooh = 1 WHERE user = '" . $user 
             . "' AND angebot = '" . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
 }
 
 if ($_POST['schlecht'] == 1) {
     // Digooh declined
-    $sql = "UPDATE buchung SET digooh = 0 WHERE user = '" . $_POST['user'] 
+    $sql = "UPDATE buchung SET digooh = 0 WHERE user = '" . $user
             . "' AND angebot = '" . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
 }
@@ -137,10 +145,12 @@ foreach ($data->data as $key => $value) {
     $company = $value->company->name;
 }
 
+// set offer number
 if ($_GET['angebot'] || $_POST['angebot']) {
     $angebot = $_GET['angebot'] . $_POST['angebot'];
 } else {
-    $sql = "SELECT MAX(angebot) AS angebot FROM buchung WHERE user = '" . $user . "'";
+    $sql = "SELECT MAX(angebot) AS angebot FROM buchung WHERE user = '" . $user 
+            . "'";
     $db_erg = mysqli_query($conn, $sql);
     while ($row = mysqli_fetch_array( $db_erg)) {
         $angebot = $row['angebot'];
@@ -150,9 +160,10 @@ if ($angebot) {
     $an = " AND angebot = " . $angebot;
 }
 
+// get all bookings 
 $sql = "SELECT id, display, kunde, name, start_date, end_date, play_times,"
-        . " deleted, agentur, angebot, inovisco, digooh FROM buchung WHERE "
-        . "user = '" . $user . "'" . $an;
+        . " deleted, agentur, angebot, inovisco, digooh, einfrieren FROM buchung"
+        . " WHERE user = '" . $user . "'" . $an;
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {
@@ -170,6 +181,7 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     $digooh = $row['digooh'];
     $inovisco = $row['inovisco'];
     $digooh = $row['digooh'];
+    $einfrieren = $row['einfrieren'];
 
     require __DIR__ .  '/vendor/autoload.php';
     
@@ -183,6 +195,7 @@ while ($row = mysqli_fetch_array( $db_erg)) {
 
     if ($start_date != '' && $end_date >= date("Y-m-d")) {
         try {
+            // get entries from least
             $response = $client->post(
                 'https://cms.digooh.com:8081/api/v1/campaigns/least',
                 [
@@ -269,7 +282,8 @@ if ($error) {
             <td style="align: left;">
                 <form action="details.php" method="post">
                     <input type="hidden" name="update" value="1">
-            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">            
+                <input type="hidden" name="user" value="<?php echo $user; ?>">
                     <?php
                     foreach ($alleid as $val) {
                     ?>
@@ -285,7 +299,7 @@ if ($error) {
                         </td>
                         <td>
                             <?php if ($_POST['bearbeiten'] != 1 
-                                    && $digooh != 1) { ?>
+                                    && $digooh != 1 && $einfrieren != 1) { ?>
                             <button type="submit" name="bearbeiten" 
                                 class="grau" value="1">
                             bearbeiten</button>
@@ -355,14 +369,37 @@ if ($error) {
                         <td>
                         <?php if ($_POST['bearbeiten'] == 1
                                 && $digooh != 1) { ?>
-                        <button type="submit" name="speichern" 
+                            <button type="submit" name="speichern" 
                                 class="gruen" value="Speichern">Speichern
                         </button>
-                        <?php } ?>
+                        <?php
+                                } else {
+                                    if ($einfrieren != 1) {
+                        ?>
+                            <button type="submit" name="einfrieren" 
+                                class="rot" value="1">Einfrieren
+                        </button>
+                                <?php
+                                    }
+                                }
+                                ?>
                         </td>
                     </tr>
                 </table>
                 </form>
+                <?php
+                if ($einfrieren == 1) {
+                ?>
+                <form action="export.php" method="post" target="_new">
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">            
+                <input type="hidden" name="user" value="<?php echo $user; ?>">
+                <button type="submit" name="export" 
+                                class="gruen" value="1">Exportieren
+                        </button>
+                </form>
+                <?php
+                }
+                ?>
             </td>
         </tr>
         <tr>
