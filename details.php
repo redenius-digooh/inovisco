@@ -122,7 +122,7 @@ if ($_POST['schlecht'] == 1) {
 }
 
 // username
-require __DIR__ .  '/vendor/autoload.php';
+require_once __DIR__ .  '/vendor/autoload.php';
 
 $client = new \GuzzleHttp\Client();
 $response = $client->get(
@@ -162,8 +162,8 @@ if ($angebot) {
 
 // get all bookings 
 $sql = "SELECT id, display, kunde, name, start_date, end_date, play_times,"
-        . " deleted, agentur, angebot, inovisco, digooh, einfrieren FROM buchung"
-        . " WHERE user = '" . $user . "'" . $an;
+        . " deleted, agentur, angebot, inovisco, digooh, einfrieren, export,"
+        . " lfsph FROM buchung WHERE user = '" . $user . "'" . $an;
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {
@@ -182,8 +182,10 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     $inovisco = $row['inovisco'];
     $digooh = $row['digooh'];
     $einfrieren = $row['einfrieren'];
+    $export = $row['export'];
+    $lfsph = $row['lfsph'];
 
-    require __DIR__ .  '/vendor/autoload.php';
+    require_once __DIR__ .  '/vendor/autoload.php';
     
     $sql = "SELECT name FROM player WHERE id = " . $display;
     $db = mysqli_query($conn, $sql);
@@ -215,11 +217,11 @@ while ($row = mysqli_fetch_array( $db_erg)) {
             $data = json_decode((string) $body);
 
             foreach ($data as $key => $value) {
-                $lfsph = $value / 10;
+                $lfsphjetzt = $value / 10;
             }
 
         //    $restzeit = ($lfsph - $play_times);
-            $restzeit = ($lfsph);
+            $restzeit = ($lfsphjetzt);
         }
         catch (Exception $e) {
             echo $e->getMessage();
@@ -231,7 +233,7 @@ while ($row = mysqli_fetch_array( $db_erg)) {
             $probleme[] = $id;
         }
         elseif ($restzeit < $play_times) {
-            $problem = 1;
+            $problem = 2;
             $gesproblem = 1;
             $teilprobleme[] = $id;
         }
@@ -245,7 +247,8 @@ while ($row = mysqli_fetch_array( $db_erg)) {
         $start_date, 'end_date' => $end_date, 'id' => $id, 
         'deleted' => $deleted, 'restzeit' => $restzeit, 'lfsph' => $lfsph,
         'play_times' => $play_times, 'displayname' => $displayname,
-        'inovisco' => $inovisco, 'digooh' => $digooh);
+        'inovisco' => $inovisco, 'digooh' => $digooh, 'lfsphjetzt' => 
+        $lfsphjetzt);
 }
 require_once 'oben.php';
 ?>
@@ -413,8 +416,15 @@ if ($error) {
             <tr>
                 <td valign="bottom">Aktion</td>
                 <td valign="bottom">Displayname</td>
-                <td valign="bottom">DisplayID</td>
-                <td class="rechts">verf&uuml;gbare Einblendungen pro Stunde</td>
+                <td valign="bottom" class="rechts">DisplayID</td>
+                <td class="rechts">verf&uuml;gbare Einblendungen<br>pro Stunde</td>
+                <?php
+                if ($export == 1) {
+                ?>
+                <td valign="bottom" class="rechts">&Auml;nderung seit Export</td>
+                <?php
+                }
+                ?>
             </tr>
 <?php
 foreach ($buchungen as $key => $inhalt) {
@@ -461,6 +471,21 @@ foreach ($buchungen as $key => $inhalt) {
                     echo $prob . $inhalt['display'] . '</font>';
                     ?>
                                 </td>
+                <?php
+                if ($export == 1) {
+                ?>
+                                <td class="rechts">
+                    <?php
+                    if ($inhalt['problem'] == 1) {
+                        $prob = '<font style="color: red">';
+                    } elseif ($inhalt['problem'] == 2) {
+                        $prob = '<font style="color: orange">';
+                    } else {
+                        $prob = '<font style="color: green">';
+                    }
+                    echo $prob . $inhalt['lfsph'] . '</font>';
+                    ?>
+                                </td>
                                 <td class="rechts">
                     <?php
                     if ($inhalt['restzeit'] < 0) {
@@ -474,9 +499,31 @@ foreach ($buchungen as $key => $inhalt) {
                     } else {
                         $prob = '';
                     }
-                    echo $prob . $inhalt['lfsph'] . '</font>';
+                    echo $prob . $inhalt['lfsphjetzt'] . '</font>';
                     ?>
                                 </td>
+                <?php
+                } else {
+                ?>
+                                <td class="rechts">
+                    <?php
+                    if ($inhalt['restzeit'] < 0) {
+                        $prob = '<font style="color: red">';
+                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] < 
+                            $inhalt['play_times']) {
+                        $prob = '<font style="color: orange">';
+                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] >= 
+                            $inhalt['play_times']){
+                        $prob = '<font style="color: green">';
+                    } else {
+                        $prob = '';
+                    }
+                    echo $prob . $inhalt['lfsphjetzt'] . '</font>';
+                    ?>
+                                </td>
+                    <?php
+                }
+                ?>
                             </tr>
 <?php
 }
