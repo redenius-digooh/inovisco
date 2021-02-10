@@ -317,7 +317,7 @@ if ($error) {
                         <td>Kundenname:</td>
                         <td colspan="2">
         <?php if ($_POST['bearbeiten'] == 1) { ?>
-        <input type="text" name="kunde" value="<?php echo $kunde; ?>" 
+                            <input type="text" name="kunde" value="<?php echo $kunde; ?>" 
                size="40" required>
         <?php } else { 
             echo $kunde;
@@ -457,7 +457,7 @@ foreach ($buchungen as $key => $inhalt) {
                                 <td><?php echo utf8_encode($inhalt['displayname']); ?></td>
                                 <td class="rechts">
                     <?php
-                    if ($inhalt['restzeit'] < 0) {
+                    if ($inhalt['restzeit'] <= 0) {
                         $prob = '<font style="color: red">';
                     } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] < 
                             $inhalt['play_times']) {
@@ -488,7 +488,7 @@ foreach ($buchungen as $key => $inhalt) {
                                 </td>
                                 <td class="rechts">
                     <?php
-                    if ($inhalt['restzeit'] < 0) {
+                    if ($inhalt['restzeit'] <= 0) {
                         $prob = '<font style="color: red">';
                     } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] < 
                             $inhalt['play_times']) {
@@ -507,7 +507,7 @@ foreach ($buchungen as $key => $inhalt) {
                 ?>
                                 <td class="rechts">
                     <?php
-                    if ($inhalt['restzeit'] < 0) {
+                    if ($inhalt['restzeit'] <= 0) {
                         $prob = '<font style="color: red">';
                     } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] < 
                             $inhalt['play_times']) {
@@ -551,17 +551,21 @@ if ($gesproblem == 1 && $inhalt['digooh'] != 1) {
                             Alle nicht verf&uuml;gbaren<br>l&ouml;schen</button>
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
                             <?php
-                            foreach ($teilprobleme as $item) {
+                            if ($teilprobleme) {
+                                foreach ($teilprobleme as $item) {
                             ?>
                             <input type="hidden" name="delete_teilkampagne[]" 
                                    value="<?php echo $item; ?>">
                             <?php
+                                }
                             }
-                            foreach ($probleme as $item) {
+                            if ($probleme) {
+                                foreach ($probleme as $item) {
                             ?>
                             <input type="hidden" name="delete_kampagne[]" 
                                    value="<?php echo $item; ?>">
                             <?php
+                                }
                             }
                             ?>
                         </form>
@@ -570,7 +574,7 @@ if ($gesproblem == 1 && $inhalt['digooh'] != 1) {
 }
 if ($inhalt['inovisco'] != 1) {
 ?>
-                                <td valign="top">
+                                <td valign="top" class="rechts">
                         <form action="details.php" method="post">
                         <input type="hidden" name="pruefen" value="1">
                         <input type="hidden" name="andigooh" value="1">
@@ -589,7 +593,7 @@ if ($inhalt['inovisco'] != 1) {
 else {
     if ($inhalt['digooh'] != 1) {
 ?>
-                                <td valign="top">
+                                <td valign="top" class="rechts">
                         <form action="details.php" method="post">
                   <input type="hidden" name="user" value="<?php echo $user; ?>">
                   <input type="hidden" name="geprueft" value="1">
