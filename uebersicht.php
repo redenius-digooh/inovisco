@@ -36,6 +36,7 @@ $sql = "SELECT agentur FROM buchung WHERE user"
         $_SESSION['user'] . "'";
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
+    $agenturen = array();
     while($row = $result->fetch_assoc()) {
         if (!in_array($row['agentur'], $agenturen)) {
             $agenturen[] = $row['agentur'];
@@ -126,12 +127,13 @@ if ($result->num_rows > 0) {
                                 <td width="90px">
                                     <table class="table_klein">
                                         <tr>
-                                            <?php if ($row['upload'] == 1) { ?>
-                                            <td class="gruen">
-                                            <?php } else { ?>
-                                            <td class="rot">
-                                            <?php } ?>
-                                                Upload Buchung</td>
+                                    <?php if ($row['upload'] == 1) { ?>
+                                    <td class="gruen">Upload Buchung</td>
+                                    <?php } elseif ($row['upload'] == 2) { ?>
+                                    <td class="gruen">Manuelle Buchung</td>
+                                    <?php } else { ?>
+                                    <td class="rot">Upload Buchung</td>
+                                    <?php } ?>
                                         </tr>
                                     </table>
                                 </td>
