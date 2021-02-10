@@ -84,7 +84,7 @@ a {
 
 .ohnerahmen {
 	border: 0;
-        padding: 2px;
+        border-spacing: 5px;
         border-collapse: collapse;
 }
 

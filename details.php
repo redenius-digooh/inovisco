@@ -25,17 +25,14 @@ if (isset($_POST['speichern'])) {
                 . " 0 und 360 haben!";
     }
     else {
-        foreach ($_POST['ids'] as $value) {
-            $sql = "UPDATE buchung SET "
-            . "start_date = '" . $_POST['start_date'] . "', "
-            . "end_date = '" . $_POST['end_date'] . "', "
-            . "play_times = '" . $_POST['play_times'] . "', "
-            . "name = '" . $_POST['name'] . "', "
-            . "agentur = '" . $_POST['agentur'] . "', "
-            . "deleted = '0', "
-            . "kunde = '" . $_POST['kunde'] . "' WHERE id = " . $value;
-            $erg = mysqli_query($conn, $sql);
-        }
+        $sql = "UPDATE buchung SET "
+        . "start_date = '" . $_POST['start_date'] . "', "
+        . "end_date = '" . $_POST['end_date'] . "', "
+        . "play_times = '" . $_POST['play_times'] . "', "
+        . "name = '" . $_POST['name'] . "', "
+        . "agentur = '" . $_POST['agentur'] . "', "
+        . "kunde = '" . $_POST['kunde'] . "' WHERE id = " . $_POST['id'];
+        $erg = mysqli_query($conn, $sql);
     }
 }
 
@@ -50,19 +47,20 @@ if ($_POST['einfrieren'] == 1) {
 if ($_POST['teildelete'] == 1) {
     // partial deletion 
     foreach ($_POST['delete_teilkampagne'] as $delid) {
-        $sql = "UPDATE buchung SET deleted = 1 WHERE id = " . $delid;
+        $sql = "UPDATE playerbuchung SET deleted = 1 WHERE id = " . $delid;
         $erg = mysqli_query($conn, $sql);
     }
 }
 
 if ($_GET['delete'] == 1 || $_POST['delete'] == 1) {
     // deletion
-    if ($_GET['id'] != '') {
-        $sql = "UPDATE buchung SET deleted = 1 WHERE id = " . $_GET['id'];
+    if ($_GET['playerid'] != '') {
+        $sql = "UPDATE playerbuchung SET deleted = 1 WHERE id = " 
+                . $_GET['playerid'];
         $erg = mysqli_query($conn, $sql);
     } else {
         foreach ($_POST['delete_kampagne'] as $delid) {
-            $sql = "UPDATE buchung SET deleted = 1 WHERE id = " . $delid;
+            $sql = "UPDATE playerbuchung SET deleted = 1 WHERE id = " . $delid;
             $erg = mysqli_query($conn, $sql);
         }
     }
@@ -70,7 +68,7 @@ if ($_GET['delete'] == 1 || $_POST['delete'] == 1) {
 
 if ($_GET['undo'] == 1) {
     // undo
-    $sql = "UPDATE buchung SET deleted = 0 WHERE id = " . $_GET['id'];
+    $sql = "UPDATE playerbuchung SET deleted = 0 WHERE id = " . $_GET['playerid'];
     $erg = mysqli_query($conn, $sql);
 }
 
@@ -161,33 +159,41 @@ if ($angebot) {
 }
 
 // get all bookings 
-$sql = "SELECT id, display, kunde, name, start_date, end_date, play_times,"
-        . " deleted, agentur, angebot, inovisco, digooh, einfrieren, export,"
-        . " lfsph FROM buchung WHERE user = '" . $user . "'" . $an;
-$db_erg = mysqli_query($conn, $sql);
+$sql = "SELECT id, players, deleted, lfsph FROM playerbuchung WHERE"
+        . " angebot = " . $angebot;
+$db_erg2 = mysqli_query($conn, $sql);
+while ($row2 = mysqli_fetch_array( $db_erg2)) {
+    $deleted = $row2['deleted'];
+    $lfsph = $row2['lfsph'];
+    $players = $row2['players'];
+    $playerid = $row2['id'];
+        
+    $sql = "SELECT id, kunde, name, start_date, end_date, play_times,"
+            . " agentur, angebot, inovisco, digooh, einfrieren, export"
+            . " FROM buchung WHERE user = '" . $user . "'" . $an;
+    $db_erg = mysqli_query($conn, $sql);
 
-while ($row = mysqli_fetch_array( $db_erg)) {
-    $display = $row['display'];
-    $id = $row['id'];
-    $alleid[] = $row['id'];
-    $start_date = $row['start_date'];
-    $end_date = $row['end_date'];
-    $play_times = $row['play_times'];
-    $name = $row['name'];
-    $kunde = $row['kunde'];
-    $deleted = $row['deleted'];
-    $agentur = $row['agentur'];
-    $angebot = $row['angebot'];
-    $digooh = $row['digooh'];
-    $inovisco = $row['inovisco'];
-    $digooh = $row['digooh'];
-    $einfrieren = $row['einfrieren'];
-    $export = $row['export'];
-    $lfsph = $row['lfsph'];
+    while ($row = mysqli_fetch_array( $db_erg)) {
+        $id = $row['id'];
+        $playerid = $playerid;
+        $start_date = $row['start_date'];
+        $end_date = $row['end_date'];
+        $play_times = $row['play_times'];
+        $name = $row['name'];
+        $kunde = $row['kunde'];
+        $agentur = $row['agentur'];
+        $angebot = $row['angebot'];
+        $digooh = $row['digooh'];
+        $inovisco = $row['inovisco'];
+        $digooh = $row['digooh'];
+        $einfrieren = $row['einfrieren'];
+        $export = $row['export'];
+        $alleid[] = $playerid;
+    }
 
     require_once __DIR__ .  '/vendor/autoload.php';
     
-    $sql = "SELECT name FROM player WHERE id = " . $display;
+    $sql = "SELECT name FROM player WHERE id = " . $players;
     $db = mysqli_query($conn, $sql);
     while ($row = mysqli_fetch_array( $db)) {
         $displayname = $row['name'];
@@ -209,7 +215,7 @@ while ($row = mysqli_fetch_array( $db_erg)) {
                     'json' => [
                         'start_date' => $start_date,
                         'end_date' => $end_date,
-                        'players' => $display
+                        'players' => $players
                     ]
                 ]
             );
@@ -230,12 +236,12 @@ while ($row = mysqli_fetch_array( $db_erg)) {
         if ($restzeit <= 0) {
             $problem = 1;
             $gesproblem = 1;
-            $probleme[] = $id;
+            $probleme[] = $playerid;
         }
         elseif ($restzeit < $play_times) {
             $problem = 2;
             $gesproblem = 1;
-            $teilprobleme[] = $id;
+            $teilprobleme[] = $playerid;
         }
         else {
             $problem = 0;
@@ -243,12 +249,12 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     }
     
     $buchungen[] = array('agentur' => $agentur, 'name' => $name,
-        'display' => $display, 'problem' => $problem, 'start_date' =>
+        'players' => $players, 'problem' => $problem, 'start_date' =>
         $start_date, 'end_date' => $end_date, 'id' => $id, 
         'deleted' => $deleted, 'restzeit' => $restzeit, 'lfsph' => $lfsph,
         'play_times' => $play_times, 'displayname' => $displayname,
         'inovisco' => $inovisco, 'digooh' => $digooh, 'lfsphjetzt' => 
-        $lfsphjetzt);
+        $lfsphjetzt, 'playerid' => $playerid);
 }
 require_once 'oben.php';
 ?>
@@ -285,7 +291,8 @@ if ($error) {
             <td style="align: left;">
                 <form action="details.php" method="post">
                     <input type="hidden" name="update" value="1">
-            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">            
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
+            <input type="hidden" name="id" value="<?php echo $id; ?>">
                 <input type="hidden" name="user" value="<?php echo $user; ?>">
                     <?php
                     foreach ($alleid as $val) {
@@ -437,16 +444,16 @@ foreach ($buchungen as $key => $inhalt) {
                             
                                 <td>
                     <?php
-                    if ($inhalt['problem'] == 1) {
+                    if ($inhalt['problem'] == 1 || $inhalt['problem'] == 2) {
                         if ($inhalt['deleted'] == 1) {
                     ?>
-<a href="details.php?id=<?php echo $inhalt['id']; ?>&undo=1&angebot=<?php echo $angebot; ?>">
+<a href="details.php?playerid=<?php echo $inhalt['playerid']; ?>&undo=1&angebot=<?php echo $angebot; ?>">
                                 <img src="abbrechengr.png" alt="l&ouml;schen">
                                     </a>
                     <?php
                         } else {
                     ?>
-<a href="details.php?id=<?php echo $inhalt['id']; ?>&delete=1&angebot=<?php echo $angebot; ?>">
+<a href="details.php?playerid=<?php echo $inhalt['playerid']; ?>&delete=1&angebot=<?php echo $angebot; ?>">
                                 <img src="abbrechenkl.png" alt="l&ouml;schen">
                                     </a>
                     <?php
@@ -468,7 +475,7 @@ foreach ($buchungen as $key => $inhalt) {
                     } else {
                         $prob = '';
                     }
-                    echo $prob . $inhalt['display'] . '</font>';
+                    echo $prob . $inhalt['players'] . '</font>';
                     ?>
                                 </td>
                 <?php

@@ -100,11 +100,13 @@ if ($_GET['manuell'] == 1 || $_POST['manuell'] == 1) {
     );
     $body = $response->getBody();
     $data = json_decode((string) $body);
+    $kriterien = array();
+    $kritarr = array();
     foreach ($data->data as $key => $value) {
         $kriterien[] = array('id' => $value->id, 'name' => $value->name);
-        $kritarr[] = $value->name;
+        $kritarr[] = utf8_encode($value->name);
     }
-    $kritte = json_encode($kritarr);
+    
     $sql = "SELECT MAX(angebot) AS angebot FROM buchung WHERE user = '" 
             . $_SESSION['user'] . "'";
     $db_erg = mysqli_query($conn, $sql);
@@ -114,8 +116,10 @@ if ($_GET['manuell'] == 1 || $_POST['manuell'] == 1) {
     
     $sql = "SELECT id, name FROM player ORDER BY name";
     $db_erg = mysqli_query($conn, $sql);
+    $play = array();
     while ($row = mysqli_fetch_array( $db_erg)) {
         $players[] = array('id' => $row['id'], 'name' => $row['name']);
+        $play[] = utf8_encode($row['name']);
     }
 }
 
@@ -136,6 +140,8 @@ if ($_POST['speichern'] == 1) {
     }
     else {
         $kriarr = explode(", ", $_POST['sammelkriterium']);
+        $krit = array();
+        $_POST['player'] = array();
         if (is_array($kriarr)) {
             if (count($kriarr) > 0) {
                 foreach ($kriarr as $kriteri) {
@@ -157,8 +163,9 @@ if ($_POST['speichern'] == 1) {
                     $data = json_decode((string) $body);
                     foreach ($data->data as $key => $value) {
                         $einzelkriterium = $value->id . ",";
+                        $krit[] = $value->id;
                     }
-                    
+
                     $client = new \GuzzleHttp\Client();
                     $response = $client->get(
                         'https://cms.digooh.com:8081/api/v1/players',
@@ -183,12 +190,45 @@ if ($_POST['speichern'] == 1) {
                 }
             }
         }
+        
+        $playerarr = explode(", ", $_POST['sammelplayer']);
+        if (is_array($playerarr)) {
+            if ($playerarr[0] != '') {
+                foreach ($playerarr as $playe) {
+                    $client = new \GuzzleHttp\Client();
+                    $response = $client->get(
+                        'https://cms.digooh.com:8081/api/v1/players',
+                        [
+                            'headers' => [
+                                'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
+                                'Content-Type' => 'application/json',
+                                'Accept' => 'application/json',
+                            ],
+                            'query' => [
+                                'include'=> 'criteria',
+                                'filter[name]'=> $playe,
+                                'limit'=> '130'
+                            ]
+                        ]
+                    );
+                    $body = $response->getBody();
+                    $data = json_decode((string) $body);
+                    foreach ($data->data as $key => $value) {
+                        if (!in_array($value->id, $_POST['player'])) {
+                            $_POST['player'][] = $value->id;
+                        }
+                    }
+                }
+            }
+        }
+        
         $player = array_unique($_POST['player']);
         $i = 1;
         foreach ($player as $playerid) {
             if ($i == 1) {
+                $kritstr = implode(", ", $krit);
                 $sql = "INSERT INTO buchung (start_date, end_date, play_times, name,"
-                        . "agentur, kunde, angebot, user, upload)"
+                        . "agentur, kunde, angebot, user, criterien, upload)"
                         . " VALUES ("
                         . "'" . $_POST['start_date'] . "', "
                         . "'" . $_POST['end_date'] . "', "
@@ -198,6 +238,7 @@ if ($_POST['speichern'] == 1) {
                         . "'" . $_POST['kunde'] . "', "
                         . "'" . $angebot . "', "
                         . "'" . $_SESSION['user'] . "', "
+                        . "'" . $kritstr . "', "
                         . "'2')";
                 $erg = mysqli_query($conn, $sql);
             }
@@ -349,8 +390,8 @@ if ($upload == 1) {
                         </td>
                         <td>
                             <input type="text" id="search_data" placeholder="" 
-                                   autocomplete="off" class="form-control input-lg" 
-                                   name="sammelkriterium" style="width: 200px"/>
+                                   autocomplete="off" name="sammelkriterium" 
+                            style="width: 310px; border: 1px solid #FFFFFF;"/>
                         </td>
                     </tr>
                     <tr>
@@ -358,16 +399,9 @@ if ($upload == 1) {
                             Displays
                         </td>
                         <td>
-                            <select name="player[]" multiple>
-                    <?php
-                    foreach ($players as $key => $inhalt) {
-                    ?>
-                            <option value="<?php echo $inhalt['id']; ?>">
-                            <?php echo utf8_encode($inhalt['name']); ?></option>
-                    <?php
-                    }
-                    ?>
-                            </select>
+                            <input type="text" id="search_player" placeholder="" 
+                                   autocomplete="off" name="sammelplayer" 
+                            style="width: 310px; border: 1px solid #FFFFFF;"/>
                         </td>
                     </tr>
                     <tr>
@@ -392,6 +426,16 @@ if ($upload == 1) {
                     showAutocompleteOnFocus: true
                 })
 		</script>
+                
+                <script type="text/javascript">
+                $('#search_player').tokenfield({
+                    autocomplete: {
+                      source: <?php echo json_encode($play); ?>,
+                      delay: 100
+                    },
+                    showAutocompleteOnFocus: true
+                })
+                </script>
         </center>
     </body>
 </html>
