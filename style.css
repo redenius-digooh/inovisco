@@ -118,6 +118,12 @@ a {
         padding: 5px;
 }
 
+.gelb {
+    background-color: gold;
+	font-size: 15px;
+        padding: 5px;
+}
+
 .lila {
 	background-color: #4a7d96;
 	font-size: 15px;
