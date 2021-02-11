@@ -251,15 +251,19 @@ if ($_POST['speichern'] == 1) {
             
             $i++;
         }
+        $upload = 2;
     }
 }
 
-require_once 'oben2.php';
-
 if ($upload == 1) {
     unlink($path);
-    header("Location: http://88.99.184.137/inovisco_direct/details.php");
-} else {
+    header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $angebot);
+}
+elseif ($upload == 2) {
+    header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $angebot);
+}
+else {
+    require_once 'oben2.php';
 ?>
                 <table class="ohnerahmen">
                     <tr>

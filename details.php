@@ -200,7 +200,7 @@ while ($row2 = mysqli_fetch_array( $db_erg2)) {
     }
 
     $client = new \GuzzleHttp\Client();
-
+    
     if ($start_date != '' && $end_date >= date("Y-m-d")) {
         try {
             // get entries from least
@@ -221,7 +221,7 @@ while ($row2 = mysqli_fetch_array( $db_erg2)) {
             );
             $body = $response->getBody();
             $data = json_decode((string) $body);
-
+            
             foreach ($data as $key => $value) {
                 $lfsphjetzt = $value / 10;
             }
@@ -579,7 +579,9 @@ if ($gesproblem == 1 && $inhalt['digooh'] != 1) {
                                 </td>
 <?php
 }
-if ($inhalt['inovisco'] != 1) {
+
+if ($export == 1) {
+    if ($inhalt['inovisco'] != 1) {
 ?>
                                 <td valign="top" class="rechts">
                         <form action="details.php" method="post">
@@ -596,9 +598,9 @@ if ($inhalt['inovisco'] != 1) {
                         </form>
                                 </td>
 <?php
-}
-else {
-    if ($inhalt['digooh'] != 1) {
+    }
+//    elseif ($inhalt['digooh'] != 1 && $company == 'DIGOOH') {
+    elseif ($inhalt['digooh'] != 1 && $company == 'Update Test') {
 ?>
                                 <td valign="top" class="rechts">
                         <form action="details.php" method="post">
@@ -615,7 +617,7 @@ else {
                                 </td>
 <?php
     }
-    if ($inhalt['digooh'] == 1) {
+    else {
 ?>
                                 <td>
                             <center>Die Pr&uuml;fung ist abgeschlossen.</center>
