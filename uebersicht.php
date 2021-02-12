@@ -23,6 +23,14 @@ if (!empty($_POST['agent'])) {
     $agent = " AND agentur = '" . $_POST['agent'] . "'";
 }
 
+if (!empty($_POST['kund'])) {
+    $kund = " AND kunde = '" . $_POST['kund'] . "'";
+}
+
+if (!empty($_POST['angeb'])) {
+    $kund = " AND angebot = '" . $_POST['angeb'] . "'";
+}
+
 if ($_POST['wo'] == 'up') {
     $order = " ORDER BY datum";
 }
@@ -44,9 +52,22 @@ if ($result->num_rows > 0) {
     }
 }
 
+$sql = "SELECT kunde FROM buchung WHERE user"
+        . " = '" . 
+        $_SESSION['user'] . "'";
+$result = $conn->query($sql);
+if ($result->num_rows > 0) {
+    $kundenarr = array();
+    while($row = $result->fetch_assoc()) {
+        if (!in_array($row['kunde'], $kundenarr)) {
+            $kundenarr[] = $row['kunde'];
+        }
+    }
+}
+
 $sql = "SELECT DISTINCT(angebot), name, agentur, upload, inovisco, digooh FROM "
         . "buchung WHERE user = '" . 
-        $_SESSION['user'] . "'" . $was . $agent . $order;
+        $_SESSION['user'] . "'" . $was . $agent . $kund . $angeb . $order;echo $sql;
 $result = $conn->query($sql);
 ?>
                         <table class="ohnerahmen">
@@ -111,6 +132,27 @@ $result = $conn->query($sql);
     </table>
 </td>
                             </tr>
+                            <tr>
+                                <td>
+                                    Kunde:
+                                    <select name="kund">
+                                        <option value="">---</option>
+                    <?php
+                    foreach ($kundenarr as $value) {
+                    ?>
+        <option value="<?php echo $value; ?>" <?php if ($_POST['kund'] == $value) 
+            echo "selected"; ?>><?php echo $value; ?></option>
+                    <?php
+                    }
+                    ?>
+                                </td>
+                                <td colspan="2">
+                                    Angebotsnummer:
+            <input type="text" name="angeb" value="<?php echo $_POST['angeb']; ?>">
+                                </td>
+                            </tr>
+                                    </table>
+                                    <table class="ohnerahmen">
                             <tr>
                                 <td class="rahmenunten">Kampagne</td>
                                 <td class="rahmenunten">Agentur</td>
@@ -186,7 +228,6 @@ if ($result->num_rows > 0) {
 }
 ?>
                                         </table>
-                                        </form>
                                     </td>
                                 </tr>
                             </table>
