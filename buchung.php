@@ -143,7 +143,7 @@ if ($_POST['speichern'] == 1) {
         $krit = array();
         $_POST['player'] = array();
         if (is_array($kriarr)) {
-            if (count($kriarr) > 0) {
+            if (count($kriarr) > 0 && $kriarr[0] != '') {
                 foreach ($kriarr as $kriteri) {
                     $client = new \GuzzleHttp\Client();
                     $response = $client->get(
@@ -228,7 +228,7 @@ if ($_POST['speichern'] == 1) {
             if ($i == 1) {
                 $kritstr = implode(", ", $krit);
                 $sql = "INSERT INTO buchung (start_date, end_date, play_times, name,"
-                        . "agentur, kunde, angebot, user, criterien, upload)"
+                        . "agentur, kunde, angebot, user, criterien, text, upload)"
                         . " VALUES ("
                         . "'" . $_POST['start_date'] . "', "
                         . "'" . $_POST['end_date'] . "', "
@@ -239,7 +239,8 @@ if ($_POST['speichern'] == 1) {
                         . "'" . $angebot . "', "
                         . "'" . $_SESSION['user'] . "', "
                         . "'" . $kritstr . "', "
-                        . "'2')";
+                        . "'" . $_POST['text'] . "', "
+                        . "'2')";echo $sql;
                 $erg = mysqli_query($conn, $sql);
             }
             
@@ -260,7 +261,7 @@ if ($upload == 1) {
     header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $angebot);
 }
 elseif ($upload == 2) {
-    header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $angebot);
+//    header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $angebot);
 }
 else {
     require_once 'oben2.php';
@@ -406,6 +407,16 @@ else {
                             <input type="text" id="search_player" placeholder="" 
                                    autocomplete="off" name="sammelplayer" 
                             style="width: 310px; border: 1px solid #FFFFFF;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="top">
+                            Infos
+                        </td>
+                        <td>
+                            <textarea name="text" rows="4" cols="42">
+                                <?php echo $text; ?>
+                            </textarea>
                         </td>
                     </tr>
                     <tr>

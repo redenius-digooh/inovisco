@@ -67,7 +67,7 @@ if ($result->num_rows > 0) {
 
 $sql = "SELECT DISTINCT(angebot), name, agentur, upload, inovisco, digooh FROM "
         . "buchung WHERE user = '" . 
-        $_SESSION['user'] . "'" . $was . $agent . $kund . $angeb . $order;echo $sql;
+        $_SESSION['user'] . "'" . $was . $agent . $kund . $angeb . $order;
 $result = $conn->query($sql);
 ?>
                         <table class="ohnerahmen">

@@ -30,10 +30,18 @@ if (isset($_POST['speichern'])) {
         . "end_date = '" . $_POST['end_date'] . "', "
         . "play_times = '" . $_POST['play_times'] . "', "
         . "name = '" . $_POST['name'] . "', "
-        . "agentur = '" . $_POST['agentur'] . "', "
+        . "agentur = '" . $_POST['agentur'] . "', "                
+        . "text = '" . $_POST['text'] . "', "
         . "kunde = '" . $_POST['kunde'] . "' WHERE id = " . $_POST['id'];
         $erg = mysqli_query($conn, $sql);
     }
+}
+
+if ($_POST['export'] == 1) {
+    $sql = "UPDATE buchung SET "
+            . "export = 1"
+            . " WHERE angebot = " . $_POST['angebot'];
+    $erg = mysqli_query($conn, $sql);
 }
 
 if ($_POST['einfrieren'] == 1) {
@@ -79,44 +87,6 @@ if ($_GET['pruefen'] == 1 || $_POST['pruefen'] == 1) {
     $user = $_POST['user'];
 } else {
     $user = $_SESSION['user'];
-}
-
-if ($_POST['inogut'] == 1) {
-    // Inovisco approved
-    $sql = "UPDATE buchung SET inovisco = 1 WHERE user = '" . $_POST['user'] 
-            . "' AND angebot = '" . $_POST['angebot'] . "'";
-    $erg = mysqli_query($conn, $sql);
-    
-    // info to Digooh
-    $empfaenger = "redenius@digooh.com";
-    $betreff = "Neue Buchung zur Prüfung";
-    $from = "info@digooh.com";
-    $text = "Es wurden neue Kampagnen eingetragen: "
-            . '<a href="http://88.99.184.137/inovisco_direct/details.php?'
-            . 'pruefen=1&user=' . $_SESSION['user'] . '">';
-    $headers = "From:" . $from;
-    mail($empfaenger, $betreff, $text, $headers);
-}
-
-if ($_POST['inoschlecht'] == 1) {
-    // Inovisco declined
-    $sql = "UPDATE buchung SET inovisco = 0 WHERE user = '" . $user 
-            . "' AND angebot = '" . $_POST['angebot'] . "'";
-    $erg = mysqli_query($conn, $sql);
-}
-
-if ($_POST['gut'] == 1) {
-    // Digooh approved
-    $sql = "UPDATE buchung SET digooh = 1 WHERE user = '" . $user 
-            . "' AND angebot = '" . $_POST['angebot'] . "'";
-    $erg = mysqli_query($conn, $sql);
-}
-
-if ($_POST['schlecht'] == 1) {
-    // Digooh declined
-    $sql = "UPDATE buchung SET digooh = 0 WHERE user = '" . $user
-            . "' AND angebot = '" . $_POST['angebot'] . "'";
-    $erg = mysqli_query($conn, $sql);
 }
 
 // username
@@ -168,8 +138,8 @@ while ($row2 = mysqli_fetch_array( $db_erg2)) {
     $players = $row2['players'];
     $playerid = $row2['id'];
         
-    $sql = "SELECT id, kunde, name, start_date, end_date, play_times,"
-            . " agentur, angebot, inovisco, digooh, einfrieren, export"
+    $sql = "SELECT id, kunde, name, start_date, end_date, play_times, text,"
+            . " agentur, angebot, inovisco, digooh, einfrieren, export, criterien"
             . " FROM buchung WHERE user = '" . $user . "'" . $an;
     $db_erg = mysqli_query($conn, $sql);
 
@@ -189,6 +159,8 @@ while ($row2 = mysqli_fetch_array( $db_erg2)) {
         $einfrieren = $row['einfrieren'];
         $export = $row['export'];
         $alleid[] = $playerid;
+        $criterien = $row['criterien'];
+        $text = $row['text'];
     }
 
     require_once __DIR__ .  '/vendor/autoload.php';
@@ -254,7 +226,87 @@ while ($row2 = mysqli_fetch_array( $db_erg2)) {
         'deleted' => $deleted, 'restzeit' => $restzeit, 'lfsph' => $lfsph,
         'play_times' => $play_times, 'displayname' => $displayname,
         'inovisco' => $inovisco, 'digooh' => $digooh, 'lfsphjetzt' => 
-        $lfsphjetzt, 'playerid' => $playerid);
+        $lfsphjetzt, 'playerid' => $playerid, 'criterien' => $criterien,
+        'text' => $text);
+}
+
+$text="bla, bla, bla";
+//$name = "test";
+$start_date = "2021-02-10";
+$end_date = "2021-03-20";
+
+if(isset($_POST['inogut'])){
+    // Inovisco approved
+    $sql = "UPDATE buchung SET inovisco = 1 WHERE user = '" . $_POST['user'] 
+            . "' AND angebot = '" . $_POST['angebot'] . "'";
+    $erg = mysqli_query($conn, $sql);
+    /*
+    // info to Digooh
+    $empfaenger = "redenius@digooh.com";
+    $betreff = "Neue Buchung zur Prüfung";
+    $from = "info@digooh.com";
+    $text = "Es wurden neue Kampagnen eingetragen: "
+            . '<a href="http://88.99.184.137/inovisco_direct/details.php?'
+            . 'pruefen=1&user=' . $_SESSION['user'] . '">';
+    $headers = "From:" . $from;
+    mail($empfaenger, $betreff, $text, $headers);*/
+}
+
+if ($_POST['inoschlecht'] == 1) {
+    // Inovisco declined
+    $sql = "UPDATE buchung SET inovisco = 0 WHERE user = '" . $user 
+            . "' AND angebot = '" . $_POST['angebot'] . "'";
+    $erg = mysqli_query($conn, $sql);
+}
+
+if ($_POST['gut'] == 1) {
+    // Digooh approved
+    $sql = "UPDATE buchung SET digooh = 1 WHERE user = '" . $user 
+            . "' AND angebot = '" . $_POST['angebot'] . "'";
+    $erg = mysqli_query($conn, $sql);
+    
+    require_once __DIR__ .  '/vendor/autoload.php';
+    $allidstr = implode(",", $alleid);
+    $client = new \GuzzleHttp\Client();
+    $response = $client->post(
+        'https://cms.digooh.com:8081/api/v1/campaigns',
+        [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ],
+            'form_params' => [
+                'name' => $name,
+                'start_date' => $start_date,
+                'end_date' => $end_date,
+                'publish' => false,
+                'priority' => 2,
+                'play_type' => 0,
+                'play_times' => $play_times,
+                'time_flag' => false,
+                'start_time' => '00:00',
+                'end_time' => '00:00',
+                'criteria' => $criterien,
+                'and_criteria' => $o[0],
+                'exclude_criteria' => $o[0],
+                'players' => $alleidstr,
+                'tags' => $o[0],
+                'tag_option' => 2.0,
+                'media' => $o[0],
+                'descr' => 'explicabo'
+            ]
+        ]
+    );
+    $body = $response->getBody();
+    print_r(json_decode((string) $body));
+}
+
+if ($_POST['schlecht'] == 1) {
+    // Digooh declined
+    $sql = "UPDATE buchung SET digooh = 0 WHERE user = '" . $user
+            . "' AND angebot = '" . $_POST['angebot'] . "'";
+    $erg = mysqli_query($conn, $sql);
 }
 require_once 'oben.php';
 ?>
@@ -295,10 +347,12 @@ if ($error) {
             <input type="hidden" name="id" value="<?php echo $id; ?>">
                 <input type="hidden" name="user" value="<?php echo $user; ?>">
                     <?php
-                    foreach ($alleid as $val) {
+                    if (is_array($alleid)) {
+                        foreach ($alleid as $val) {
                     ?>
                 <input type="hidden" name="ids[]" value="<?php echo $val; ?>">
                     <?php
+                        }
                     }
                     ?>
                 <table class="ohnerahmen" style="align: left;">
@@ -368,12 +422,44 @@ if ($error) {
                     </tr>
                     <tr>
                         <td>Einblendungen pro Stunde:</td>
-                        <td>
+                        <td colspan="2">
         <?php if ($_POST['bearbeiten'] == 1) { ?>
         <input type="text" name="play_times" value="<?php echo $play_times; ?>" 
             size="10" required>
         <?php } else { 
             echo $play_times;
+        } ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="top">
+                            Kriterien
+                        </td>
+                        <td>
+                            <input type="text" id="search_data" placeholder="" 
+                                   autocomplete="off" name="sammelkriterium" 
+                            style="width: 310px; border: 1px solid #FFFFFF;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="top">
+                            Displays
+                        </td>
+                        <td>
+                            <input type="text" id="search_player" placeholder="" 
+                                   autocomplete="off" name="sammelplayer" 
+                            style="width: 310px; border: 1px solid #FFFFFF;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Infos:</td>
+                        <td>
+        <?php if ($_POST['bearbeiten'] == 1) { ?>
+                            <textarea name="text" rows="4" cols="42">
+                                <?php echo $text; ?>
+                            </textarea>
+        <?php } else { 
+            echo $text;
         } ?>
                         </td>
                         <td>
@@ -584,14 +670,42 @@ if ($export == 1) {
     if ($inhalt['inovisco'] != 1) {
 ?>
                                 <td valign="top" class="rechts">
-                        <form action="details.php" method="post">
+                                    <script type="text/javascript">
+                                $(document).ready(function() {
+                                    $('form').submit(function(event) {
+                                        var formData = {
+                                            'user' : <?php echo $user; ?>,
+                                            'angebot' : <?php echo angebot; ?>
+                                        };
+
+                                        $.ajax({
+                                            type        : 'POST',
+                                            url         : 'inout.php',
+                                            data        : formData,
+                                            dataType    : 'json',
+                                            encode      : true
+                                        })
+                                            .done(function(data) {
+                                                console.log(data);
+                                            });
+
+                                        event.preventDefault();
+                                    });
+                                });
+                                    </script>
+                        <form action="https://prod-61.westeurope.logic.azure.com:443/workflows/9c9cd20cdc0f4852b73e4178e263572c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Y3fmlxVqVrtmWdWMp0g6VNWc6ZfcCwmx_MTU0Ao6V4A">
+                        <input type="hidden" name="user" value="<?php echo $_SESSION['user']; ?>">
+                        <input type="hidden" name="Buchungsnummer" value="<?php echo $angebot; ?>">
+                        <input type="hidden" name="Kundennummer" value="<?php echo ""; ?>">
+                        <input type="hidden" name="Kampagnenname" value="<?php echo $name; ?>">
+                        <input type="hidden" name="Text" value="<?php echo $text; ?>">
                         <input type="hidden" name="pruefen" value="1">
                         <input type="hidden" name="andigooh" value="1">
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
         <input type="hidden" name="user" value="<?php echo $user; ?>">
                             <button type="submit" name="inogut" 
                                 class="gruen" value="1">
-                            Inovisco: Buchung best&auml;tigen</button>
+                            Check Verfügbarkeit</button>
                             <button type="submit" name="inoschlecht" 
                                 class="rot" value="1">
                             Inovisco: Buchung ablehnen</button>
