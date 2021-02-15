@@ -9,13 +9,14 @@ $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('uploadfiles/'
 
 $worksheet = $spreadsheet->getActiveSheet();
 $i = 0;
+$j = 1;
 
 $sql = "SELECT MAX(angebot) AS id FROM buchung";
 $db_erg = mysqli_query($conn, $sql);
 while ($row = mysqli_fetch_array( $db_erg)) {
     $angebotsid = $row['id'] + 1;
 }
-        
+
 foreach ($worksheet->getRowIterator() AS $row) {
     if ($i > 0) {
         $cellIterator = $row->getCellIterator();
@@ -23,13 +24,21 @@ foreach ($worksheet->getRowIterator() AS $row) {
         
         foreach ($cellIterator as $cell) {
             $player = $cell->getValue();
-            $query = "INSERT INTO buchung (user, players, display, angebot, "
-                    . "upload) VALUES ('" . $_SESSION['user'] . "', '" . $player
-                    . "', '" . $player . "', '" . $angebotsid . "', 1)";
+            
+        if ($j == 1) {
+            $query = "INSERT INTO buchung (user, angebot, "
+                    . "upload) VALUES ('" . $_SESSION['user'] . "', '" 
+                    . $angebotsid . "', 1)";
 
             if (mysqli_query($conn, $query)) {
                 unlink($filename);
             }
+        }
+            $query = "INSERT INTO playerbuchung (players, angebot) VALUES ('" 
+                    . $player . "', '" . $angebotsid . "')";
+
+            $erg = mysqli_query($conn, $query);
+            $j++;
         }
     }
     $i++;
