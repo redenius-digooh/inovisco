@@ -50,6 +50,36 @@ if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
                         $name . "')";
                 $db_erg = mysqli_query($conn, $sql);
             }
+            
+            $client = new \GuzzleHttp\Client();
+            $response = $client->get(
+                'https://cms.digooh.com:8081/api/v1/criteria',
+                [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
+                        'Content-Type' => 'application/json',
+                        'Accept' => 'application/json',
+                    ]
+                ]
+            );
+            $body = $response->getBody();
+            $data = json_decode((string) $body);
+
+            $anzahl = count($data);
+            
+            mysqli_set_charset($conn,"utf8");
+            
+            $sql = "DELETE * FROM criteria";
+            $db_erg = mysqli_query($conn, $sql);
+            
+            foreach ($data->data as $key => $value) {
+                $id = $value->id;
+                $name = $value->name;
+
+                $sql = "INSERT INTO criteria (id, name) VALUES ('" . $id . "', '" . 
+                        $name . "')";
+                $db_erg = mysqli_query($conn, $sql);
+            }
         }
         catch (Exception $e) {
             echo $e->getMessage();
@@ -261,7 +291,7 @@ if ($upload == 1) {
     header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $angebot);
 }
 elseif ($upload == 2) {
-//    header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $angebot);
+    header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $angebot);
 }
 else {
     require_once 'oben2.php';
