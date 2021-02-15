@@ -45,6 +45,7 @@ if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
             foreach ($data->data as $key => $value) {
                 $id = $value->id;
                 $name = $value->name;
+                $criteria = $value->criteria;
 
                 $sql = "INSERT INTO player (id, name) VALUES ('" . $id . "', '" . 
                         $name . "')";
@@ -251,7 +252,7 @@ if ($_POST['speichern'] == 1) {
                 }
             }
         }
-        
+        if ($_POST['player'][0] == '') $_POST['player'][] = 0;
         $player = array_unique($_POST['player']);
         $i = 1;
         foreach ($player as $playerid) {
@@ -270,7 +271,7 @@ if ($_POST['speichern'] == 1) {
                         . "'" . $_SESSION['user'] . "', "
                         . "'" . $kritstr . "', "
                         . "'" . $_POST['text'] . "', "
-                        . "'2')";echo $sql;
+                        . "'2')";
                 $erg = mysqli_query($conn, $sql);
             }
             
