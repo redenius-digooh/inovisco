@@ -13,78 +13,12 @@ if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
         
         $tag = date("Y-m-d-H-i-s");
-        $filename = $_FILES["datei"]["name"] . "_" . $tag;        
-        $uploaded_dir = "./uploadfiles/";        
+        $filename = $_FILES["datei"]["name"];        
+        $uploaded_dir = "uploadfiles/";        
         $path = $uploaded_dir . $filename;
         move_uploaded_file($_FILES["datei"]["tmp_name"], $path);
         $upload = 1;
         require_once 'import.php';
-
-        try {
-            $client = new \GuzzleHttp\Client();
-            $response = $client->get(
-                'https://cms.digooh.com:8081/api/v1/players',
-                [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
-                        'Content-Type' => 'application/json',
-                        'Accept' => 'application/json',
-                    ]
-                ]
-            );
-            $body = $response->getBody();
-            $data = json_decode((string) $body);
-
-            $anzahl = count($data);
-            
-            mysqli_set_charset($conn,"utf8");
-            
-            $sql = "DELETE * FROM player";
-            $db_erg = mysqli_query($conn, $sql);
-            
-            foreach ($data->data as $key => $value) {
-                $id = $value->id;
-                $name = $value->name;
-                $criteria = $value->criteria;
-
-                $sql = "INSERT INTO player (id, name) VALUES ('" . $id . "', '" . 
-                        $name . "')";
-                $db_erg = mysqli_query($conn, $sql);
-            }
-            
-            $client = new \GuzzleHttp\Client();
-            $response = $client->get(
-                'https://cms.digooh.com:8081/api/v1/criteria',
-                [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
-                        'Content-Type' => 'application/json',
-                        'Accept' => 'application/json',
-                    ]
-                ]
-            );
-            $body = $response->getBody();
-            $data = json_decode((string) $body);
-
-            $anzahl = count($data);
-            
-            mysqli_set_charset($conn,"utf8");
-            
-            $sql = "DELETE * FROM criteria";
-            $db_erg = mysqli_query($conn, $sql);
-            
-            foreach ($data->data as $key => $value) {
-                $id = $value->id;
-                $name = $value->name;
-
-                $sql = "INSERT INTO criteria (id, name) VALUES ('" . $id . "', '" . 
-                        $name . "')";
-                $db_erg = mysqli_query($conn, $sql);
-            }
-        }
-        catch (Exception $e) {
-            echo $e->getMessage();
-        }
     } else {
         $wrongtyp = 1;
     }
@@ -94,27 +28,6 @@ if ($_GET['manuell'] == 1 || $_POST['manuell'] == 1) {
     // username
     require_once __DIR__ .  '/vendor/autoload.php';
 
-    $client = new \GuzzleHttp\Client();
-    $response = $client->get(
-        'https://cms.digooh.com:8081/api/v1/users',
-        [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ],
-            'query' => [
-                'sort'=> '-name',
-                'filter[name]'=> $_SESSION['user'],
-            ]
-        ]
-    );
-    $body = $response->getBody();
-    $data = json_decode((string) $body);
-    foreach ($data->data as $key => $value) {
-        $company = $value->company->name;
-    }
-    
     $client = new \GuzzleHttp\Client();
     $response = $client->get(
         'https://cms.digooh.com:8081/api/v1/criteria',
@@ -259,7 +172,8 @@ if ($_POST['speichern'] == 1) {
             if ($i == 1) {
                 $kritstr = implode(", ", $krit);
                 $sql = "INSERT INTO buchung (start_date, end_date, play_times, name,"
-                        . "agentur, kunde, angebot, user, criterien, text, upload)"
+                        . "agentur, kunde, angebot, user, criterien, text,"
+                        . "motive, upload)"
                         . " VALUES ("
                         . "'" . $_POST['start_date'] . "', "
                         . "'" . $_POST['end_date'] . "', "
@@ -271,6 +185,7 @@ if ($_POST['speichern'] == 1) {
                         . "'" . $_SESSION['user'] . "', "
                         . "'" . $kritstr . "', "
                         . "'" . $_POST['text'] . "', "
+                        . "'" . $_POST['motive'] . "', "
                         . "'2')";
                 $erg = mysqli_query($conn, $sql);
             }
@@ -288,7 +203,7 @@ if ($_POST['speichern'] == 1) {
 }
 
 if ($upload == 1) {
-    unlink($path);
+    unlink($uploaded_dir . $filename);
     header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $angebot);
 }
 elseif ($upload == 2) {
@@ -310,17 +225,17 @@ else {
                 <form action="buchung.php" method="post">
                     <table class="ohnerahmen">
                         <tr>
-                            <td>Bitte wählen Sie Ihre Eingabe aus.</td>
+                            <td class="zelle">Bitte wählen Sie Ihre Eingabe aus.</td>
                         </tr>
                         <tr>
-                            <td width="50%">
+                            <td width="50%" class="zelle">
                                 <center>
                                 <a href="buchung.php?datei=1">
                                    Exceldatei hochladen
                                 </a>
                                 </center>
                             </td>
-                            <td>
+                            <td class="zelle">
                                 <center>
                                 <a href="buchung.php?manuell=1">
                                     Manuelle Eingabe
@@ -349,13 +264,13 @@ else {
     }
     ?>
                     <tr>
-                        <td>
+                        <td class="zelle">
                         Bitte w&auml;hlen Sie eine Exceldatei von Ihrem 
                             Rechner aus.
                         </td>
                     </tr>
                     <tr>
-                        <td>
+                        <td class="zelle">
                             <input type="file" name="datei">
                         </td>
                     </tr>
@@ -374,39 +289,39 @@ else {
                 <form action="buchung.php" method="post">
                     <table class="ohnerahmen">
                         <tr>
-                        <td width="280">Buchung durch:</td>
-                        <td><?php echo $company; ?> / 
+                        <td width="280" class="zelle">Buchung durch:</td>
+                        <td class="zelle"><?php echo $_SESSION['company']; ?> / 
                             <?php echo $_SESSION['user']; ?>
                         </td>
                     </tr>
                     <tr>
-                        <td>Angebotsnummer:</td>
-                        <td><?php echo $angebot; ?></td>
+                        <td class="zelle">Angebotsnummer:</td>
+                        <td class="zelle"><?php echo $angebot; ?></td>
                     </tr>
                     <tr>
-                        <td>Kundenname:</td>
-                        <td>
+                        <td class="zelle">Kundenname:</td>
+                        <td class="zelle">
         <input type="text" name="kunde" value="<?php echo $kunde; ?>" 
                size="40" required>
                         </td>
                     </tr>
                     <tr>
-                        <td>Agenturname:</td>
-                        <td>
+                        <td class="zelle">Agenturname:</td>
+                        <td class="zelle">
     <input type="text" name="agentur" value="<?php echo $agentur; ?>" 
            size="40" required>
                         </td>
                     </tr>
                     <tr>
-                        <td>Kampagnenname:</td>
-                        <td>
+                        <td class="zelle">Kampagnenname:</td>
+                        <td class="zelle">
         <input type="text" name="name" value="<?php echo $name; ?>" 
                size="40" required>
                         </td>
                     </tr>
                     <tr>
-                        <td>Zeitraum:</td>
-                        <td>
+                        <td class="zelle">Zeitraum:</td>
+                        <td class="zelle">
         <input type="text" name="start_date" value="<?php echo $start_date; ?>" 
         size="10" required>
     - <input type="text" name="end_date" value="<?php echo $end_date; ?>" 
@@ -414,37 +329,44 @@ else {
                         </td>
                     </tr>
                     <tr>
-                        <td>Einblendungen pro Stunde:</td>
-                        <td>
+                        <td class="zelle">Einblendungen pro Stunde:</td>
+                        <td class="zelle">
         <input type="text" name="play_times" value="<?php echo $play_times; ?>" 
             size="10" required>
                         </td>
                     </tr>
                     <tr>
-                        <td valign="top">
-                            Kriterien
+                        <td class="zelle">Anzahl Motive:</td>
+                        <td class="zelle">
+        <input type="text" name="motive" value="<?php echo $motive; ?>" 
+            size="10" required>
                         </td>
-                        <td>
+                    </tr>
+                    <tr>
+                        <td valign="top" class="zelle">
+                            Kriterien:
+                        </td>
+                        <td class="zelle">
                             <input type="text" id="search_data" placeholder="" 
                                    autocomplete="off" name="sammelkriterium" 
                             style="width: 310px; border: 1px solid #FFFFFF;"/>
                         </td>
                     </tr>
                     <tr>
-                        <td valign="top">
-                            Displays
+                        <td valign="top" class="zelle">
+                            Displays:
                         </td>
-                        <td>
+                        <td class="zelle">
                             <input type="text" id="search_player" placeholder="" 
                                    autocomplete="off" name="sammelplayer" 
                             style="width: 310px; border: 1px solid #FFFFFF;"/>
                         </td>
                     </tr>
                     <tr>
-                        <td valign="top">
-                            Infos
+                        <td valign="top" class="zelle">
+                            Infos:
                         </td>
-                        <td>
+                        <td class="zelle">
                             <textarea name="text" rows="4" cols="42">
                                 <?php echo $text; ?>
                             </textarea>

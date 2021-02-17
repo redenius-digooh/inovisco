@@ -14,26 +14,26 @@
     </head>
     <body>
         <center>
-            <table>
-                <tr>
-                    <th width="150px">
+            <table class="tableoben">
+                <tr class="troben">
+                    <th width="150px" class="oben">
                         <h2 class="obenlinks">Inovisco Direct</h2>
                     </th>
-                    <th width="200px">
+                    <th width="200px" class="oben">
                         <form action="buchung.php" method="post">
                             <button type="submit" name="neu" 
                                 class="button_auswahl" value="1">
                             Neuer<br>Buchungsprozess</button>
                         </form>
                     </th>
-                    <th width="200px">
+                    <th width="200px" class="oben">
                         <form action="uebersicht.php" method="post">
                             <button type="submit" name="neu" 
                                 class="button_auswahl" value="1">
                             Laufende Buchungsprozesse</button>
                         </form>
                     </th>
-                    <th width="200px">
+                    <th width="200px" class="oben">
                         <form action="download.php" method="post">
                             <button type="submit" name="neu" 
                                 class="button_auswahl" value="1">
