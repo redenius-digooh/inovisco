@@ -83,11 +83,11 @@ $result = $conn->query($sql);
                                     <form action="uebersicht.php" method="post">
                                     <table class="ohnerahmen">
             <tr>
-                <td colspan="9">
+                <td colspan="9" class="zelle">
                     <center>F&uuml;r Details Kampagne anklicken!</center><br>
                     <table class="ohnerahmen">
                         <tr>
-<td>
+<td class="zelle">
     Alle Buchungen mit:
     <select name="was">
         <option value="">---</option>
@@ -101,7 +101,7 @@ $result = $conn->query($sql);
             echo "selected"; ?>>Pr&uuml;fung Digooh</option>
     </select>
 </td>
-<td>
+<td class="zelle">
     Agentur:
     <select name="agent">
         <option value="">---</option>
@@ -114,7 +114,7 @@ $result = $conn->query($sql);
         <?php } ?>
     </select>
 </td>
-<td>
+<td class="zelle">
     Sortierung:
     <select name="wo">
         <option value="">---</option>
@@ -133,7 +133,7 @@ $result = $conn->query($sql);
 </td>
                             </tr>
                             <tr>
-                                <td>
+                                <td class="zelle">
                                     Kunde:
                                     <select name="kund">
                                         <option value="">---</option>
@@ -146,12 +146,12 @@ $result = $conn->query($sql);
                     }
                     ?>
                                 </td>
-                                <td colspan="2">
+                                <td colspan="2" class="zelle">
                                     Angebotsnummer:
             <input type="text" name="angeb" value="<?php echo $_POST['angeb']; ?>">
                                 </td>
                             </tr>
-                                    </table>
+                                    </table><br>
                                     <table class="ohnerahmen">
                             <tr>
                                 <td class="rahmenunten">Kampagne</td>
@@ -163,10 +163,10 @@ if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
 ?>
                             <tr>
-            <td><a href="details.php?angebot=<?php echo $row['angebot']; ?>">
+            <td class="zelle"><a href="details.php?angebot=<?php echo $row['angebot']; ?>">
                                         <?php echo $row['name']; ?></a></td>
-                                <td><?php echo $row['agentur']; ?></td>
-                                <td width="90px">
+                                <td class="zelle"><?php echo $row['agentur']; ?></td>
+                                <td width="90px" class="zelle">
                                     <table class="table_klein">
                                         <tr>
                                     <?php if ($row['upload'] == 1) { ?>
@@ -179,8 +179,8 @@ if ($result->num_rows > 0) {
                                         </tr>
                                     </table>
                                 </td>
-                                <td>&#10132;&#10132;</td>
-                                <td width="90px">
+                                <td class="zelle">&#10132;&#10132;</td>
+                                <td width="90px" class="zelle">
                                     <table class="table_klein">
                                         <tr>
                                             <?php if ($row['inovisco'] == 1) 
@@ -193,8 +193,8 @@ if ($result->num_rows > 0) {
                                         </tr>
                                     </table>
                                 </td>
-                                <td>&#10132;&#10132;</td>
-                                <td width="90px">
+                                <td class="zelle">&#10132;&#10132;</td>
+                                <td width="90px" class="zelle">
                                     <table class="table_klein">
                                         <tr>                                                
                                             <?php if ($row['digooh'] == 1) 
@@ -207,8 +207,8 @@ if ($result->num_rows > 0) {
                                         </tr>
                                     </table>
                                 </td>
-                                <td>&#10132;&#10132;</td>
-                                <td width="90px">
+                                <td class="zelle">&#10132;&#10132;</td>
+                                <td width="90px" class="zelle">
                                     <table class="table_klein">
                                         <tr>
                                             <?php if ($row['upload'] == 1 &&
