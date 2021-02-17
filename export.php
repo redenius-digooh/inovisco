@@ -1,3 +1,4 @@
+
 <?php
 header('Content-Encoding: UTF-8');
 header("Content-type: application/x-msexcel; charset=utf-8");
@@ -105,7 +106,7 @@ require_once 'buchungstabelle.php';
 
 //set column headers
 $columnHeader = '';
-$columnHeader = "Displayname" . "\t" . "DisplayID" . "\t" . mb_convert_encoding("verfügbare Einblendungen pro Stunde", "UTF-8") . "\t";
+$columnHeader = "Displayname" . "\t" . "DisplayID" . "\t" . "verfuegbare Einblendungen pro Stunde" . "\t";
 $setData = '';
 $upper = "Angebotsnummer" . "\t" . '"' . $_POST['angebot'] . '"' . "\n";
 $upper .= "Kundenname" . "\t" . '"' . $kunde . '"' . "\n";
