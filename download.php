@@ -15,7 +15,7 @@ require_once 'oben.php';
                             <form action="download.php" method="post">
                             <table class="ohnerahmen">
                                 <tr>
-                                    <td>
+                                    <td class="zelle">
                                         Verf&uuml;gbarkeit herunterladen.
                                     </td>
                                 </tr>

@@ -7,17 +7,30 @@ table {
 	border-spacing: 0px;
 }
 
+.tableoben {
+	border: 1px solid;
+	border-color: #4a7d96;
+	width: 950px;
+	border-spacing: 0px;
+}
+
 tr {
 	border: 0;
 }
 
-.rahmenunten {
-    border-bottom: 1pt solid #4a7d96;
+.troben {
+	border: 0;
 }
 
-td {
+.rahmenunten {
+        border-bottom: 1pt solid #4a7d96;
 	padding: 5px;
-	font-family: "Oswald", sans-serif;
+	text-align: left;
+	font-size: 20px;
+}
+
+.zelle {
+	padding: 5px;
 	text-align: left;
 	border: 0;
 	font-size: 20px;
@@ -27,6 +40,14 @@ th {
 	padding-left: 10px;
 	background-color: #4a7d96;
 	font-family: "Oswald", sans-serif;
+}
+
+.oben {
+        padding-left: 10px;
+	background-color: #4a7d96;
+	font-family: "Oswald", sans-serif;
+        color: white;
+        font-size: 20px;
 }
 
 h2 {
@@ -46,12 +67,26 @@ h4 {
 }
 
 .obenlinks {
+        padding-left: 10px;
+	background-color: #4a7d96;
 	text-align: left;
+	font-family: "Oswald", sans-serif;
+        font-size: 20px;
+        font-weight: normal;
+        margin-top: 0px;
+        margin-bottom: 0px;
 }
 .obenrechts {
 	text-align: right;
 	align: right;
 	padding-right: 10px;
+        background-color: #4a7d96;
+	font-family: "Oswald", sans-serif;
+        color: white;
+        font-size: 20px;
+        font-weight: normal;
+        margin-top: 0px;
+        margin-bottom: 0px;
 }
 
 a {
@@ -96,7 +131,16 @@ a {
 }
 
 .rechts {
-    text-align: right;
+        text-align: right;
+	padding: 5px;
+	font-size: 20px;
+}
+
+.rahmenrechts {
+        text-align: right;
+        border-bottom: 1pt solid #4a7d96;
+	padding: 5px;
+	font-size: 20px;
 }
 
 .rot {
@@ -227,10 +271,20 @@ main {
 
 .fehler {
     color: red;
+    padding: 5px;
+    font-family: "Oswald", sans-serif;
+    text-align: left;
+    border: 0;
+    font-size: 20px;
 }
 
 .blau {
     color: #4a7d96;
+    padding: 5px;
+    font-family: "Oswald", sans-serif;
+    text-align: left;
+    border: 0;
+    font-size: 20px;
 }
 
 .rahmen {
