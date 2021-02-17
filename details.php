@@ -18,6 +18,7 @@ if(isset($_POST['inogut'])){
     $sql = "UPDATE buchung SET inovisco = 1 WHERE user = '" . $_POST['user'] 
             . "' AND angebot = '" . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
+}
 
 // Inovisco declined
 if ($_POST['inoschlecht'] == 1) {
