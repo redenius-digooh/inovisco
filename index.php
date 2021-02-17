@@ -5,6 +5,72 @@ if(isset($_GET['login'])) {
     require __DIR__ .  '/vendor/autoload.php';
 
     try {
+        $client = new \GuzzleHttp\Client();
+        $response = $client->get(
+            'https://cms.digooh.com:8081/api/v1/players',
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ]
+            ]
+        );
+        $body = $response->getBody();
+        $data = json_decode((string) $body);
+
+        $anzahl = count($data);
+
+        mysqli_set_charset($conn,"utf8");
+
+        $sql = "DELETE * FROM player";
+        $db_erg = mysqli_query($conn, $sql);
+
+        foreach ($data->data as $key => $value) {
+            $id = $value->id;
+            $name = $value->name;
+            $criteria = $value->criteria;
+
+            $sql = "INSERT INTO player (id, name) VALUES ('" . $id . "', '" . 
+                    $name . "')";
+            $db_erg = mysqli_query($conn, $sql);
+        }
+
+        $client = new \GuzzleHttp\Client();
+        $response = $client->get(
+            'https://cms.digooh.com:8081/api/v1/criteria',
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ]
+            ]
+        );
+        $body = $response->getBody();
+        $data = json_decode((string) $body);
+
+        $anzahl = count($data);
+
+        mysqli_set_charset($conn,"utf8");
+
+        $sql = "DELETE * FROM criteria";
+        $db_erg = mysqli_query($conn, $sql);
+
+        foreach ($data->data as $key => $value) {
+            $id = $value->id;
+            $name = $value->name;
+
+            $sql = "INSERT INTO criteria (id, name) VALUES ('" . $id . "', '" . 
+                    $name . "')";
+            $db_erg = mysqli_query($conn, $sql);
+        }
+    }
+    catch (Exception $e) {
+        echo $e->getMessage();
+    }
+        
+    try {
         $client = new GuzzleHttp\Client();
         $response = $client->post(
             'https://cms.digooh.com:8081/api/v1/authorizations',
@@ -23,8 +89,33 @@ if(isset($_GET['login'])) {
         $a = json_decode((string) $body);
         $access_token = $a->access_token;
         $user = $a->user->name;
+        $email = $a->user->email;
         $_SESSION['token_direct'] = $access_token;
         $_SESSION['user'] = $user;
+        $_SESSION['email'] = $email;
+        
+        // username
+        $client = new \GuzzleHttp\Client();
+        $response = $client->get(
+            'https://cms.digooh.com:8081/api/v1/users',
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ],
+                'query' => [
+                    'include'=> 'criteria',
+                    'filter[name]'=> $_SESSION['user'],
+                ]
+            ]
+        );
+        $body = $response->getBody();
+        $data = json_decode((string) $body);
+        foreach ($data->data as $key => $value) {
+            $_SESSION['company'] = $value->company->name;
+        }
+
         header("Location: http://88.99.184.137/inovisco_direct/uebersicht.php");
     }
     catch (Exception $e) {
