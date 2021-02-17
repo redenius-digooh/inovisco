@@ -6,13 +6,28 @@
 session_start();
 require_once 'db.php';
 
+require_once __DIR__ .  '/vendor/autoload.php';
+
+// new booking upload
 if ($_POST['neuupload'] == 1) {
-    // new upload
     header("Location: http://88.99.184.137/inovisco_direct/buchung.php");
 }
 
+// Inovisco approved
+if(isset($_POST['inogut'])){
+    $sql = "UPDATE buchung SET inovisco = 1 WHERE user = '" . $_POST['user'] 
+            . "' AND angebot = '" . $_POST['angebot'] . "'";
+    $erg = mysqli_query($conn, $sql);
+
+// Inovisco declined
+if ($_POST['inoschlecht'] == 1) {
+    $sql = "UPDATE buchung SET inovisco = 0 WHERE user = '" . $_POST['user'] 
+            . "' AND angebot = '" . $_POST['angebot'] . "'";
+    $erg = mysqli_query($conn, $sql);
+}
+
+// update
 if (isset($_POST['speichern'])) {
-    // update
     $sd = explode("-", $_POST['start_date']);
     $ed = explode("-", $_POST['end_date']);
     $checks = checkdate($sd[1],$sd[2],$sd[0]);
@@ -25,6 +40,70 @@ if (isset($_POST['speichern'])) {
                 . " 0 und 360 haben!";
     }
     else {
+        if ($_POST['sammelkriterium'] != '') {
+            $inscria = "criterien = '" . $_POST['sammelkriterium'] . "', ";
+            $kriarr = explode(", ", $_POST['sammelkriterium']);
+            $krit = array();
+            $_POST['player'] = array();
+            if (is_array($kriarr)) {
+                if (count($kriarr) > 0 && $kriarr[0] != '') {
+                    foreach ($kriarr as $kriteri) {
+                        // find criteria id
+                        $sql = "SELECT id FROM criteria WHERE name = '" . $kriteri . "'";
+                        $db_erg = mysqli_query($conn, $sql);
+                        while ($row = mysqli_fetch_array( $db_erg)) {
+                            $einzelkriterium = $row['id'] . ",";
+                            $krit[] = $row['id'];
+                        }
+
+                        // all players of the criteria
+                        $client = new \GuzzleHttp\Client();
+                        $response = $client->get(
+                            'https://cms.digooh.com:8081/api/v1/players',
+                            [
+                                'headers' => [
+                                    'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
+                                    'Content-Type' => 'application/json',
+                                    'Accept' => 'application/json',
+                                ],
+                                'query' => [
+                                    'include'=> 'criteria',
+                                    'filter[criteria]'=> $einzelkriterium,
+                                    'limit'=> '130'
+                                ]
+                            ]
+                        );
+                        $body = $response->getBody();
+                        $data = json_decode((string) $body);
+                        foreach ($data->data as $key => $value) {
+                            $_POST['player'][] = $value->id;
+                        }
+                    }
+                }
+            }
+            if ($_POST['player'][0] != '') {
+                // delete all players
+                $del = "DELETE FROM playerbuchung WHERE angebot = " 
+                        . $_POST['angebot'];
+                    $erg = @mysqli_query($conn, $del);
+                // insert all players for the offer
+                foreach($_POST['player'] as $insplayer) {
+                    $sql = "INSERT INTO playerbuchung (players, angebot)"
+                        . " VALUES ("
+                        . "'" . $insplayer . "', "
+                        . "'" . $_POST['angebot'] . "')";
+                    $erg = mysqli_query($conn, $sql);
+                }
+            }
+        }
+        
+        if ($krit[0] != '') {
+            $kritstr = implode(", ", $krit);
+        } else {
+            $kritstr = $_POST['criterien_alt'];
+        }
+        
+        // update booking
         $sql = "UPDATE buchung SET "
         . "start_date = '" . $_POST['start_date'] . "', "
         . "end_date = '" . $_POST['end_date'] . "', "
@@ -32,50 +111,47 @@ if (isset($_POST['speichern'])) {
         . "name = '" . $_POST['name'] . "', "
         . "agentur = '" . $_POST['agentur'] . "', "                
         . "text = '" . $_POST['text'] . "', "
+        . "motive = '" . $_POST['motive'] . "', " 
+        . "criterien = '" . $kritstr . "', " 
         . "kunde = '" . $_POST['kunde'] . "' WHERE id = " . $_POST['id'];
         $erg = mysqli_query($conn, $sql);
     }
 }
 
-if ($_POST['export'] == 1) {
-    $sql = "UPDATE buchung SET "
-            . "export = 1"
-            . " WHERE angebot = " . $_POST['angebot'];
-    $erg = mysqli_query($conn, $sql);
-}
-
+// freeze booking
 if ($_POST['einfrieren'] == 1) {
-    // freeze
     $sql = "UPDATE buchung SET "
             . "einfrieren = 1"
             . " WHERE angebot = " . $_POST['angebot'];
     $erg = mysqli_query($conn, $sql);
 }
 
+// partial player deletion 
 if ($_POST['teildelete'] == 1) {
-    // partial deletion 
     foreach ($_POST['delete_teilkampagne'] as $delid) {
         $sql = "UPDATE playerbuchung SET deleted = 1 WHERE id = " . $delid;
         $erg = mysqli_query($conn, $sql);
     }
 }
 
+// player deletion
 if ($_GET['delete'] == 1 || $_POST['delete'] == 1) {
-    // deletion
     if ($_GET['playerid'] != '') {
         $sql = "UPDATE playerbuchung SET deleted = 1 WHERE id = " 
                 . $_GET['playerid'];
         $erg = mysqli_query($conn, $sql);
     } else {
-        foreach ($_POST['delete_kampagne'] as $delid) {
-            $sql = "UPDATE playerbuchung SET deleted = 1 WHERE id = " . $delid;
-            $erg = mysqli_query($conn, $sql);
+        if ($_POST['delete_kampagne'][0] != '') {
+            foreach ($_POST['delete_kampagne'] as $delid) {
+                $sql = "UPDATE playerbuchung SET deleted = 1 WHERE id = " . $delid;
+                $erg = mysqli_query($conn, $sql);
+            }
         }
     }
 }
 
+// undo deletion
 if ($_GET['undo'] == 1) {
-    // undo
     $sql = "UPDATE playerbuchung SET deleted = 0 WHERE id = " . $_GET['playerid'];
     $erg = mysqli_query($conn, $sql);
 }
@@ -89,30 +165,6 @@ if ($_GET['pruefen'] == 1 || $_POST['pruefen'] == 1) {
     $user = $_SESSION['user'];
 }
 
-// username
-require_once __DIR__ .  '/vendor/autoload.php';
-
-$client = new \GuzzleHttp\Client();
-$response = $client->get(
-    'https://cms.digooh.com:8081/api/v1/users',
-    [
-        'headers' => [
-            'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-        ],
-        'query' => [
-            'sort'=> '-name',
-            'filter[name]'=> $_SESSION['user'],
-        ]
-    ]
-);
-$body = $response->getBody();
-$data = json_decode((string) $body);
-foreach ($data->data as $key => $value) {
-    $company = $value->company->name;
-}
-
 // set offer number
 if ($_GET['angebot'] || $_POST['angebot']) {
     $angebot = $_GET['angebot'] . $_POST['angebot'];
@@ -124,58 +176,88 @@ if ($_GET['angebot'] || $_POST['angebot']) {
         $angebot = $row['angebot'];
     }
 }
+
 if ($angebot) {
     $an = " AND angebot = " . $angebot;
 }
 
+// get all criteria
+$sql = "SELECT id, name FROM criteria";
+$db_erg = mysqli_query($conn, $sql);
+$kriterien = array();
+$kritarr = array();
+while ($row = mysqli_fetch_array( $db_erg)) {
+    $kriterien[] = array('id' => $row['id'], 'name' => $row['name']);
+    $kritarr[] = $row['name'];
+}
+
 // get all bookings 
+$sql = "SELECT id, kunde, name, start_date, end_date, play_times, text, motive,"
+            . " agentur, angebot, inovisco, digooh, einfrieren, export, criterien,"
+            . " send_digooh FROM buchung WHERE user = '" . $user . "'" . $an;
+$db_erg = mysqli_query($conn, $sql);
+
+while ($row = mysqli_fetch_array( $db_erg)) {
+    $id = $row['id'];
+    $playerid = $playerid;
+    $start_date = $row['start_date'];
+    $end_date = $row['end_date'];
+    $play_times = $row['play_times'];
+    $name = $row['name'];
+    $kunde = $row['kunde'];
+    $agentur = $row['agentur'];
+    $angebot = $row['angebot'];
+    $digooh = $row['digooh'];
+    $inovisco = $row['inovisco'];
+    $digooh = $row['digooh'];
+    $einfrieren = $row['einfrieren'];
+    $export = $row['export'];
+    $alleid[] = $playerid;
+    $criterien = $row['criterien'];
+    $text = $row['text'];
+    $motive = $row['motive'];
+    $send_digooh = $row['send_digooh'];
+}
+
+// get criterianame
+$criteriaarr = explode(",", $criterien);
+if ($criteriaarr[0] != '') {
+    foreach ($criteriaarr as $cri) {
+        $sql = "SELECT name FROM criteria WHERE id = " . $cri;
+        $db = mysqli_query($conn, $sql);
+        while ($row = mysqli_fetch_array( $db)) {
+            $crit[] = $row['name'];
+        }
+    }
+}
+
+// get players
 $sql = "SELECT id, players, deleted, lfsph FROM playerbuchung WHERE"
         . " angebot = " . $angebot;
 $db_erg2 = mysqli_query($conn, $sql);
-while ($row2 = mysqli_fetch_array( $db_erg2)) {
+$gruen = 0;
+
+while ($row2 = mysqli_fetch_array($db_erg2)) {
     $deleted = $row2['deleted'];
     $lfsph = $row2['lfsph'];
     $players = $row2['players'];
     $playerid = $row2['id'];
-        
-    $sql = "SELECT id, kunde, name, start_date, end_date, play_times, text,"
-            . " agentur, angebot, inovisco, digooh, einfrieren, export, criterien"
-            . " FROM buchung WHERE user = '" . $user . "'" . $an;
-    $db_erg = mysqli_query($conn, $sql);
-
-    while ($row = mysqli_fetch_array( $db_erg)) {
-        $id = $row['id'];
-        $playerid = $playerid;
-        $start_date = $row['start_date'];
-        $end_date = $row['end_date'];
-        $play_times = $row['play_times'];
-        $name = $row['name'];
-        $kunde = $row['kunde'];
-        $agentur = $row['agentur'];
-        $angebot = $row['angebot'];
-        $digooh = $row['digooh'];
-        $inovisco = $row['inovisco'];
-        $digooh = $row['digooh'];
-        $einfrieren = $row['einfrieren'];
-        $export = $row['export'];
-        $alleid[] = $playerid;
-        $criterien = $row['criterien'];
-        $text = $row['text'];
-    }
 
     require_once __DIR__ .  '/vendor/autoload.php';
     
+    // get name for player
     $sql = "SELECT name FROM player WHERE id = " . $players;
     $db = mysqli_query($conn, $sql);
-    while ($row = mysqli_fetch_array( $db)) {
+    while ($row = mysqli_fetch_array($db)) {
         $displayname = $row['name'];
+        $displays[] = $displayname;
     }
 
     $client = new \GuzzleHttp\Client();
     
+    // get entries from least
     if ($start_date != '' && $end_date >= date("Y-m-d")) {
         try {
-            // get entries from least
             $response = $client->post(
                 'https://cms.digooh.com:8081/api/v1/campaigns/least',
                 [
@@ -198,25 +280,28 @@ while ($row2 = mysqli_fetch_array( $db_erg2)) {
                 $lfsphjetzt = $value / 10;
             }
 
-        //    $restzeit = ($lfsph - $play_times);
             $restzeit = ($lfsphjetzt);
         }
         catch (Exception $e) {
             echo $e->getMessage();
         }
 
-        if ($restzeit <= 0) {
-            $problem = 1;
-            $gesproblem = 1;
-            $probleme[] = $playerid;
-        }
-        elseif ($restzeit < $play_times) {
-            $problem = 2;
-            $gesproblem = 1;
-            $teilprobleme[] = $playerid;
-        }
-        else {
-            $problem = 0;
+        if ($deleted != 1) {
+            if ($restzeit <= 0) {
+                $problem = 1;
+                $gesproblem = 1;
+                $probleme[] = $playerid;
+            }
+            elseif (floor($restzeit) < $play_times) {
+                $problem = 2;
+                $gesproblem = 1;
+                $teilprobleme[] = $playerid;
+                $gelbeb[] = (int)$restzeit;
+            }
+            else {
+                $problem = 0;
+                $gruen = $gruen + 1;
+            }
         }
     }
     
@@ -227,44 +312,18 @@ while ($row2 = mysqli_fetch_array( $db_erg2)) {
         'play_times' => $play_times, 'displayname' => $displayname,
         'inovisco' => $inovisco, 'digooh' => $digooh, 'lfsphjetzt' => 
         $lfsphjetzt, 'playerid' => $playerid, 'criterien' => $criterien,
-        'text' => $text);
+        'text' => $text, 'send_digooh' => $send_digooh);
+    
+    sleep(1);
 }
 
-$text="bla, bla, bla";
-//$name = "test";
-$start_date = "2021-02-10";
-$end_date = "2021-03-20";
-
-if(isset($_POST['inogut'])){
-    // Inovisco approved
-    $sql = "UPDATE buchung SET inovisco = 1 WHERE user = '" . $_POST['user'] 
-            . "' AND angebot = '" . $_POST['angebot'] . "'";
-    $erg = mysqli_query($conn, $sql);
-    /*
-    // info to Digooh
-    $empfaenger = "redenius@digooh.com";
-    $betreff = "Neue Buchung zur Prüfung";
-    $from = "info@digooh.com";
-    $text = "Es wurden neue Kampagnen eingetragen: "
-            . '<a href="http://88.99.184.137/inovisco_direct/details.php?'
-            . 'pruefen=1&user=' . $_SESSION['user'] . '">';
-    $headers = "From:" . $from;
-    mail($empfaenger, $betreff, $text, $headers);*/
-}
-
-if ($_POST['inoschlecht'] == 1) {
-    // Inovisco declined
-    $sql = "UPDATE buchung SET inovisco = 0 WHERE user = '" . $user 
-            . "' AND angebot = '" . $_POST['angebot'] . "'";
-    $erg = mysqli_query($conn, $sql);
-}
-
+// Digooh approved
 if ($_POST['gut'] == 1) {
-    // Digooh approved
     $sql = "UPDATE buchung SET digooh = 1 WHERE user = '" . $user 
             . "' AND angebot = '" . $_POST['angebot'] . "'";
-    $erg = mysqli_query($conn, $sql);
-    
+//    $erg = mysqli_query($conn, $sql);
+
+    // set new campaign
     require_once __DIR__ .  '/vendor/autoload.php';
     $allidstr = implode(",", $alleid);
     $client = new \GuzzleHttp\Client();
@@ -302,13 +361,43 @@ if ($_POST['gut'] == 1) {
     print_r(json_decode((string) $body));
 }
 
+// Digooh declined
 if ($_POST['schlecht'] == 1) {
-    // Digooh declined
     $sql = "UPDATE buchung SET digooh = 0 WHERE user = '" . $user
             . "' AND angebot = '" . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
 }
-require_once 'oben.php';
+
+// send email to Digooh
+if ($_POST['send_digooh'] == 1) {
+    $client = new \GuzzleHttp\Client();
+    $response = $client->post(
+        'https://prod-61.westeurope.logic.azure.com:443/workflows/9c9cd20cdc0f4852b73e4178e263572c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Y3fmlxVqVrtmWdWMp0g6VNWc6ZfcCwmx_MTU0Ao6V4A',
+        [
+            'json' => [
+                'Ansprehpartner' => $_POST['user'],
+                'Telefon' => $_POST['telefon'],
+                'E-Mail' => $_POST['email'],
+                'Kunde' => $_POST['kunde'],
+                'Zeitraum' => $_POST['zeitraum'],
+                'Anzahl Tage' => $_POST['tage'],
+                'Displays (Anzahl, Einblendungen)' => $_POST['displayeinblendungen'],
+                'Anzahl Motive' => $_POST['motive'],
+                'Infotext' => $_POST['text'],
+                'Datum' => $_POST['datum']
+            ]
+        ]
+    );
+    $body = $response->getBody();
+    
+    $sql = "UPDATE buchung SET send_digooh = 1 WHERE user = '" . $user
+            . "' AND angebot = '" . $_POST['angebot'] . "'";
+    $erg = mysqli_query($conn, $sql);
+    
+    header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $_POST['angebot']);
+}
+    
+require_once 'oben2.php';
 ?>
             <table class="ohnerahmen">
                 <tr>
@@ -316,7 +405,7 @@ require_once 'oben.php';
                     </td>
                 </tr>
                 <tr>
-                    <td>
+                    <td class="zelle">
 <?php
 if ($gesproblem == 1) {
 ?>
@@ -340,7 +429,7 @@ if ($error) {
                     </td>
                 </tr>
         <tr>
-            <td style="align: left;">
+            <td style="align: left;" class="zelle">
                 <form action="details.php" method="post">
                     <input type="hidden" name="update" value="1">
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
@@ -357,11 +446,11 @@ if ($error) {
                     ?>
                 <table class="ohnerahmen" style="align: left;">
                     <tr>
-                        <td width="280">Buchung durch:</td>
-                        <td><?php echo $company; ?> / 
+                        <td width="280" class="zelle">Buchung durch:</td>
+                        <td><?php echo $_SESSION['company']; ?> / 
                             <?php echo $user; ?>
                         </td>
-                        <td>
+                        <td class="zelle">
                             <?php if ($_POST['bearbeiten'] != 1 
                                     && $digooh != 1 && $einfrieren != 1) { ?>
                             <button type="submit" name="bearbeiten" 
@@ -371,12 +460,12 @@ if ($error) {
                         </td>
                     </tr>
                     <tr>
-                        <td>Angebotsnummer:</td>
-                        <td colspan="2"><?php echo $angebot; ?></td>
+                        <td class="zelle">Angebotsnummer:</td>
+                        <td colspan="2" class="zelle"><?php echo $angebot; ?></td>
                     </tr>
                     <tr>
-                        <td>Kundenname:</td>
-                        <td colspan="2">
+                        <td class="zelle">Kundenname:</td>
+                        <td colspan="2" class="zelle">
         <?php if ($_POST['bearbeiten'] == 1) { ?>
                             <input type="text" name="kunde" value="<?php echo $kunde; ?>" 
                size="40" required>
@@ -386,8 +475,8 @@ if ($error) {
                         </td>
                     </tr>
                     <tr>
-                        <td>Agenturname:</td>
-                        <td colspan="2">
+                        <td class="zelle">Agenturname:</td>
+                        <td colspan="2" class="zelle">
         <?php if ($_POST['bearbeiten'] == 1) { ?>
     <input type="text" name="agentur" value="<?php echo $agentur; ?>" 
            size="40" required>
@@ -397,8 +486,8 @@ if ($error) {
                         </td>
                     </tr>
                     <tr>
-                        <td>Kampagnenname:</td>
-                        <td colspan="2">
+                        <td class="zelle">Kampagnenname:</td>
+                        <td colspan="2" class="zelle">
         <?php if ($_POST['bearbeiten'] == 1) { ?>
         <input type="text" name="name" value="<?php echo $name; ?>" 
                size="40" required>
@@ -408,8 +497,8 @@ if ($error) {
                         </td>
                     </tr>
                     <tr>
-                        <td>Zeitraum:</td>
-                        <td colspan="2">
+                        <td class="zelle">Zeitraum:</td>
+                        <td colspan="2" class="zelle">
         <?php if ($_POST['bearbeiten'] == 1) { ?>
         <input type="text" name="start_date" value="<?php echo $start_date; ?>" 
         size="10" required>
@@ -421,8 +510,8 @@ if ($error) {
                         </td>
                     </tr>
                     <tr>
-                        <td>Einblendungen pro Stunde:</td>
-                        <td colspan="2">
+                        <td class="zelle">Einblendungen pro Stunde:</td>
+                        <td colspan="2" class="zelle">
         <?php if ($_POST['bearbeiten'] == 1) { ?>
         <input type="text" name="play_times" value="<?php echo $play_times; ?>" 
             size="10" required>
@@ -432,37 +521,70 @@ if ($error) {
                         </td>
                     </tr>
                     <tr>
-                        <td valign="top">
-                            Kriterien
+                        <td class="zelle">Anzahl Motive:</td>
+                        <td colspan="2" class="zelle">
+        <?php if ($_POST['bearbeiten'] == 1) { ?>
+        <input type="text" name="motive" value="<?php echo $motive; ?>" 
+            size="10" required>
+        <?php } else { 
+            echo $motive;
+        } ?>
                         </td>
-                        <td>
+                    </tr>
+                    <tr>
+                        <td valign="top" class="zelle">
+                            Kriterien:
+                        </td>
+                        <td class="zelle">
+                            <?php if ($_POST['bearbeiten'] == 1) { ?>
+                            alt: 
+                            <?php
+                            if ($crit[0] != '') {
+                                $criterienanzeige = implode(", ",$crit);
+                                echo $criterienanzeige;
+                            }
+                            ?>
+                            <br>neu: 
                             <input type="text" id="search_data" placeholder="" 
                                    autocomplete="off" name="sammelkriterium" 
                             style="width: 310px; border: 1px solid #FFFFFF;"/>
+                            <?php } else {
+                                if ($crit[0] != '') {
+                                    $criterienanzeige = implode(", ",$crit);
+                                    echo $criterienanzeige;
+                                }
+                            } ?>
+                            <input type="hidden" name="criterien_alt" 
+                                   value="<?php echo $criterien; ?>">
                         </td>
                     </tr>
                     <tr>
-                        <td valign="top">
-                            Displays
+                        <td valign="top" class="zelle">
+                            Displays:
                         </td>
-                        <td>
+                        <td class="zelle">
+                            <?php if ($_POST['bearbeiten'] == 1) { ?>
                             <input type="text" id="search_player" placeholder="" 
                                    autocomplete="off" name="sammelplayer" 
                             style="width: 310px; border: 1px solid #FFFFFF;"/>
+                            <?php } else { 
+                                if ($displays[0] != '') {
+                                    $displayanzeige = implode(",",$displays);
+                                    echo utf8_encode($displayanzeige);
+                                }
+                            } ?>
                         </td>
                     </tr>
                     <tr>
-                        <td>Infos:</td>
-                        <td>
+                        <td class="zelle">Infos:</td>
+                        <td class="zelle">
         <?php if ($_POST['bearbeiten'] == 1) { ?>
-                            <textarea name="text" rows="4" cols="42">
-                                <?php echo $text; ?>
-                            </textarea>
+        <textarea name="text" rows="4" cols="42"><?php echo $text; ?></textarea>
         <?php } else { 
             echo $text;
         } ?>
                         </td>
-                        <td>
+                        <td class="zelle">
                         <?php if ($_POST['bearbeiten'] == 1
                                 && $digooh != 1) { ?>
                             <button type="submit" name="speichern" 
@@ -486,35 +608,43 @@ if ($error) {
                 <?php
                 if ($einfrieren == 1) {
                 ?>
+                <script type="text/javascript">
+                    function refresh() {    
+                        setTimeout(function () {
+                            location.reload(true);
+                            return false;
+                        }, 50);
+                    }
+                </script>
                 <form action="export.php" method="post" target="_new">
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">            
                 <input type="hidden" name="user" value="<?php echo $user; ?>">
-                <button type="submit" name="export" 
-                                class="gruen" value="1">Exportieren
+                <button type="submit" name="exportieren" 
+                                class="gruen" value="1" onclick="refresh()">Exportieren
                         </button>
-                </form>
+                </form>                
                 <?php
                 }
                 ?>
             </td>
         </tr>
         <tr>
-            <td>
+            <td class="zelle">
                 <p>&nbsp;</p>
             </td>
         </tr>
 <tr>
-    <td><center>
+    <td class="zelle"><center>
         <table class="mitrahmen">
             <tr>
-                <td valign="bottom">Aktion</td>
-                <td valign="bottom">Displayname</td>
-                <td valign="bottom" class="rechts">DisplayID</td>
-                <td class="rechts">verf&uuml;gbare Einblendungen<br>pro Stunde</td>
+                <td valign="bottom" class="rahmenunten">Aktion</td>
+                <td valign="bottom" class="rahmenunten">Displayname</td>
+                <td valign="bottom" class="rahmenrechts">DisplayID</td>
+                <td class="rahmenrechts">verf&uuml;gbare Einblendungen<br>pro Stunde</td>
                 <?php
                 if ($export == 1) {
                 ?>
-                <td valign="bottom" class="rechts">&Auml;nderung seit Export</td>
+                <td valign="bottom" class="rahmenrechts">&Auml;nderung seit Export</td>
                 <?php
                 }
                 ?>
@@ -528,7 +658,7 @@ foreach ($buchungen as $key => $inhalt) {
     }
 ?>
                             
-                                <td>
+                                <td class="zelle">
                     <?php
                     if ($inhalt['problem'] == 1 || $inhalt['problem'] == 2) {
                         if ($inhalt['deleted'] == 1) {
@@ -547,7 +677,7 @@ foreach ($buchungen as $key => $inhalt) {
                     }
                     ?>
                                 </td>
-                                <td><?php echo utf8_encode($inhalt['displayname']); ?></td>
+                                <td class="zelle"><?php echo utf8_encode($inhalt['displayname']); ?></td>
                                 <td class="rechts">
                     <?php
                     if ($inhalt['restzeit'] <= 0) {
@@ -576,7 +706,7 @@ foreach ($buchungen as $key => $inhalt) {
                     } else {
                         $prob = '<font style="color: green">';
                     }
-                    echo $prob . $inhalt['lfsph'] . '</font>';
+                    echo $prob . (int)$inhalt['lfsph'] . '</font>';
                     ?>
                                 </td>
                                 <td class="rechts">
@@ -592,7 +722,7 @@ foreach ($buchungen as $key => $inhalt) {
                     } else {
                         $prob = '';
                     }
-                    echo $prob . $inhalt['lfsphjetzt'] . '</font>';
+                    echo $prob . (int)$inhalt['lfsphjetzt'] . '</font>';
                     ?>
                                 </td>
                 <?php
@@ -611,7 +741,7 @@ foreach ($buchungen as $key => $inhalt) {
                     } else {
                         $prob = '';
                     }
-                    echo $prob . $inhalt['lfsphjetzt'] . '</font>';
+                    echo $prob . (int)$inhalt['lfsphjetzt'] . '</font>';
                     ?>
                                 </td>
                     <?php
@@ -625,13 +755,13 @@ foreach ($buchungen as $key => $inhalt) {
                 </center></td>
                 </tr>                
                 <tr>
-                    <td width="100%">
+                    <td width="100%" class="zelle"><br>
                         <table class="ohnerahmen">
                             <tr>
 <?php
 if ($gesproblem == 1 && $inhalt['digooh'] != 1) {
 ?>
-                                <td>
+                                <td class="zelle">
                         <form action="details.php" method="post">
                             <button type="submit" name="neuupload" 
                                 class="grau" value="1">
@@ -665,42 +795,11 @@ if ($gesproblem == 1 && $inhalt['digooh'] != 1) {
                                 </td>
 <?php
 }
-
 if ($export == 1) {
-    if ($inhalt['inovisco'] != 1) {
+    if (is_null($inhalt['inovisco'])) {
 ?>
                                 <td valign="top" class="rechts">
-                                    <script type="text/javascript">
-                                $(document).ready(function() {
-                                    $('form').submit(function(event) {
-                                        var formData = {
-                                            'user' : <?php echo $user; ?>,
-                                            'angebot' : <?php echo angebot; ?>
-                                        };
-
-                                        $.ajax({
-                                            type        : 'POST',
-                                            url         : 'inout.php',
-                                            data        : formData,
-                                            dataType    : 'json',
-                                            encode      : true
-                                        })
-                                            .done(function(data) {
-                                                console.log(data);
-                                            });
-
-                                        event.preventDefault();
-                                    });
-                                });
-                                    </script>
-                        <form action="https://prod-61.westeurope.logic.azure.com:443/workflows/9c9cd20cdc0f4852b73e4178e263572c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Y3fmlxVqVrtmWdWMp0g6VNWc6ZfcCwmx_MTU0Ao6V4A">
-                        <input type="hidden" name="user" value="<?php echo $_SESSION['user']; ?>">
-                        <input type="hidden" name="Buchungsnummer" value="<?php echo $angebot; ?>">
-                        <input type="hidden" name="Kundennummer" value="<?php echo ""; ?>">
-                        <input type="hidden" name="Kampagnenname" value="<?php echo $name; ?>">
-                        <input type="hidden" name="Text" value="<?php echo $text; ?>">
-                        <input type="hidden" name="pruefen" value="1">
-                        <input type="hidden" name="andigooh" value="1">
+                        <form action="details.php" method="post">                        
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
         <input type="hidden" name="user" value="<?php echo $user; ?>">
                             <button type="submit" name="inogut" 
@@ -713,8 +812,44 @@ if ($export == 1) {
                                 </td>
 <?php
     }
+    elseif ($inhalt['send_digooh'] != 1) {
+        $datetime1 = date_create($start_date);
+        $datetime2 = date_create($end_date);
+        $tages = date_diff($datetime1, $datetime2);
+        $tage = $tages->format('%d');
+        
+        if (is_array($gelbeb)) {
+            $anzeb = array_count_values($gelbeb);
+            foreach ($anzeb as $key => $value) {  
+                $gelbei .= $value . ' * ' . $key . " | ";
+            }
+        }
+        $displaeb = $gruen . ' * ' . $play_times . " | ";
+        $displaeb .= $gelbei;
+?>
+                                <td valign="top" class="rechts">
+                        <form action="details.php" method="post">                        
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
+        <input type="hidden" name="user" value="<?php echo $_SESSION['user']; ?>">
+        <input type="hidden" name="telefon" value="<?php echo ''; ?>">
+        <input type="hidden" name="email" value="<?php echo $_SESSION['email']; ?>">
+        <input type="hidden" name="kunde" value="<?php echo $kunde; ?>">
+        <input type="hidden" name="zeitraum" value="<?php echo $start_date 
+                . " - " . $end_date; ?>">
+        <input type="hidden" name="tage" value="<?php echo (string)$tage; ?>">
+        <input type="hidden" name="displayeinblendungen" value="<?php echo $displaeb; ?>">
+        <input type="hidden" name="motive" value="<?php echo $motive; ?>">
+        <input type="hidden" name="datum" value="<?php echo date("d.m.Y"); ?>">
+        <input type="hidden" name="text" value="<?php echo $text; ?>">
+                            <button type="submit" name="send_digooh" 
+                                class="gruen" value="1">
+                            an Digooh senden</button>
+                        </form>
+                                </td>
+<?php
+    }
 //    elseif ($inhalt['digooh'] != 1 && $company == 'DIGOOH') {
-    elseif ($inhalt['digooh'] != 1 && $company == 'Update Test') {
+    elseif ($inhalt['digooh'] != 1 && $_SESSION['company'] == 'Update Test') {
 ?>
                                 <td valign="top" class="rechts">
                         <form action="details.php" method="post">
@@ -733,7 +868,7 @@ if ($export == 1) {
     }
     else {
 ?>
-                                <td>
+                                <td class="zelle">
                             <center>Die Pr&uuml;fung ist abgeschlossen.</center>
                                 </td>
 <?php
@@ -749,5 +884,14 @@ if ($export == 1) {
                 </tr>
             </table>
         </center>
+        <script type="text/javascript">
+        $('#search_data').tokenfield({
+            autocomplete: {
+              source: <?php echo json_encode($kritarr); ?>,
+              delay: 100
+            },
+            showAutocompleteOnFocus: true
+        })
+        </script>
     </body>
 </html>
