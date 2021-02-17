@@ -29,10 +29,6 @@ foreach ($worksheet->getRowIterator() AS $row) {
             $query = "INSERT INTO buchung (user, angebot, "
                     . "upload) VALUES ('" . $_SESSION['user'] . "', '" 
                     . $angebotsid . "', 1)";
-
-            if (mysqli_query($conn, $query)) {
-                unlink($filename);
-            }
         }
             $query = "INSERT INTO playerbuchung (players, angebot) VALUES ('" 
                     . $player . "', '" . $angebotsid . "')";
