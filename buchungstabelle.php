@@ -1,4 +1,5 @@
 <?php
+// get all from buchung
 $sql = "SELECT id, kunde, name, start_date, end_date, play_times,"
         . " agentur, angebot, inovisco, digooh, einfrieren, kunde, name"
         . " FROM buchung"
@@ -6,6 +7,7 @@ $sql = "SELECT id, kunde, name, start_date, end_date, play_times,"
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {
+    // get player
     $sql2 = "SELECT id, players, deleted, lfsph FROM playerbuchung WHERE 1"
         . $an;
     $db_erg2 = mysqli_query($conn, $sql2);
@@ -37,9 +39,9 @@ while ($row = mysqli_fetch_array( $db_erg)) {
 
         $client = new \GuzzleHttp\Client();
 
+        // get entries from least
         if ($start_date != '' && $end_date >= date("Y-m-d")) {
             try {
-                // get entries from least
                 $response = $client->post(
                     'https://cms.digooh.com:8081/api/v1/campaigns/least',
                     [

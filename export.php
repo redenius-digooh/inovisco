@@ -11,12 +11,14 @@ require_once 'db.php';
 $user = $_POST['user'];
 $an = " AND angebot = " . $_POST['angebot'];
 
+// get all bookings from the user
 $sql = "SELECT id, start_date, end_date, play_times, kunde, name FROM buchung"
         . " WHERE user = '" . $_POST['user'] . "' AND angebot = " 
             . $_POST['angebot'];
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array($db_erg)) {
+    // get 
     $sql2 = "SELECT id, players, deleted, lfsph FROM playerbuchung WHERE"
         . " angebot = " . $_POST['angebot'];
     $db_erg2 = mysqli_query($conn, $sql2);
