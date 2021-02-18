@@ -98,10 +98,52 @@ if (isset($_POST['speichern'])) {
             }
         }
         
+        $binarr = explode(", ", $_POST['bindkriterium']);
+        $bind = array();
+        if (is_array($binarr)) {
+            if (count($binarr) > 0 && $binarr[0] != '') {
+                foreach ($binarr as $bineri) {
+                    // get criteria id with given name
+                    $sql = "SELECT id FROM criteria WHERE name = '" . $bineri . "'";
+                    $db_erg = mysqli_query($conn, $sql);
+                    while ($row = mysqli_fetch_array( $db_erg)) {
+                        $bind[] = $row['id'];
+                    }
+                }
+            }
+        }
+        
+        $ausarr = explode(", ", $_POST['auskriterium']);
+        $aus = array();
+        if (is_array($ausarr)) {
+            if (count($ausarr) > 0 && $ausarr[0] != '') {
+                foreach ($ausarr as $auseri) {
+                    // get criteria id with given name
+                    $sql = "SELECT id FROM criteria WHERE name = '" . $auseri . "'";
+                    $db_erg = mysqli_query($conn, $sql);
+                    while ($row = mysqli_fetch_array( $db_erg)) {
+                        $aus[] = $row['id'];
+                    }
+                }
+            }
+        }
+        
         if ($krit[0] != '') {
             $kritstr = implode(", ", $krit);
         } else {
             $kritstr = $_POST['criterien_alt'];
+        }
+        
+        if ($bind[0] != '') {
+            $bindstr = implode(", ", $bind);
+        } else {
+            $bindstr = $_POST['bindcriterien_alt'];
+        }
+        
+        if ($aus[0] != '') {
+            $ausstr = implode(", ", $aus);
+        } else {
+            $ausstr = $_POST['auscriterien_alt'];
         }
         
         // update booking
@@ -113,7 +155,9 @@ if (isset($_POST['speichern'])) {
         . "agentur = '" . $_POST['agentur'] . "', "                
         . "text = '" . $_POST['text'] . "', "
         . "motive = '" . $_POST['motive'] . "', " 
-        . "criterien = '" . $kritstr . "', " 
+        . "criterien = '" . $kritstr . "', "
+        . "and_criteria = '" . $bindstr . "', "
+        . "exclude_criteria = '" . $ausstr . "', "
         . "kunde = '" . $_POST['kunde'] . "' WHERE id = " . $_POST['id'];
         $erg = mysqli_query($conn, $sql);
     }
@@ -183,19 +227,18 @@ if ($angebot) {
 }
 
 // get all criteria
-$sql = "SELECT id, name FROM criteria";
+$sql = "SELECT id, name FROM criteria ORDER BY name";
 $db_erg = mysqli_query($conn, $sql);
-$kriterien = array();
-$kritarr = array();
 while ($row = mysqli_fetch_array( $db_erg)) {
     $kriterien[] = array('id' => $row['id'], 'name' => $row['name']);
-    $kritarr[] = $row['name'];
+    $kritarr[] = utf8_encode($row['name']);
 }
 
 // get all bookings 
 $sql = "SELECT id, kunde, name, start_date, end_date, play_times, text, motive,"
             . " agentur, angebot, inovisco, digooh, einfrieren, export, criterien,"
-            . " send_digooh FROM buchung WHERE user = '" . $user . "'" . $an;
+            . " and_criteria, exclude_criteria, send_digooh FROM buchung WHERE "
+            . "user = '" . $user . "'" . $an;
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {
@@ -212,12 +255,14 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     $einfrieren = $row['einfrieren'];
     $export = $row['export'];
     $criterien = $row['criterien'];
+    $bindcriterien = $row['and_criteria'];
+    $auscriterien = $row['exclude_criteria'];
     $text = $row['text'];
     $motive = $row['motive'];
     $send_digooh = $row['send_digooh'];
 }
 
-// get criterianame
+// get criterianames
 $criteriaarr = explode(",", $criterien);
 if ($criteriaarr[0] != '') {
     foreach ($criteriaarr as $cri) {
@@ -225,6 +270,26 @@ if ($criteriaarr[0] != '') {
         $db = mysqli_query($conn, $sql);
         while ($row = mysqli_fetch_array( $db)) {
             $crit[] = $row['name'];
+        }
+    }
+}
+$bindcriteriaarr = explode(",", $bindcriterien);
+if ($bindcriteriaarr[0] != '') {
+    foreach ($bindcriteriaarr as $bindcri) {
+        $sql = "SELECT name FROM criteria WHERE id = " . $bindcri;
+        $db = mysqli_query($conn, $sql);
+        while ($row = mysqli_fetch_array( $db)) {
+            $bindn[] = $row['name'];
+        }
+    }
+}
+$auscriteriaarr = explode(",", $auscriterien);
+if ($auscriteriaarr[0] != '') {
+    foreach ($auscriteriaarr as $auscri) {
+        $sql = "SELECT name FROM criteria WHERE id = " . $auscri;
+        $db = mysqli_query($conn, $sql);
+        while ($row = mysqli_fetch_array( $db)) {
+            $ausn[] = $row['name'];
         }
     }
 }
@@ -558,6 +623,60 @@ if ($error) {
                     </tr>
                     <tr>
                         <td valign="top" class="zelle">
+                            Bind mit Kriterien:
+                        </td>
+                        <td class="zelle">
+                            <?php if ($_POST['bearbeiten'] == 1) { ?>
+                            alt: 
+                            <?php
+                            if ($bindn[0] != '') {
+                                $bindcriterienanzeige = implode(", ",$bindn);
+                                echo $bindcriterienanzeige;
+                            }
+                            ?>
+                            <br>neu: 
+                            <input type="text" id="search_bind" placeholder="" 
+                                   autocomplete="off" name="bindkriterium" 
+                            style="width: 310px; border: 1px solid #FFFFFF;"/>
+                            <?php } else {
+                                if ($bindn[0] != '') {
+                                    $bindcriterienanzeige = implode(", ",$bindn);
+                                    echo $bindcriterienanzeige;
+                                }
+                            } ?>
+                            <input type="hidden" name="bindcriterien_alt" 
+                                   value="<?php echo $bindcriterien; ?>">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="top" class="zelle">
+                            auszuschlie&szlig;ende Kriterien:
+                        </td>
+                        <td class="zelle">
+                            <?php if ($_POST['bearbeiten'] == 1) { ?>
+                            alt: 
+                            <?php
+                            if ($ausn[0] != '') {
+                                $auscriterienanzeige = implode(", ",$ausn);
+                                echo $auscriterienanzeige;
+                            }
+                            ?>
+                            <br>neu: 
+                            <input type="text" id="search_aus" placeholder="" 
+                                   autocomplete="off" name="auskriterium" 
+                            style="width: 310px; border: 1px solid #FFFFFF;"/>
+                            <?php } else {
+                                if ($ausn[0] != '') {
+                                    $auscriterienanzeige = implode(", ",$ausn);
+                                    echo $auscriterienanzeige;
+                                }
+                            } ?>
+                            <input type="hidden" name="auscriterien_alt" 
+                                   value="<?php echo $auscriterien; ?>">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="top" class="zelle">
                             Displays:
                         </td>
                         <td class="zelle">
@@ -884,6 +1003,25 @@ if ($export == 1) {
         </center>
         <script type="text/javascript">
         $('#search_data').tokenfield({
+            autocomplete: {
+              source: <?php echo json_encode($kritarr); ?>,
+              delay: 100
+            },
+            showAutocompleteOnFocus: true
+        })
+        </script>
+        <script type="text/javascript">
+        $('#search_bind').tokenfield({
+            autocomplete: {
+              source: <?php echo json_encode($kritarr); ?>,
+              delay: 100
+            },
+            showAutocompleteOnFocus: true
+        })
+        </script>
+
+        <script type="text/javascript">
+        $('#search_aus').tokenfield({
             autocomplete: {
               source: <?php echo json_encode($kritarr); ?>,
               delay: 100

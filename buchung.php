@@ -34,7 +34,7 @@ if ($_GET['manuell'] == 1 || $_POST['manuell'] == 1) {
     $db_erg = mysqli_query($conn, $sql);
     while ($row = mysqli_fetch_array( $db_erg)) {
         $kriterien[] = array('id' => $row['id'], 'name' => $row['name']);
-        $kritarr[] = utf8_encode($value->name);
+        $kritarr[] = utf8_encode($row['name']);
     }
     
     // get max offer
@@ -129,6 +129,36 @@ if ($_POST['speichern'] == 1) {
             }
         }
         
+        $binarr = explode(", ", $_POST['bindkriterium']);
+        $bin = array();
+        if (is_array($binarr)) {
+            if (count($binarr) > 0 && $binarr[0] != '') {
+                foreach ($binarr as $bineri) {
+                    // get criteria id with given name
+                    $sql = "SELECT id FROM criteria WHERE name = '" . $bineri . "'";
+                    $db_erg = mysqli_query($conn, $sql);
+                    while ($row = mysqli_fetch_array( $db_erg)) {
+                        $bin[] = $row['id'];
+                    }
+                }
+            }
+        }
+        
+        $ausarr = explode(", ", $_POST['auskriterium']);
+        $aus = array();
+        if (is_array($ausarr)) {
+            if (count($ausarr) > 0 && $ausarr[0] != '') {
+                foreach ($ausarr as $auseri) {
+                    // get criteria id with given name
+                    $sql = "SELECT id FROM criteria WHERE name = '" . $auseri . "'";
+                    $db_erg = mysqli_query($conn, $sql);
+                    while ($row = mysqli_fetch_array( $db_erg)) {
+                        $aus[] = $row['id'];
+                    }
+                }
+            }
+        }
+        
         // insert into buchung
         if ($_POST['player'][0] == '') $_POST['player'][] = 0;
         $player = array_unique($_POST['player']);
@@ -136,9 +166,11 @@ if ($_POST['speichern'] == 1) {
         foreach ($player as $playerid) {
             if ($i == 1) {
                 $kritstr = implode(", ", $krit);
+                $binstr = implode(", ", $bin);
+                $ausstr = implode(", ", $aus);
                 $sql = "INSERT INTO buchung (start_date, end_date, play_times, name,"
-                        . "agentur, kunde, angebot, user, criterien, text,"
-                        . "motive, upload)"
+                        . "agentur, kunde, angebot, user, criterien, "
+                        . "and_criteria, exclude_criteria, text, motive, upload)"
                         . " VALUES ("
                         . "'" . $_POST['start_date'] . "', "
                         . "'" . $_POST['end_date'] . "', "
@@ -149,6 +181,8 @@ if ($_POST['speichern'] == 1) {
                         . "'" . $angebot . "', "
                         . "'" . $_SESSION['user'] . "', "
                         . "'" . $kritstr . "', "
+                        . "'" . $binstr . "', "
+                        . "'" . $ausstr . "', "
                         . "'" . $_POST['text'] . "', "
                         . "'" . $_POST['motive'] . "', "
                         . "'2')";
@@ -320,6 +354,26 @@ else {
                     </tr>
                     <tr>
                         <td valign="top" class="zelle">
+                            Bind mit Kriterien:
+                        </td>
+                        <td class="zelle">
+                            <input type="text" id="search_bind" placeholder="" 
+                                   autocomplete="off" name="bindkriterium" 
+                            style="width: 310px; border: 1px solid #FFFFFF;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="top" class="zelle">
+                            auszuschlie&szlig;ende Kriterien:
+                        </td>
+                        <td class="zelle">
+                            <input type="text" id="search_aus" placeholder="" 
+                                   autocomplete="off" name="auskriterium" 
+                            style="width: 310px; border: 1px solid #FFFFFF;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="top" class="zelle">
                             Displays:
                         </td>
                         <td class="zelle">
@@ -333,9 +387,7 @@ else {
                             Infos:
                         </td>
                         <td class="zelle">
-                            <textarea name="text" rows="4" cols="42">
-                                <?php echo $text; ?>
-                            </textarea>
+        <textarea name="text" rows="4" cols="42"><?php echo $text; ?></textarea>
                         </td>
                     </tr>
                     <tr>
@@ -370,6 +422,26 @@ else {
                     showAutocompleteOnFocus: true
                 })
                 </script>
+                
+                <script type="text/javascript">
+                $('#search_bind').tokenfield({
+                    autocomplete: {
+                      source: <?php echo json_encode($kritarr); ?>,
+                      delay: 100
+                    },
+                    showAutocompleteOnFocus: true
+                })
+		</script>
+                
+                <script type="text/javascript">
+                $('#search_aus').tokenfield({
+                    autocomplete: {
+                      source: <?php echo json_encode($kritarr); ?>,
+                      delay: 100
+                    },
+                    showAutocompleteOnFocus: true
+                })
+		</script>
         </center>
     </body>
 </html>
