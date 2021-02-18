@@ -8,6 +8,7 @@ require __DIR__ .  '/vendor/autoload.php';
 
 $namefehlt = 0;
 
+// upload file
 if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
     if ($_FILES['datei']["type"] == 
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
@@ -24,33 +25,19 @@ if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
     }
 }
 
+// manuel entry
 if ($_GET['manuell'] == 1 || $_POST['manuell'] == 1) {
-    // username
     require_once __DIR__ .  '/vendor/autoload.php';
 
-    $client = new \GuzzleHttp\Client();
-    $response = $client->get(
-        'https://cms.digooh.com:8081/api/v1/criteria',
-        [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ],
-            'query' => [
-                'sort'=> 'name'
-            ],
-        ]
-    );
-    $body = $response->getBody();
-    $data = json_decode((string) $body);
-    $kriterien = array();
-    $kritarr = array();
-    foreach ($data->data as $key => $value) {
-        $kriterien[] = array('id' => $value->id, 'name' => $value->name);
+    // get all criteria
+    $sql = "SELECT id, name FROM criteria ORDER BY name";
+    $db_erg = mysqli_query($conn, $sql);
+    while ($row = mysqli_fetch_array( $db_erg)) {
+        $kriterien[] = array('id' => $row['id'], 'name' => $row['name']);
         $kritarr[] = utf8_encode($value->name);
     }
     
+    // get max offer
     $sql = "SELECT MAX(angebot) AS angebot FROM buchung WHERE user = '" 
             . $_SESSION['user'] . "'";
     $db_erg = mysqli_query($conn, $sql);
@@ -58,6 +45,7 @@ if ($_GET['manuell'] == 1 || $_POST['manuell'] == 1) {
         $angebot = $row['angebot'] + 1;
     }
     
+    // get all players
     $sql = "SELECT id, name FROM player ORDER BY name";
     $db_erg = mysqli_query($conn, $sql);
     $play = array();
@@ -67,7 +55,9 @@ if ($_GET['manuell'] == 1 || $_POST['manuell'] == 1) {
     }
 }
 
+// update
 if ($_POST['speichern'] == 1) {
+    // get max offer
     $sql = "SELECT MAX(angebot) AS angebot FROM buchung WHERE user = '" 
             . $_SESSION['user'] . "'";
     $db_erg = mysqli_query($conn, $sql);
@@ -89,27 +79,15 @@ if ($_POST['speichern'] == 1) {
         if (is_array($kriarr)) {
             if (count($kriarr) > 0 && $kriarr[0] != '') {
                 foreach ($kriarr as $kriteri) {
-                    $client = new \GuzzleHttp\Client();
-                    $response = $client->get(
-                        'https://cms.digooh.com:8081/api/v1/criteria',
-                        [
-                            'headers' => [
-                                'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
-                                'Content-Type' => 'application/json',
-                                'Accept' => 'application/json',
-                            ],
-                            'query' => [
-                                'filter[name]'=> $kriteri
-                            ],
-                        ]
-                    );
-                    $body = $response->getBody();
-                    $data = json_decode((string) $body);
-                    foreach ($data->data as $key => $value) {
-                        $einzelkriterium = $value->id . ",";
-                        $krit[] = $value->id;
+                    // get criteria id with given name
+                    $sql = "SELECT id FROM criteria WHERE name = '" . $kriteri . "'";
+                    $db_erg = mysqli_query($conn, $sql);
+                    while ($row = mysqli_fetch_array( $db_erg)) {
+                        $einzelkriterium = $row['id'] . ",";
+                        $krit[] = $row['id'];
                     }
 
+                    // get players
                     $client = new \GuzzleHttp\Client();
                     $response = $client->get(
                         'https://cms.digooh.com:8081/api/v1/players',
@@ -139,32 +117,19 @@ if ($_POST['speichern'] == 1) {
         if (is_array($playerarr)) {
             if ($playerarr[0] != '') {
                 foreach ($playerarr as $playe) {
-                    $client = new \GuzzleHttp\Client();
-                    $response = $client->get(
-                        'https://cms.digooh.com:8081/api/v1/players',
-                        [
-                            'headers' => [
-                                'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
-                                'Content-Type' => 'application/json',
-                                'Accept' => 'application/json',
-                            ],
-                            'query' => [
-                                'include'=> 'criteria',
-                                'filter[name]'=> $playe,
-                                'limit'=> '130'
-                            ]
-                        ]
-                    );
-                    $body = $response->getBody();
-                    $data = json_decode((string) $body);
-                    foreach ($data->data as $key => $value) {
-                        if (!in_array($value->id, $_POST['player'])) {
+                    // get player id with given name
+                    $$sql = "SELECT id FROM player WHERE name = " . $playe;
+                    $db = mysqli_query($conn, $sql);
+                    while ($row = mysqli_fetch_array($db)) {
+                        if (!in_array($row['id'], $_POST['player'])) {
                             $_POST['player'][] = $value->id;
                         }
                     }
                 }
             }
         }
+        
+        // insert into buchung
         if ($_POST['player'][0] == '') $_POST['player'][] = 0;
         $player = array_unique($_POST['player']);
         $i = 1;
@@ -190,6 +155,7 @@ if ($_POST['speichern'] == 1) {
                 $erg = mysqli_query($conn, $sql);
             }
             
+            // insert into playerbuchung
             $sql = "INSERT INTO playerbuchung (players, angebot)"
                     . " VALUES ("
                     . "'" . $playerid . "', "
