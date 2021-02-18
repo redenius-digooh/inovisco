@@ -200,7 +200,6 @@ $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {
     $id = $row['id'];
-    $playerid = $playerid;
     $start_date = $row['start_date'];
     $end_date = $row['end_date'];
     $play_times = $row['play_times'];
@@ -210,10 +209,8 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     $angebot = $row['angebot'];
     $digooh = $row['digooh'];
     $inovisco = $row['inovisco'];
-    $digooh = $row['digooh'];
     $einfrieren = $row['einfrieren'];
     $export = $row['export'];
-    $alleid[] = $playerid;
     $criterien = $row['criterien'];
     $text = $row['text'];
     $motive = $row['motive'];
@@ -243,7 +240,8 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
     $lfsph = $row2['lfsph'];
     $players = $row2['players'];
     $playerid = $row2['id'];
-
+    $alleid[] = $row2['id'];
+    $alleplayer[] = $row2['players'];
     require_once __DIR__ .  '/vendor/autoload.php';
     
     // get name for player
@@ -322,11 +320,11 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
 if ($_POST['gut'] == 1) {
     $sql = "UPDATE buchung SET digooh = 1 WHERE user = '" . $user 
             . "' AND angebot = '" . $_POST['angebot'] . "'";
-//    $erg = mysqli_query($conn, $sql);
+    $erg = mysqli_query($conn, $sql);
 
     // set new campaign
     require_once __DIR__ .  '/vendor/autoload.php';
-    $allidstr = implode(",", $alleid);
+    $alleplayers = implode(",", $alleplayer);
     $client = new \GuzzleHttp\Client();
     $response = $client->post(
         'https://cms.digooh.com:8081/api/v1/campaigns',
@@ -336,30 +334,29 @@ if ($_POST['gut'] == 1) {
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
             ],
-            'form_params' => [
+            'json' => [
                 'name' => $name,
                 'start_date' => $start_date,
                 'end_date' => $end_date,
-                'publish' => false,
+        //        'publish' => false,
                 'priority' => 2,
                 'play_type' => 0,
                 'play_times' => $play_times,
-                'time_flag' => false,
-                'start_time' => '00:00',
-                'end_time' => '00:00',
+        //        'time_flag' => false,
                 'criteria' => $criterien,
-                'and_criteria' => $o[0],
-                'exclude_criteria' => $o[0],
-                'players' => $alleidstr,
-                'tags' => $o[0],
-                'tag_option' => 2.0,
-                'media' => $o[0],
-                'descr' => 'explicabo'
+        //        'and_criteria' => $o[0],
+        //        'exclude_criteria' => $o[0],
+                'players' => strval($alleplayers),
+        //        'tags' => $o[0],
+                'tag_option' => 2,
+        //        'media' => $o[0],
+                'descr' => $text
             ]
         ]
     );
     $body = $response->getBody();
-    print_r(json_decode((string) $body));
+    
+    header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $_POST['angebot']);
 }
 
 // Digooh declined
