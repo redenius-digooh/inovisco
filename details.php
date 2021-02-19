@@ -326,62 +326,57 @@ if ($auscriteriaarr[0] != '') {
 }
 
 // get players
-$sql = "SELECT id, players, deleted, lfsph FROM playerbuchung WHERE"
-        . " angebot = " . $angebot;
+$sql = "SELECT a.players, a.id, a.deleted, a.lfsph, b.name FROM playerbuchung AS a"
+        . " LEFT JOIN player AS b ON a.players = b.id"
+        . " WHERE a.angebot = " . $angebot . " ORDER BY b.name";
 $db_erg2 = mysqli_query($conn, $sql);
 $gruen = 0;
-
+$alleplayer = array();
 while ($row2 = mysqli_fetch_array($db_erg2)) {
-    $deleted = $row2['deleted'];
-    $lfsph = $row2['lfsph'];
-    $players = $row2['players'];
-    $playerid = $row2['id'];
-    $alleid[] = $row2['id'];
-    $alleplayer[] = $row2['players'];
-    require_once __DIR__ .  '/vendor/autoload.php';
-    
-    // get name for player
-    $sql = "SELECT name FROM player WHERE id = " . $players;
-    $db = mysqli_query($conn, $sql);
-    while ($row = mysqli_fetch_array($db)) {
-        $displayname = $row['name'];
+    if (!in_array($row2['players'], $alleplayer)) {
+        $deleted = $row2['deleted'];
+        $lfsph = $row2['lfsph'];
+        $players = $row2['players'];
+        $playerid = $row2['id'];
+        $alleid[] = $row2['id'];
+        $alleplayer[] = $row2['players'];
+        $displayname = $row2['name'];
         $displays[] = $displayname;
-    }
+        require_once __DIR__ .  '/vendor/autoload.php';
 
-    $client = new \GuzzleHttp\Client();
-    
-    // get entries from least
-    if ($start_date != '' && $end_date >= date("Y-m-d")) {
-        try {
-            $response = $client->post(
-                'https://cms.digooh.com:8081/api/v1/campaigns/least',
-                [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
-                        'Content-Type' => 'application/json',
-                        'Accept' => 'application/json',
-                    ],
-                    'json' => [
-                        'start_date' => $start_date,
-                        'end_date' => $end_date,
-                        'players' => $players
+        $client = new \GuzzleHttp\Client();
+
+        // get entries from least
+        if ($start_date != '' && $end_date >= date("Y-m-d")) {
+            try {
+                $response = $client->post(
+                    'https://cms.digooh.com:8081/api/v1/campaigns/least',
+                    [
+                        'headers' => [
+                            'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
+                            'Content-Type' => 'application/json',
+                            'Accept' => 'application/json',
+                        ],
+                        'json' => [
+                            'start_date' => $start_date,
+                            'end_date' => $end_date,
+                            'players' => $players
+                        ]
                     ]
-                ]
-            );
-            $body = $response->getBody();
-            $data = json_decode((string) $body);
-            
-            foreach ($data as $key => $value) {
-                $lfsphjetzt = $value / 10;
+                );
+                $body = $response->getBody();
+                $data = json_decode((string) $body);
+
+                foreach ($data as $key => $value) {
+                    $lfsphjetzt = $value / 10;
+                }
+
+                $restzeit = ($lfsphjetzt);
+            }
+            catch (Exception $e) {
+                echo $e->getMessage();
             }
 
-            $restzeit = ($lfsphjetzt);
-        }
-        catch (Exception $e) {
-            echo $e->getMessage();
-        }
-
-        if ($deleted != 1) {
             if ($restzeit <= 0) {
                 $problem = 1;
                 $gesproblem = 1;
@@ -398,16 +393,16 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
                 $gruen = $gruen + 1;
             }
         }
-    }
     
-    $buchungen[] = array('agentur' => $agentur, 'name' => $name,
-        'players' => $players, 'problem' => $problem, 'start_date' =>
-        $start_date, 'end_date' => $end_date, 'id' => $id, 
-        'deleted' => $deleted, 'restzeit' => $restzeit, 'lfsph' => $lfsph,
-        'play_times' => $play_times, 'displayname' => $displayname,
-        'inovisco' => $inovisco, 'digooh' => $digooh, 'lfsphjetzt' => 
-        $lfsphjetzt, 'playerid' => $playerid, 'criterien' => $criterien,
-        'text' => $text, 'send_digooh' => $send_digooh);
+        $buchungen[] = array('agentur' => $agentur, 'name' => $name,
+            'players' => $players, 'problem' => $problem, 'start_date' =>
+            $start_date, 'end_date' => $end_date, 'id' => $id, 
+            'deleted' => $deleted, 'restzeit' => $restzeit, 'lfsph' => $lfsph,
+            'play_times' => $play_times, 'displayname' => $displayname,
+            'inovisco' => $inovisco, 'digooh' => $digooh, 'lfsphjetzt' => 
+            $lfsphjetzt, 'playerid' => $playerid, 'criterien' => $criterien,
+            'text' => $text, 'send_digooh' => $send_digooh);
+    }
 }
 
 // Digooh approved
@@ -486,8 +481,17 @@ require_once 'oben2.php';
 ?>
             <table class="ohnerahmen">
                 <tr>
-                    <td class="blau">Prozessschritt: Pr&uuml;fung Inovisco
-                    </td>
+<?php
+if ($inovisco != 1) {
+?>
+                    <td class="blau">Prozessschritt: Pr&uuml;fung Inovisco</td>
+<?php
+} else {
+?>
+                    <td class="blau">Prozessschritt: Pr&uuml;fung Digooh</td>
+<?php
+}
+?>
                 </tr>
                 <tr>
                     <td class="zelle">
@@ -772,8 +776,166 @@ if ($error) {
                 <p>&nbsp;</p>
             </td>
         </tr>
+                <tr>
+                    <td width="100%" class="zelle"><br>
+                        <table class="ohnerahmen">
+                            <tr>
+<?php
+if ($gesproblem == 1 && $inovisco != 1) {
+?>
+                                <td class="zelle">
+                        <form action="details.php" method="post">
+                            <button type="submit" name="neuupload" 
+                                class="grau" value="1">
+                            Neuer Upload</button>
+                            <button type="submit" name="teildelete" 
+                                class="rot" value="1">
+                            Alle unvollst&auml;ndigen<br>l&ouml;schen</button>  
+                            <button type="submit" name="delete" 
+                                class="rot" value="1">
+                            Alle nicht verf&uuml;gbaren<br>l&ouml;schen</button>
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
+                            <?php
+                            if ($teilprobleme) {
+                                foreach ($teilprobleme as $item) {
+                            ?>
+                            <input type="hidden" name="delete_teilkampagne[]" 
+                                   value="<?php echo $item; ?>">
+                            <?php
+                                }
+                            }
+                            if ($probleme) {
+                                foreach ($probleme as $item) {
+                            ?>
+                            <input type="hidden" name="delete_kampagne[]" 
+                                   value="<?php echo $item; ?>">
+                            <?php
+                                }
+                            }
+                            ?>
+                        </form>
+                                </td>
+<?php
+}
+if ($export == 1) {
+    if ($inovisco != 1) {
+?>
+                                <td valign="top" class="rechts">
+                        <form action="details.php" method="post">                        
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
+        <input type="hidden" name="user" value="<?php echo $user; ?>">
+                            <button type="submit" name="inogut" 
+                                class="gruen" value="1">
+                            Check Verfügbarkeit</button>
+                        </form>
+                                </td>
+<?php
+    }
+    elseif ($send_digooh != 1) {
+        $datetime1 = date_create($start_date);
+        $datetime2 = date_create($end_date);
+        $tages = date_diff($datetime1, $datetime2);
+        $tage = $tages->format('%d');
+        
+        if (is_array($gelbeb)) {
+            $anzeb = array_count_values($gelbeb);
+            foreach ($anzeb as $key => $value) {  
+                $gelbei .= $value . ' * ' . $key . " | ";
+            }
+        }
+        $displaeb = $gruen . ' * ' . $play_times . " | ";
+        $displaeb .= $gelbei;
+?>
+                                <td valign="top" class="rechts">
+                        <form action="details.php" method="post">                        
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
+        <input type="hidden" name="user" value="<?php echo $_SESSION['user']; ?>">
+        <input type="hidden" name="telefon" value="<?php echo ''; ?>">
+        <input type="hidden" name="email" value="<?php echo $_SESSION['email']; ?>">
+        <input type="hidden" name="kunde" value="<?php echo $kunde; ?>">
+        <input type="hidden" name="zeitraum" value="<?php echo $start_date 
+                . " - " . $end_date; ?>">
+        <input type="hidden" name="tage" value="<?php echo (string)$tage; ?>">
+        <input type="hidden" name="displayeinblendungen" value="<?php echo $displaeb; ?>">
+        <input type="hidden" name="motive" value="<?php echo $motive; ?>">
+        <input type="hidden" name="datum" value="<?php echo date("d.m.Y"); ?>">
+        <input type="hidden" name="text" value="<?php echo $text; ?>">
+                            <button type="submit" name="send_digooh" 
+                                class="gruen" value="1">
+                            an Digooh senden</button>
+                        </form>
+                                </td>
+<?php
+    }
+//    elseif ($inhalt['digooh'] != 1 && $company == 'DIGOOH') {
+    elseif ($digooh != 1 && $_SESSION['company'] == 'Update Test' && 
+            $_POST['schlecht'] != 1) {
+?>
+                                <td valign="top" class="rechts">
+                        <form action="details.php" method="post">
+                  <input type="hidden" name="user" value="<?php echo $user; ?>">
+                  <input type="hidden" name="geprueft" value="1">
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
+                            <button type="submit" name="gut" 
+                                class="gruen" value="1">
+                            Digooh: Buchung best&auml;tigen</button>
+                            <button type="submit" name="schlecht" 
+                                class="rot" value="1">
+                            Digooh: Buchung ablehnen</button>
+                        </form>
+                                </td>
+<?php
+    }
+    elseif ($_POST['schlecht'] == 1) {
+?>
+                                <td>
+                        <form action="details.php" method="post">
+                            <table class="ohnerahmen">
+                    <tr>
+                        <td valign="top" class="zelle">
+                            Infos zur Ablehnung:
+                        </td>
+                        <td class="zelle">
+                <textarea name="ablehnungsinfo" rows="4" cols="42"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="top" class="rechts" colspan="2">
+                  <input type="hidden" name="user" value="<?php echo $user; ?>">
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
+                            <button type="submit" name="sendschlecht" 
+                                class="rot" value="1">
+                            Info an Verfasser senden</button>
+                        </form>
+                                </td>
+<?php
+    } 
+    else {
+?>
+                                <td class="zelle">
+                            <center>Die Pr&uuml;fung ist abgeschlossen.</center>
+                                </td>
+<?php
+    }
+}
+
+if ($_POST['sendschlecht'] == 1) {
+?>
+                                <td class="zelle">
+                            <center>Die Info-Mail wurde versendet.</center>
+                                </td>
+<?php
+}
+?>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+                    </td>
+                </tr>
 <tr>
-    <td class="zelle"><center>
+    <td class="zelle" colspan="5"><center>
         <table class="mitrahmen">
             <tr>
                 <td valign="bottom" class="rahmenunten">Aktion</td>
@@ -799,19 +961,21 @@ foreach ($buchungen as $key => $inhalt) {
                             
                                 <td class="zelle">
                     <?php
-                    if ($inhalt['problem'] == 1 || $inhalt['problem'] == 2) {
-                        if ($inhalt['deleted'] == 1) {
+                    if ($inovisco != 1) {
+                        if ($inhalt['problem'] == 1 || $inhalt['problem'] == 2) {
+                            if ($inhalt['deleted'] == 1) {
                     ?>
 <a href="details.php?playerid=<?php echo $inhalt['playerid']; ?>&undo=1&angebot=<?php echo $angebot; ?>">
                                 <img src="abbrechengr.png" alt="l&ouml;schen">
                                     </a>
                     <?php
-                        } else {
+                            } else {
                     ?>
 <a href="details.php?playerid=<?php echo $inhalt['playerid']; ?>&delete=1&angebot=<?php echo $angebot; ?>">
                                 <img src="abbrechenkl.png" alt="l&ouml;schen">
                                     </a>
                     <?php
+                            }
                         }
                     }
                     ?>
@@ -892,170 +1056,6 @@ foreach ($buchungen as $key => $inhalt) {
 ?>
                         </table>
                 </center></td>
-                </tr>                
-                <tr>
-                    <td width="100%" class="zelle"><br>
-                        <table class="ohnerahmen">
-                            <tr>
-<?php
-if ($gesproblem == 1 && $inhalt['digooh'] != 1) {
-?>
-                                <td class="zelle">
-                        <form action="details.php" method="post">
-                            <button type="submit" name="neuupload" 
-                                class="grau" value="1">
-                            Neuer Upload</button>
-                            <button type="submit" name="teildelete" 
-                                class="rot" value="1">
-                            Alle unvollst&auml;ndigen<br>l&ouml;schen</button>  
-                            <button type="submit" name="delete" 
-                                class="rot" value="1">
-                            Alle nicht verf&uuml;gbaren<br>l&ouml;schen</button>
-            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
-                            <?php
-                            if ($teilprobleme) {
-                                foreach ($teilprobleme as $item) {
-                            ?>
-                            <input type="hidden" name="delete_teilkampagne[]" 
-                                   value="<?php echo $item; ?>">
-                            <?php
-                                }
-                            }
-                            if ($probleme) {
-                                foreach ($probleme as $item) {
-                            ?>
-                            <input type="hidden" name="delete_kampagne[]" 
-                                   value="<?php echo $item; ?>">
-                            <?php
-                                }
-                            }
-                            ?>
-                        </form>
-                                </td>
-<?php
-}
-if ($export == 1) {
-    if (is_null($inhalt['inovisco'])) {
-?>
-                                <td valign="top" class="rechts">
-                        <form action="details.php" method="post">                        
-            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
-        <input type="hidden" name="user" value="<?php echo $user; ?>">
-                            <button type="submit" name="inogut" 
-                                class="gruen" value="1">
-                            Check Verfügbarkeit</button>
-                        </form>
-                                </td>
-<?php
-    }
-    elseif ($inhalt['send_digooh'] != 1) {
-        $datetime1 = date_create($start_date);
-        $datetime2 = date_create($end_date);
-        $tages = date_diff($datetime1, $datetime2);
-        $tage = $tages->format('%d');
-        
-        if (is_array($gelbeb)) {
-            $anzeb = array_count_values($gelbeb);
-            foreach ($anzeb as $key => $value) {  
-                $gelbei .= $value . ' * ' . $key . " | ";
-            }
-        }
-        $displaeb = $gruen . ' * ' . $play_times . " | ";
-        $displaeb .= $gelbei;
-?>
-                                <td valign="top" class="rechts">
-                        <form action="details.php" method="post">                        
-            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
-        <input type="hidden" name="user" value="<?php echo $_SESSION['user']; ?>">
-        <input type="hidden" name="telefon" value="<?php echo ''; ?>">
-        <input type="hidden" name="email" value="<?php echo $_SESSION['email']; ?>">
-        <input type="hidden" name="kunde" value="<?php echo $kunde; ?>">
-        <input type="hidden" name="zeitraum" value="<?php echo $start_date 
-                . " - " . $end_date; ?>">
-        <input type="hidden" name="tage" value="<?php echo (string)$tage; ?>">
-        <input type="hidden" name="displayeinblendungen" value="<?php echo $displaeb; ?>">
-        <input type="hidden" name="motive" value="<?php echo $motive; ?>">
-        <input type="hidden" name="datum" value="<?php echo date("d.m.Y"); ?>">
-        <input type="hidden" name="text" value="<?php echo $text; ?>">
-                            <button type="submit" name="send_digooh" 
-                                class="gruen" value="1">
-                            an Digooh senden</button>
-                        </form>
-                                </td>
-<?php
-    }
-//    elseif ($inhalt['digooh'] != 1 && $company == 'DIGOOH') {
-    elseif ($inhalt['digooh'] != 1 && $_SESSION['company'] == 'Update Test' && 
-            $_POST['schlecht'] != 1) {
-?>
-                                <td valign="top" class="rechts">
-                        <form action="details.php" method="post">
-                  <input type="hidden" name="user" value="<?php echo $user; ?>">
-                  <input type="hidden" name="geprueft" value="1">
-            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
-                            <button type="submit" name="gut" 
-                                class="gruen" value="1">
-                            Digooh: Buchung best&auml;tigen</button>
-                            <button type="submit" name="schlecht" 
-                                class="rot" value="1">
-                            Digooh: Buchung ablehnen</button>
-                        </form>
-                                </td>
-<?php
-    }
-    elseif ($_POST['schlecht'] == 1) {
-?>
-                                <td>
-                        <form action="details.php" method="post">
-                            <?php
-        if ($_POST['schlecht'] == 1) {
-        ?>
-                            <table class="ohnerahmen">
-                    <tr>
-                        <td valign="top" class="zelle">
-                            Infos zur Ablehnung:
-                        </td>
-                        <td class="zelle">
-                <textarea name="ablehnungsinfo" rows="4" cols="42"></textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td valign="top" class="rechts" colspan="2">
-        <?php
-        }
-        ?>
-                  <input type="hidden" name="user" value="<?php echo $user; ?>">
-            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
-                            <button type="submit" name="sendschlecht" 
-                                class="rot" value="1">
-                            Info an Verfasser senden</button>
-                        </form>
-                                </td>
-<?php
-    } 
-    else {
-?>
-                                <td class="zelle">
-                            <center>Die Pr&uuml;fung ist abgeschlossen.</center>
-                                </td>
-<?php
-    }
-}
-
-if ($_POST['sendschlecht'] == 1) {
-?>
-                                <td class="zelle">
-                            <center>Die Info-Mail wurde versendet.</center>
-                                </td>
-<?php
-}
-?>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-                    </td>
                 </tr>
             </table>
         </center>
