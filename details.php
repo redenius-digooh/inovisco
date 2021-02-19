@@ -408,8 +408,6 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
         'inovisco' => $inovisco, 'digooh' => $digooh, 'lfsphjetzt' => 
         $lfsphjetzt, 'playerid' => $playerid, 'criterien' => $criterien,
         'text' => $text, 'send_digooh' => $send_digooh);
-    
-    sleep(1);
 }
 
 // Digooh approved
