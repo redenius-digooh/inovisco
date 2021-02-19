@@ -65,8 +65,8 @@ if ($result->num_rows > 0) {
     }
 }
 
-$sql = "SELECT DISTINCT(angebot), name, agentur, upload, inovisco, digooh FROM "
-        . "buchung WHERE user = '" . 
+$sql = "SELECT DISTINCT(angebot), name, agentur, upload, inovisco, digooh, "
+        . "datum, kunde FROM buchung WHERE user = '" . 
         $_SESSION['user'] . "'" . $was . $agent . $kund . $angeb . $order;
 $result = $conn->query($sql);
 ?>
@@ -154,8 +154,11 @@ $result = $conn->query($sql);
                                     </table><br>
                                     <table class="ohnerahmen">
                             <tr>
-                                <td class="rahmenunten">Kampagne</td>
-                                <td class="rahmenunten">Agentur</td>
+                                <td class="rahmenunten" valign="bottom">Kampagne</td>
+                                <td class="rahmenunten" valign="bottom">Agentur</td>
+                                <td class="rahmenunten" valign="bottom">Angebots-nummer</td>
+                                <td class="rahmenunten" valign="bottom">Kunde</td>
+                                <td class="rahmenunten" valign="bottom">Erstelldatum</td>
                                 <td colspan="8"></td>
                             </tr>
 <?php
@@ -163,10 +166,13 @@ if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
 ?>
                             <tr>
-            <td class="zelle"><a href="details.php?angebot=<?php echo $row['angebot']; ?>">
+<td class="zelle" valign="bottom"><a href="details.php?angebot=<?php echo $row['angebot']; ?>">
                                         <?php echo $row['name']; ?></a></td>
-                                <td class="zelle"><?php echo $row['agentur']; ?></td>
-                                <td width="90px" class="zelle">
+            <td class="zelle" valign="bottom"><?php echo $row['agentur']; ?></td>
+            <td class="zelle" valign="bottom"><?php echo $row['angebot']; ?></td>
+            <td class="zelle" valign="bottom"><?php echo $row['kunde']; ?></td>
+            <td class="zelle" valign="bottom"><?php echo $row['datum']; ?></td>
+                                <td width="90px" class="zelle" valign="bottom">
                                     <table class="table_klein">
                                         <tr>
                                     <?php if ($row['upload'] == 1) { ?>
@@ -179,7 +185,7 @@ if ($result->num_rows > 0) {
                                         </tr>
                                     </table>
                                 </td>
-                                <td class="zelle">&#10132;&#10132;</td>
+                                <td class="zelle">&#10132;</td>
                                 <td width="90px" class="zelle">
                                     <table class="table_klein">
                                         <tr>
@@ -193,7 +199,7 @@ if ($result->num_rows > 0) {
                                         </tr>
                                     </table>
                                 </td>
-                                <td class="zelle">&#10132;&#10132;</td>
+                                <td class="zelle">&#10132;</td>
                                 <td width="90px" class="zelle">
                                     <table class="table_klein">
                                         <tr>                                                
@@ -207,7 +213,7 @@ if ($result->num_rows > 0) {
                                         </tr>
                                     </table>
                                 </td>
-                                <td class="zelle">&#10132;&#10132;</td>
+                                <td class="zelle">&#10132;</td>
                                 <td width="90px" class="zelle">
                                     <table class="table_klein">
                                         <tr>
