@@ -92,7 +92,7 @@ if(isset($_GET['login'])) {
         $email = $a->user->email;
         $_SESSION['token_direct'] = $access_token;
         $_SESSION['user'] = $user;
-        $_SESSION['email'] = $email;
+        $_SESSION['useremail'] = $email;
         
         // username
         $client = new \GuzzleHttp\Client();

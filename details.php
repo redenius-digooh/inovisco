@@ -27,6 +27,37 @@ if ($_POST['inoschlecht'] == 1) {
     $erg = mysqli_query($conn, $sql);
 }
 
+// Digooh declined
+if ($_POST['sendschlecht'] == 1) {
+    $sql = "UPDATE buchung SET inovisco = NULL, send_digooh = NULL, einfrieren "
+            . "= NULL, export= NULL, digooh = NULL, info_ablehnung = '"
+            . $_POST['ablehnungsinfo'] . "' WHERE user = '" . $_POST['user']
+            . "' AND angebot = '" . $_POST['angebot'] . "'";
+    $erg = mysqli_query($conn, $sql);
+    
+    $sql = "SELECT name, useremail FROM buchung WHERE "
+            . "user = '" . $_POST['user'] . "' AND angebot = '" . 
+            $_POST['angebot'] . "'";
+    $db_erg = mysqli_query($conn, $sql);
+    while ($row = mysqli_fetch_array( $db_erg)) {
+        $name = $row['name'];
+        $useremail = $row['useremail'];
+    }
+    
+    $client = new \GuzzleHttp\Client();
+    $response = $client->post(
+        'https://prod-44.westeurope.logic.azure.com:443/workflows/437b6742e5054af3a0d2157333db7993/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1iZaLnJq15I2gT7IEjJ0socjvJT4r2hmj8Fkrqw3PIg',
+        [
+            'json' => [
+                'An' => $useremail,
+                'Ablehnungsinfo' => $_POST['ablehnungsinfo'],
+                'Kampagne' => $name
+            ]
+        ]
+    );
+    $body = $response->getBody();
+}
+
 // update
 if (isset($_POST['speichern'])) {
     $sd = explode("-", $_POST['start_date']);
@@ -422,13 +453,6 @@ if ($_POST['gut'] == 1) {
     $body = $response->getBody();
     
     header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $_POST['angebot']);
-}
-
-// Digooh declined
-if ($_POST['schlecht'] == 1) {
-    $sql = "UPDATE buchung SET digooh = 0 WHERE user = '" . $user
-            . "' AND angebot = '" . $_POST['angebot'] . "'";
-    $erg = mysqli_query($conn, $sql);
 }
 
 // send email to Digooh
@@ -922,9 +946,6 @@ if ($export == 1) {
                             <button type="submit" name="inogut" 
                                 class="gruen" value="1">
                             Check Verfügbarkeit</button>
-                            <button type="submit" name="inoschlecht" 
-                                class="rot" value="1">
-                            Inovisco: Buchung ablehnen</button>
                         </form>
                                 </td>
 <?php
@@ -966,7 +987,8 @@ if ($export == 1) {
 <?php
     }
 //    elseif ($inhalt['digooh'] != 1 && $company == 'DIGOOH') {
-    elseif ($inhalt['digooh'] != 1 && $_SESSION['company'] == 'Update Test') {
+    elseif ($inhalt['digooh'] != 1 && $_SESSION['company'] == 'Update Test' && 
+            $_POST['schlecht'] != 1) {
 ?>
                                 <td valign="top" class="rechts">
                         <form action="details.php" method="post">
@@ -983,6 +1005,36 @@ if ($export == 1) {
                                 </td>
 <?php
     }
+    elseif ($_POST['schlecht'] == 1) {
+?>
+                                <td>
+                        <form action="details.php" method="post">
+                            <?php
+        if ($_POST['schlecht'] == 1) {
+        ?>
+                            <table class="ohnerahmen">
+                    <tr>
+                        <td valign="top" class="zelle">
+                            Infos zur Ablehnung:
+                        </td>
+                        <td class="zelle">
+                <textarea name="ablehnungsinfo" rows="4" cols="42"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="top" class="rechts" colspan="2">
+        <?php
+        }
+        ?>
+                  <input type="hidden" name="user" value="<?php echo $user; ?>">
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
+                            <button type="submit" name="sendschlecht" 
+                                class="rot" value="1">
+                            Info an Verfasser senden</button>
+                        </form>
+                                </td>
+<?php
+    } 
     else {
 ?>
                                 <td class="zelle">
@@ -990,6 +1042,14 @@ if ($export == 1) {
                                 </td>
 <?php
     }
+}
+
+if ($_POST['sendschlecht'] == 1) {
+?>
+                                <td class="zelle">
+                            <center>Die Info-Mail wurde versendet.</center>
+                                </td>
+<?php
 }
 ?>
                             </tr>

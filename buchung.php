@@ -169,7 +169,7 @@ if ($_POST['speichern'] == 1) {
                 $binstr = implode(", ", $bin);
                 $ausstr = implode(", ", $aus);
                 $sql = "INSERT INTO buchung (start_date, end_date, play_times, name,"
-                        . "agentur, kunde, angebot, user, criterien, "
+                        . "agentur, kunde, angebot, user, useremail, criterien, "
                         . "and_criteria, exclude_criteria, text, motive, upload)"
                         . " VALUES ("
                         . "'" . $_POST['start_date'] . "', "
@@ -180,6 +180,7 @@ if ($_POST['speichern'] == 1) {
                         . "'" . $_POST['kunde'] . "', "
                         . "'" . $angebot . "', "
                         . "'" . $_SESSION['user'] . "', "
+                        . "'" . $_SESSION['useremail'] . "', "
                         . "'" . $kritstr . "', "
                         . "'" . $binstr . "', "
                         . "'" . $ausstr . "', "
