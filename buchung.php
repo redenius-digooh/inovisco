@@ -339,6 +339,11 @@ else {
                     <tr>
                         <td class="zelle">Anzahl Motive:</td>
                         <td class="zelle">
+        <?php
+        if (empty($motive)) {
+            $motive = 1;
+        }
+        ?>
         <input type="text" name="motive" value="<?php echo $motive; ?>" 
             size="10" required>
                         </td>
