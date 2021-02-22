@@ -18,21 +18,27 @@ if(isset($_GET['login'])) {
         );
         $body = $response->getBody();
         $data = json_decode((string) $body);
-
         $anzahl = count($data);
 
         mysqli_set_charset($conn,"utf8");
 
-        $sql = "DELETE * FROM player";
+        $sql = "DELETE FROM player";
         $db_erg = mysqli_query($conn, $sql);
 
         foreach ($data->data as $key => $value) {
             $id = $value->id;
             $name = $value->name;
-            $criteria = $value->criteria;
+            foreach ($value->info as $k => $wert) {
+                if ($k == 'custom_sn2') {
+                    $custom_sn2 = $wert;
+                }
+            }
 
-            $sql = "INSERT INTO player (id, name) VALUES ('" . $id . "', '" . 
-                    $name . "')";
+            if ($custom_sn2 == '') {
+                $custom_sn2 = 0;
+            }
+            $sql = "INSERT INTO player (id, name, custom_sn2) VALUES ('" . $id . "', '" . 
+                    $name . "', '" . $custom_sn2 . "')";
             $db_erg = mysqli_query($conn, $sql);
         }
 
@@ -54,7 +60,7 @@ if(isset($_GET['login'])) {
 
         mysqli_set_charset($conn,"utf8");
 
-        $sql = "DELETE * FROM criteria";
+        $sql = "DELETE FROM criteria";
         $db_erg = mysqli_query($conn, $sql);
 
         foreach ($data->data as $key => $value) {
