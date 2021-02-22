@@ -19,7 +19,8 @@ $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array($db_erg)) {
     // get 
-    $sql2 = "SELECT id, players, deleted, lfsph FROM playerbuchung WHERE"
+    $sql2 = "SELECT a.id, a.players, a.deleted, a.lfsph, b.custom_sn2 FROM playerbuchung AS a"
+        . " LEFT JOIN player AS b ON a.players = b.id WHERE"
         . " angebot = " . $_POST['angebot'];
     $db_erg2 = mysqli_query($conn, $sql2);
     while ($row2 = mysqli_fetch_array( $db_erg2)) {
@@ -27,6 +28,7 @@ while ($row = mysqli_fetch_array($db_erg)) {
         $lfsph = $row2['lfsph'];
         $players = $row2['players'];
         $playerid = $row2['id'];
+        $custom_sn2 = $row2['custom_sn2'];
         
         $id = $row['id'];
         $start_date = $row['start_date'];
@@ -80,15 +82,18 @@ while ($row = mysqli_fetch_array($db_erg)) {
                 $problem = 1;
                 $gesproblem = 1;
                 $teilprobleme[] = $id;
+                $anzeige = $restzeit;
             }
             else {
                 $problem = 0;
+                $anzeige = $play_times;
             }
         }
 
         $aufdb[] = array('id' => $id, 'playerid' => $playerid,
             'players' => $players, 'problem' => $problem, 'start_date' =>
-            $start_date, 'end_date' => $end_date, 'lfsph' => $lfsph);
+            $start_date, 'end_date' => $end_date, 'anzeige' => $anzeige, 
+            'custom_sn2' => $custom_sn2);
     }
 
     foreach ($aufdb as $key => $in) {
@@ -108,17 +113,17 @@ require_once 'buchungstabelle.php';
 
 //set column headers
 $columnHeader = '';
-$columnHeader = "Displayname" . "\t" . "DisplayID" . "\t" . "verfuegbare Einblendungen pro Stunde" . "\t";
+$columnHeader = "Displayname" . "\t" . "QID" . "\t" . "Einblendungen pro Stunde" . "\t";
 $setData = '';
 $upper = "Angebotsnummer" . "\t" . '"' . $_POST['angebot'] . '"' . "\n";
 $upper .= "Kundenname" . "\t" . '"' . $kunde . '"' . "\n";
 $upper .= "Kampagne" . "\t" . '"' . $name . '"' . "\n\n";
 
-foreach ($buchungen as $key => $inhalt) {
+foreach ($aufdb as $key => $inhalt) {
     $rowData = '';
     $value = '"' . mb_convert_encoding($inhalt['displayname'], "UTF-8") . '"' . "\t";
-    $value .= '"' . $inhalt['players'] . '"' . "\t";
-    $value .= '"' . $inhalt['lfsph'] . '"' . "\t";
+    $value .= '"' . $inhalt['custom_sn2'] . '"' . "\t";
+    $value .= '"' . $inhalt['anzeige'] . '"' . "\t";
     $rowData .= $value;
     $setData .= trim($rowData) . "\n";  
 }
