@@ -17,26 +17,39 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     $angebotsid = $row['id'] + 1;
 }
 
+$foundInCells = array();
+$searchValue = 'QID';
 foreach ($worksheet->getRowIterator() AS $row) {
-    if ($i > 0) {
-        $cellIterator = $row->getCellIterator();
-        $cellIterator->setIterateOnlyExistingCells(FALSE);
-        
-        foreach ($cellIterator as $cell) {
-            $player = $cell->getValue();
-            
-        if ($j == 1) {
-            $query = "INSERT INTO buchung (user, angebot, "
-                    . "upload) VALUES ('" . $_SESSION['user'] . "', '" 
-                    . $angebotsid . "', 1)";
-        }
-            $query = "INSERT INTO playerbuchung (players, angebot) VALUES ('" 
-                    . $player . "', '" . $angebotsid . "')";
+    $highestRow = $worksheet->getHighestRow();
+    $cellIterator = $row->getCellIterator();
+    $cellIterator->setIterateOnlyExistingCells(FALSE);
 
-            $erg = mysqli_query($conn, $query);
-            $j++;
+    foreach ($worksheet->getRowIterator() as $row) {
+        $cellIterator = $row->getCellIterator();
+        $cellIterator->setIterateOnlyExistingCells(true);
+        foreach ($cellIterator as $cell) {
+            if ($cell->getValue() == $searchValue) {
+                $foundInCells = $cell->getCoordinate();
+            }
         }
     }
-    $i++;
+}
+
+$buchstabe = substr($foundInCells, 0, 1);
+for ($row = 2; $row <= $highestRow; $row++){
+    $cell = $worksheet->getCell($buchstabe . $row);
+    $player = $cell->getValue();
+    
+    if ($j == 1) {
+        $query = "INSERT INTO buchung (user, angebot, "
+                . "upload) VALUES ('" . $_SESSION['user'] . "', '" 
+                . $angebotsid . "', 1)";
+        $erg = mysqli_query($conn, $query);
+    }
+        $query = "INSERT INTO playerbuchung (players, angebot) VALUES ('" 
+                . $player . "', '" . $angebotsid . "')";
+
+        $erg = mysqli_query($conn, $query);
+        $j++;
 }
 ?>
