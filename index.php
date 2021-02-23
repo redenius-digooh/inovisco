@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'db.php';
+require_once 'datenbank.php';
  
 if(isset($_GET['login'])) {
     require __DIR__ .  '/vendor/autoload.php';
@@ -19,6 +19,7 @@ if(isset($_GET['login'])) {
         );
         $body = $response->getBody();
         $data = json_decode((string) $body);
+        $anzahl = count($data);
 
         mysqli_set_charset($conn,"utf8");
 
@@ -55,6 +56,8 @@ if(isset($_GET['login'])) {
         );
         $body = $response->getBody();
         $data = json_decode((string) $body);
+
+        $anzahl = count($data);
 
         mysqli_set_charset($conn,"utf8");
 
