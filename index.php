@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once 'db.php';
  
 if(isset($_GET['login'])) {
     require __DIR__ .  '/vendor/autoload.php';
@@ -7,7 +8,7 @@ if(isset($_GET['login'])) {
     try {
         $client = new \GuzzleHttp\Client();
         $response = $client->get(
-            'https://cms.digooh.com:8081/api/v1/players',
+            'https://cms.digooh.com:8082/api/v1/players',
             [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
@@ -18,7 +19,6 @@ if(isset($_GET['login'])) {
         );
         $body = $response->getBody();
         $data = json_decode((string) $body);
-        $anzahl = count($data);
 
         mysqli_set_charset($conn,"utf8");
 
@@ -44,7 +44,7 @@ if(isset($_GET['login'])) {
 
         $client = new \GuzzleHttp\Client();
         $response = $client->get(
-            'https://cms.digooh.com:8081/api/v1/criteria',
+            'https://cms.digooh.com:8082/api/v1/criteria',
             [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
@@ -55,8 +55,6 @@ if(isset($_GET['login'])) {
         );
         $body = $response->getBody();
         $data = json_decode((string) $body);
-
-        $anzahl = count($data);
 
         mysqli_set_charset($conn,"utf8");
 
@@ -79,7 +77,7 @@ if(isset($_GET['login'])) {
     try {
         $client = new GuzzleHttp\Client();
         $response = $client->post(
-            'https://cms.digooh.com:8081/api/v1/authorizations',
+            'https://cms.digooh.com:8082/api/v1/authorizations',
             [
                 'headers' => [
                     'Content-Type' => 'application/json',
@@ -103,7 +101,7 @@ if(isset($_GET['login'])) {
         // username
         $client = new \GuzzleHttp\Client();
         $response = $client->get(
-            'https://cms.digooh.com:8081/api/v1/users',
+            'https://cms.digooh.com:8082/api/v1/users',
             [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $_SESSION['token_direct'],

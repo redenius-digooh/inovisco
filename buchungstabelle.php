@@ -43,7 +43,7 @@ while ($row = mysqli_fetch_array( $db_erg)) {
         if ($start_date != '' && $end_date >= date("Y-m-d")) {
             try {
                 $response = $client->post(
-                    'https://cms.digooh.com:8081/api/v1/campaigns/least',
+                    'https://cms.digooh.com:8082/api/v1/campaigns/least',
                     [
                         'headers' => [
                             'Authorization' => 'Bearer ' . $_SESSION['token_direct'],

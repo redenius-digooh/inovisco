@@ -10,7 +10,7 @@ require __DIR__ .  '/vendor/autoload.php';
 
 $client = new \GuzzleHttp\Client();
 $response = $client->get(
-    'https://cms.digooh.com:8081/api/v1/campaigns',
+    'https://cms.digooh.com:8082/api/v1/campaigns',
     [
         'headers' => [
             'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
