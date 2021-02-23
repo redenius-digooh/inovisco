@@ -5,6 +5,11 @@
 require_once 'db.php';
 require_once 'oben.php';
 
+if ($_SESSION['company'] != 'DIGOOH') {
+    $whereuser = "WHERE user = '" . $_SESSION['user'] . "'";
+    $user = "user = '" . $_SESSION['user'] . "'";
+}
+
 if ($_POST['was'] == 'upload') {
     $was = " AND upload = 1";
 }
@@ -39,9 +44,7 @@ elseif ($_POST['wo'] == 'down') {
 }
 else {}
 
-$sql = "SELECT agentur FROM buchung WHERE user"
-        . " = '" . 
-        $_SESSION['user'] . "'";
+$sql = "SELECT agentur FROM buchung " . $whereuser;
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
     $agenturen = array();
@@ -52,9 +55,7 @@ if ($result->num_rows > 0) {
     }
 }
 
-$sql = "SELECT kunde FROM buchung WHERE user"
-        . " = '" . 
-        $_SESSION['user'] . "'";
+$sql = "SELECT kunde FROM buchung " . $whereuser;
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
     $kundenarr = array();
@@ -66,8 +67,8 @@ if ($result->num_rows > 0) {
 }
 
 $sql = "SELECT DISTINCT(angebot), name, agentur, upload, inovisco, digooh, "
-        . "datum, kunde FROM buchung WHERE user = '" . 
-        $_SESSION['user'] . "'" . $was . $agent . $kund . $angeb . $order;
+        . "datum, kunde FROM buchung WHERE " . $user . $was . $agent . $kund 
+        . $angeb . $order;
 $result = $conn->query($sql);
 ?>
                         <table class="ohnerahmen">
@@ -217,7 +218,8 @@ if ($result->num_rows > 0) {
                                 <td width="90px" class="zelle">
                                     <table class="table_klein">
                                         <tr>
-                                            <?php if ($row['upload'] == 1 &&
+                                            <?php if (($row['upload'] == 1 || 
+                                            $row['upload'] == 2) &&
                                             $row['inovisco'] == 1 &&
                                             $row['digooh'] == 1) {?>
                                             <td class="gruen">

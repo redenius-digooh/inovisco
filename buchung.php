@@ -38,8 +38,7 @@ if ($_GET['manuell'] == 1 || $_POST['manuell'] == 1) {
     }
     
     // get max offer
-    $sql = "SELECT MAX(angebot) AS angebot FROM buchung WHERE user = '" 
-            . $_SESSION['user'] . "'";
+    $sql = "SELECT MAX(angebot) AS angebot FROM buchung";
     $db_erg = mysqli_query($conn, $sql);
     while ($row = mysqli_fetch_array( $db_erg)) {
         $angebot = $row['angebot'] + 1;
@@ -58,8 +57,7 @@ if ($_GET['manuell'] == 1 || $_POST['manuell'] == 1) {
 // update
 if ($_POST['speichern'] == 1) {
     // get max offer
-    $sql = "SELECT MAX(angebot) AS angebot FROM buchung WHERE user = '" 
-            . $_SESSION['user'] . "'";
+    $sql = "SELECT MAX(angebot) AS angebot FROM buchung";
     $db_erg = mysqli_query($conn, $sql);
     while ($row = mysqli_fetch_array( $db_erg)) {
         $angebot = $row['angebot'] + 1;
@@ -90,7 +88,7 @@ if ($_POST['speichern'] == 1) {
                     // get players
                     $client = new \GuzzleHttp\Client();
                     $response = $client->get(
-                        'https://cms.digooh.com:8081/api/v1/players',
+                        'https://cms.digooh.com:8082/api/v1/players',
                         [
                             'headers' => [
                                 'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
@@ -205,10 +203,10 @@ if ($_POST['speichern'] == 1) {
 
 if ($upload == 1) {
     unlink($uploaded_dir . $filename);
-    header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $angebot);
+    header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=$angebot");
 }
 elseif ($upload == 2) {
-    header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $angebot);
+    header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=$angebot");
 }
 else {
     require_once 'oben2.php';
