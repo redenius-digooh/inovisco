@@ -50,7 +50,7 @@
                         </form>
                     </th>
                     <th width="200px" class="obenrechts">
-                        <h4>Angemeldet als: <?php echo $_SESSION['user']; ?>
+                        <h4>Angemeldet als:<br><?php echo $_SESSION['user']; ?>
                             <br>
                             <img src="abbrechenkl.png" alt="abbrechen"> 
                             <a href="abmelden.php" class="weiss">Abmelden</a>
