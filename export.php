@@ -19,7 +19,8 @@ $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array($db_erg)) {
     // get 
-    $sql2 = "SELECT a.id, a.players, a.deleted, a.lfsph, b.custom_sn2 FROM playerbuchung AS a"
+    $sql2 = "SELECT a.id, a.players, a.deleted, a.lfsph, b.custom_sn2, b.name AS"
+        . " displayname FROM playerbuchung AS a"
         . " LEFT JOIN player AS b ON a.players = b.id WHERE"
         . " angebot = " . $_POST['angebot'];
     $db_erg2 = mysqli_query($conn, $sql2);
@@ -29,6 +30,7 @@ while ($row = mysqli_fetch_array($db_erg)) {
         $players = $row2['players'];
         $playerid = $row2['id'];
         $custom_sn2 = $row2['custom_sn2'];
+        $displayname = $row2['displayname'];
         
         $id = $row['id'];
         $start_date = $row['start_date'];
@@ -45,7 +47,7 @@ while ($row = mysqli_fetch_array($db_erg)) {
             try {
                 // get entries from least
                 $response = $client->post(
-                    'https://cms.digooh.com:8081/api/v1/campaigns/least',
+                    'https://cms.digooh.com:8082/api/v1/campaigns/least',
                     [
                         'headers' => [
                             'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
@@ -93,7 +95,8 @@ while ($row = mysqli_fetch_array($db_erg)) {
         $aufdb[] = array('id' => $id, 'playerid' => $playerid,
             'players' => $players, 'problem' => $problem, 'start_date' =>
             $start_date, 'end_date' => $end_date, 'anzeige' => $anzeige, 
-            'custom_sn2' => $custom_sn2);
+            'custom_sn2' => $custom_sn2, 'displayname' => $displayname, 'lfsph'
+            => $lfsph);
     }
 
     foreach ($aufdb as $key => $in) {
@@ -128,6 +131,5 @@ foreach ($aufdb as $key => $inhalt) {
     $setData .= trim($rowData) . "\n";  
 }
 
-//echo utf8_encode($columnHeader . "\n" . $setData . "\n");
 echo $upper . $columnHeader . "\n" . $setData . "\n";
 ?>

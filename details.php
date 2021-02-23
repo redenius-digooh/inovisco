@@ -8,16 +8,18 @@ require_once 'db.php';
 
 require_once __DIR__ .  '/vendor/autoload.php';
 
+// set user
+if ($_SESSION['company'] != 'DIGOOH') {
+    $whereuser = "WHERE user = '" . $_SESSION['user'] . "'";
+    $setuser = "user = '" . $_SESSION['user'] . "'";
+    $user = $_SESSION['user'];
+} else {
+    $setuser = "1 = 1";
+}
+
 // new booking upload
 if ($_POST['neuupload'] == 1) {
     header("Location: http://88.99.184.137/inovisco_direct/buchung.php");
-}
-
-// Inovisco approved
-if(isset($_POST['inogut'])){
-    $sql = "UPDATE buchung SET inovisco = 1 WHERE user = '" . $_POST['user'] 
-            . "' AND angebot = '" . $_POST['angebot'] . "'";
-    $erg = mysqli_query($conn, $sql);
 }
 
 // Inovisco declined
@@ -59,7 +61,7 @@ if ($_POST['sendschlecht'] == 1) {
 }
 
 // update
-if (isset($_POST['speichern'])) {
+if ($_POST['speichern'] == 1) {
     $sd = explode("-", $_POST['start_date']);
     $ed = explode("-", $_POST['end_date']);
     $checks = checkdate($sd[1],$sd[2],$sd[0]);
@@ -91,7 +93,7 @@ if (isset($_POST['speichern'])) {
                         // all players of the criteria
                         $client = new \GuzzleHttp\Client();
                         $response = $client->get(
-                            'https://cms.digooh.com:8081/api/v1/players',
+                            'https://cms.digooh.com:8082/api/v1/players',
                             [
                                 'headers' => [
                                     'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
@@ -237,16 +239,13 @@ if ($_GET['user'] != '') {
 }
 if ($_GET['pruefen'] == 1 || $_POST['pruefen'] == 1) {
     $user = $_POST['user'];
-} else {
-    $user = $_SESSION['user'];
 }
 
 // set offer number
 if ($_GET['angebot'] || $_POST['angebot']) {
     $angebot = $_GET['angebot'] . $_POST['angebot'];
 } else {
-    $sql = "SELECT MAX(angebot) AS angebot FROM buchung WHERE user = '" . $user 
-            . "'";
+    $sql = "SELECT MAX(angebot) AS angebot FROM buchung";
     $db_erg = mysqli_query($conn, $sql);
     while ($row = mysqli_fetch_array( $db_erg)) {
         $angebot = $row['angebot'];
@@ -269,7 +268,7 @@ while ($row = mysqli_fetch_array( $db_erg)) {
 $sql = "SELECT id, kunde, name, start_date, end_date, play_times, text, motive,"
             . " agentur, angebot, inovisco, digooh, einfrieren, export, criterien,"
             . " and_criteria, exclude_criteria, send_digooh FROM buchung WHERE "
-            . "user = '" . $user . "'" . $an;
+            . $setuser . $an;
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {
@@ -326,22 +325,24 @@ if ($auscriteriaarr[0] != '') {
 }
 
 // get players
-$sql = "SELECT a.players, a.id, a.deleted, a.lfsph, b.name FROM playerbuchung AS a"
+$sql = "SELECT a.players, a.id, a.deleted, a.lfsph, b.name, a.custom_sn2 "
+        . "FROM playerbuchung AS a"
         . " LEFT JOIN player AS b ON a.players = b.id"
         . " WHERE a.angebot = " . $angebot . " ORDER BY b.name";
 $db_erg2 = mysqli_query($conn, $sql);
 $gruen = 0;
 $alleplayer = array();
 while ($row2 = mysqli_fetch_array($db_erg2)) {
-    if (!in_array($row2['players'], $alleplayer)) {
+    if (!in_array($row2['custom_sn2'], $alleplayer)) {
         $deleted = $row2['deleted'];
         $lfsph = $row2['lfsph'];
         $players = $row2['players'];
         $playerid = $row2['id'];
         $alleid[] = $row2['id'];
-        $alleplayer[] = $row2['players'];
         $displayname = $row2['name'];
-        $displays[] = $displayname;
+        $displays[] = $row2['name'];
+        $custom_sn2 = $row2['custom_sn2'];
+        $alleplayer[] = $custom_sn2;
         require_once __DIR__ .  '/vendor/autoload.php';
 
         $client = new \GuzzleHttp\Client();
@@ -350,7 +351,7 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
         if ($start_date != '' && $end_date >= date("Y-m-d")) {
             try {
                 $response = $client->post(
-                    'https://cms.digooh.com:8081/api/v1/campaigns/least',
+                    'https://cms.digooh.com:8082/api/v1/campaigns/least',
                     [
                         'headers' => [
                             'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
@@ -401,7 +402,8 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
             'play_times' => $play_times, 'displayname' => $displayname,
             'inovisco' => $inovisco, 'digooh' => $digooh, 'lfsphjetzt' => 
             $lfsphjetzt, 'playerid' => $playerid, 'criterien' => $criterien,
-            'text' => $text, 'send_digooh' => $send_digooh);
+            'text' => $text, 'send_digooh' => $send_digooh, 'custom_sn2' =>
+            $custom_sn2);
     }
 }
 
@@ -416,7 +418,7 @@ if ($_POST['gut'] == 1) {
     $alleplayers = implode(",", $alleplayer);
     $client = new \GuzzleHttp\Client();
     $response = $client->post(
-        'https://cms.digooh.com:8081/api/v1/campaigns',
+        'https://cms.digooh.com:8082/api/v1/campaigns',
         [
             'headers' => [
                 'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
@@ -470,7 +472,7 @@ if ($_POST['send_digooh'] == 1) {
     );
     $body = $response->getBody();
     
-    $sql = "UPDATE buchung SET send_digooh = 1 WHERE user = '" . $user
+    $sql = "UPDATE buchung SET send_digooh = 1, inovisco = 1 WHERE user = '" . $user
             . "' AND angebot = '" . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
     
@@ -731,7 +733,7 @@ if ($error) {
                         <?php if ($_POST['bearbeiten'] == 1
                                 && $digooh != 1) { ?>
                             <button type="submit" name="speichern" 
-                                class="gruen" value="Speichern">Speichern
+                                class="gruen" value="1">Speichern
                         </button>
                         <?php
                                 } else {
@@ -781,7 +783,7 @@ if ($error) {
                         <table class="ohnerahmen">
                             <tr>
 <?php
-if ($gesproblem == 1 && $inovisco != 1) {
+if ($gesproblem == 1 && $einfrieren != 1 && $_POST['bearbeiten'] != 1) {
 ?>
                                 <td class="zelle">
                         <form action="details.php" method="post">
@@ -818,7 +820,7 @@ if ($gesproblem == 1 && $inovisco != 1) {
 <?php
 }
 if ($export == 1) {
-    if ($inovisco != 1) {
+    if ($_POST['inogut'] != 1) {
 ?>
                                 <td valign="top" class="rechts">
                         <form action="details.php" method="post">                        
@@ -832,10 +834,10 @@ if ($export == 1) {
 <?php
     }
     elseif ($send_digooh != 1) {
-        $datetime1 = date_create($start_date);
-        $datetime2 = date_create($end_date);
-        $tages = date_diff($datetime1, $datetime2);
-        $tage = $tages->format('%d');
+        $firstDate  = new DateTime($start_date);
+        $secondDate = new DateTime($end_date);
+        $intvl = $firstDate->diff($secondDate);
+        $tage = $intvl->days;
         
         if (is_array($gelbeb)) {
             $anzeb = array_count_values($gelbeb);
@@ -934,13 +936,16 @@ if ($_POST['sendschlecht'] == 1) {
             </table>
                     </td>
                 </tr>
-<tr>
+<?php
+if ($_POST['bearbeiten'] != 1) {
+?>
+                <tr>
     <td class="zelle" colspan="5"><center>
         <table class="mitrahmen">
             <tr>
                 <td valign="bottom" class="rahmenunten">Aktion</td>
                 <td valign="bottom" class="rahmenunten">Displayname</td>
-                <td valign="bottom" class="rahmenrechts">DisplayID</td>
+                <td valign="bottom" class="rahmenrechts">QID</td>
                 <td class="rahmenrechts">verf&uuml;gbare Einblendungen<br>pro Stunde</td>
                 <?php
                 if ($export == 1) {
@@ -961,7 +966,7 @@ foreach ($buchungen as $key => $inhalt) {
                             
                                 <td class="zelle">
                     <?php
-                    if ($inovisco != 1) {
+                    if ($einfrieren != 1) {
                         if ($inhalt['problem'] == 1 || $inhalt['problem'] == 2) {
                             if ($inhalt['deleted'] == 1) {
                     ?>
@@ -994,7 +999,7 @@ foreach ($buchungen as $key => $inhalt) {
                     } else {
                         $prob = '';
                     }
-                    echo $prob . $inhalt['players'] . '</font>';
+                    echo $prob . $inhalt['custom_sn2'] . '</font>';
                     ?>
                                 </td>
                 <?php
@@ -1057,6 +1062,9 @@ foreach ($buchungen as $key => $inhalt) {
                         </table>
                 </center></td>
                 </tr>
+<?php
+}
+?>
             </table>
         </center>
         <script type="text/javascript">

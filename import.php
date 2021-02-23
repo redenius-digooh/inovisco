@@ -41,15 +41,23 @@ for ($row = 2; $row <= $highestRow; $row++){
     $player = $cell->getValue();
     
     if ($j == 1) {
-        $query = "INSERT INTO buchung (user, angebot, "
+        $query = "INSERT INTO buchung (user, useremail, angebot, "
                 . "upload) VALUES ('" . $_SESSION['user'] . "', '" 
-                . $angebotsid . "', 1)";
+                . $_SESSION['useremail'] . "', '" . $angebotsid . "', 1)";
         $erg = mysqli_query($conn, $query);
     }
-        $query = "INSERT INTO playerbuchung (players, angebot) VALUES ('" 
-                . $player . "', '" . $angebotsid . "')";
+    
+    $sql = "SELECT id FROM player WHERE custom_sn2 = " . $player;
+    $erg = mysqli_query($conn, $sql);
+    while ($row2 = mysqli_fetch_array($erg)) {
+        $players = $row2['id'];
+    }
 
-        $erg = mysqli_query($conn, $query);
-        $j++;
+    $query = "INSERT INTO playerbuchung (players, custom_sn2, angebot) VALUES ('" 
+            . $players . "', '" . $player . "', '" . $angebotsid . "')";
+
+    $erg = mysqli_query($conn, $query);
+    
+    $j++;
 }
 ?>
