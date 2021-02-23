@@ -119,12 +119,21 @@ if ($_POST['speichern'] == 1) {
                 // delete all players
                 $del = "DELETE FROM playerbuchung WHERE angebot = " 
                         . $_POST['angebot'];
-                    $erg = @mysqli_query($conn, $del);
+                $erg = @mysqli_query($conn, $del);
+                    
                 // insert all players for the offer
                 foreach($_POST['player'] as $insplayer) {
-                    $sql = "INSERT INTO playerbuchung (players, angebot)"
+                    $sql = "SELECT custom_sn2 FROM player WHERE id = " . $insplayer;
+                    $db = mysqli_query($conn, $sql);
+                    while ($row = mysqli_fetch_array($db)) {
+                        $custom_sn2 = $row['custom_sn2'];
+                    }
+                
+                    $sql = "INSERT INTO playerbuchung (players, custom_sn2, "
+                            . "angebot)"
                         . " VALUES ("
                         . "'" . $insplayer . "', "
+                        . "'" . $custom_sn2 . "', "
                         . "'" . $_POST['angebot'] . "')";
                     $erg = mysqli_query($conn, $sql);
                 }
@@ -614,7 +623,12 @@ if ($error) {
                     <tr>
                         <td class="zelle">Anzahl Motive:</td>
                         <td colspan="2" class="zelle">
-        <?php if ($_POST['bearbeiten'] == 1) { ?>
+        <?php
+        if ($_POST['bearbeiten'] == 1) {
+            if ($motive == '') {
+                $motive = 1;
+            }
+        ?>
         <input type="text" name="motive" value="<?php echo $motive; ?>" 
             size="10" required>
         <?php } else { 

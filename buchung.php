@@ -120,7 +120,7 @@ if ($_POST['speichern'] == 1) {
                     $db = mysqli_query($conn, $sql);
                     while ($row = mysqli_fetch_array($db)) {
                         if (!in_array($row['id'], $_POST['player'])) {
-                            $_POST['player'][] = $value->id;
+                            $_POST['player'][] = $row['id'];
                         }
                     }
                 }
@@ -189,9 +189,16 @@ if ($_POST['speichern'] == 1) {
             }
             
             // insert into playerbuchung
-            $sql = "INSERT INTO playerbuchung (players, angebot)"
+            $sql = "SELECT custom_sn2 FROM player WHERE id = " . $playerid;
+            $db = mysqli_query($conn, $sql);
+            while ($row = mysqli_fetch_array($db)) {
+                $custom_sn2 = $row['custom_sn2'];
+            }
+            
+            $sql = "INSERT INTO playerbuchung (players, custom_sn2, angebot)"
                     . " VALUES ("
                     . "'" . $playerid . "', "
+                    . "'" . $custom_sn2 . "', "
                     . "'" . $angebot . "')";
             $erg = mysqli_query($conn, $sql);
             
