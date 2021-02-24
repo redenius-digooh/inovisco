@@ -5,9 +5,12 @@
 require_once 'db.php';
 require_once 'oben.php';
 
-if ($_SESSION['company'] != 'DIGOOH') {
+if ($_SESSION['company'] != 'DIGOOH' && $_SESSION['company'] != 'Update Test') {
     $whereuser = "WHERE user = '" . $_SESSION['user'] . "'";
     $user = "user = '" . $_SESSION['user'] . "'";
+}
+else {
+    $user = "1=1";
 }
 
 if ($_POST['was'] == 'upload') {
