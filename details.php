@@ -9,7 +9,7 @@ require_once 'db.php';
 require_once __DIR__ .  '/vendor/autoload.php';
 
 // set user
-if ($_SESSION['company'] != 'DIGOOH') {
+if ($_SESSION['company'] != 'DIGOOH' && $_SESSION['company'] != 'Update Test') {
     $whereuser = "WHERE user = '" . $_SESSION['user'] . "'";
     $setuser = "user = '" . $_SESSION['user'] . "'";
     $user = $_SESSION['user'];
@@ -377,10 +377,12 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
                 $body = $response->getBody();
                 $data = json_decode((string) $body);
 
-                foreach ($data as $key => $value) {
-                    $lfsphjetzt = $value / 10;
+                foreach ($data as $key=>$value) {
+                    if ($key == "least_free_seconds_per_hour") {
+                        $lfsphjetzt = (int)$value / 10;
+                    }
                 }
-
+        
                 $restzeit = ($lfsphjetzt);
             }
             catch (Exception $e) {
@@ -834,7 +836,7 @@ if ($gesproblem == 1 && $einfrieren != 1 && $_POST['bearbeiten'] != 1) {
 <?php
 }
 if ($export == 1) {
-    if ($_POST['inogut'] != 1) {
+    if ($_POST['inogut'] != 1 && $inovisco != 1) {
 ?>
                                 <td valign="top" class="rechts">
                         <form action="details.php" method="post">                        
@@ -883,9 +885,8 @@ if ($export == 1) {
                                 </td>
 <?php
     }
-//    elseif ($inhalt['digooh'] != 1 && $company == 'DIGOOH') {
-    elseif ($digooh != 1 && $_SESSION['company'] == 'Update Test' && 
-            $_POST['schlecht'] != 1) {
+    elseif ($digooh != 1 && ($_SESSION['company'] == 'Update Test' ||
+            $_SESSION['company'] == 'DIGOOH') && $_POST['schlecht'] != 1) {
 ?>
                                 <td valign="top" class="rechts">
                         <form action="details.php" method="post">
@@ -970,12 +971,13 @@ if ($_POST['bearbeiten'] != 1) {
                 ?>
             </tr>
 <?php
-foreach ($buchungen as $key => $inhalt) {
-    if ($inhalt['deleted']) {
-        echo '<tr class="strikeout">';
-    } else {
-        echo "<tr>";
-    }
+if ($buchungen[0] != '') {
+    foreach ($buchungen as $key => $inhalt) {
+        if ($inhalt['deleted']) {
+            echo '<tr class="strikeout">';
+        } else {
+            echo "<tr>";
+        }
 ?>
                             
                                 <td class="zelle">
@@ -1071,6 +1073,7 @@ foreach ($buchungen as $key => $inhalt) {
                 ?>
                             </tr>
 <?php
+    }
 }
 ?>
                         </table>
