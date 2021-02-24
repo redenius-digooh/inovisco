@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once 'datenbank.php';
- 
 if(isset($_GET['login'])) {
     require __DIR__ .  '/vendor/autoload.php';
 
@@ -49,6 +48,7 @@ if(isset($_GET['login'])) {
             [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
+        //            'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvY21zLmRpZ29vaC5jb206ODA4MVwvYXBpXC92MVwvYXV0aG9yaXphdGlvbnMiLCJpYXQiOjE2MTQwOTQ3MjcsImV4cCI6MTYxNTMwNDMyNywibmJmIjoxNjE0MDk0NzI3LCJqdGkiOiJSZm5qbEFGRmN5TnNXbnJ1Iiwic3ViIjo2MSwicHJ2IjoiODdlMGFmMWVmOWZkMTU4MTJmZGVjOTcxNTNhMTRlMGIwNDc1NDZhYSJ9.AwPqtztUIf1qykrKGRZBJ0d71yx3uXow_Bu1QRh8jIM',
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
                 ]
