@@ -168,8 +168,8 @@ if ($_POST['speichern'] == 1) {
                 $ausstr = implode(", ", $aus);
                 $sql = "INSERT INTO buchung (start_date, end_date, play_times, name,"
                         . "agentur, kunde, angebot, user, useremail, criterien, "
-                        . "and_criteria, exclude_criteria, text, motive, upload)"
-                        . " VALUES ("
+                        . "and_criteria, exclude_criteria, text, motive, abnummer,"
+                        . " upload) VALUES ("
                         . "'" . $_POST['start_date'] . "', "
                         . "'" . $_POST['end_date'] . "', "
                         . "'" . $_POST['play_times'] . "', "
@@ -184,6 +184,7 @@ if ($_POST['speichern'] == 1) {
                         . "'" . $ausstr . "', "
                         . "'" . $_POST['text'] . "', "
                         . "'" . $_POST['motive'] . "', "
+                        . "'" . $_POST['abnummer'] . "', "
                         . "'2')";
                 $erg = mysqli_query($conn, $sql);
             }
@@ -322,6 +323,13 @@ else {
                         <td class="zelle">Kampagnenname:</td>
                         <td class="zelle">
         <input type="text" name="name" value="<?php echo $name; ?>" 
+               size="40" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="zelle">AB-Nummer:</td>
+                        <td colspan="2" class="zelle">
+        <input type="text" name="abnummer" value="<?php echo $abnummer; ?>" 
                size="40" required>
                         </td>
                     </tr>
