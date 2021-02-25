@@ -200,6 +200,7 @@ if ($_POST['speichern'] == 1) {
         . "criterien = '" . $kritstr . "', "
         . "and_criteria = '" . $bindstr . "', "
         . "exclude_criteria = '" . $ausstr . "', "
+        . "abnummer = '" . $abnummer . "', "
         . "kunde = '" . $_POST['kunde'] . "' WHERE id = " . $_POST['id'];
         $erg = mysqli_query($conn, $sql);
     }
@@ -276,8 +277,8 @@ while ($row = mysqli_fetch_array( $db_erg)) {
 // get all bookings 
 $sql = "SELECT id, kunde, name, start_date, end_date, play_times, text, motive,"
             . " agentur, angebot, inovisco, digooh, einfrieren, export, criterien,"
-            . " and_criteria, exclude_criteria, send_digooh FROM buchung WHERE "
-            . $setuser . $an;
+            . " and_criteria, exclude_criteria, send_digooh, abnummer FROM "
+            . "buchung WHERE " . $setuser . $an;
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {
@@ -299,6 +300,7 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     $text = $row['text'];
     $motive = $row['motive'];
     $send_digooh = $row['send_digooh'];
+    $abnummer = $row['abnummer'];
 }
 
 // get criterianames
@@ -333,6 +335,54 @@ if ($auscriteriaarr[0] != '') {
     }
 }
 
+// get entries from least
+if ($start_date != '' && $end_date >= date("Y-m-d")) {
+    $sql = "SELECT a.players "
+        . "FROM playerbuchung AS a"
+        . " LEFT JOIN player AS b ON a.players = b.id"
+        . " WHERE a.angebot = " . $angebot . " ORDER BY b.name";
+    $erg = mysqli_query($conn, $sql);
+    while ($row2 = mysqli_fetch_array($erg)) {
+        $playarr[] = $row2['players'];
+    }
+    $playerstr = implode(",", $playarr);
+    $anz = count($playarr);
+    
+    try {
+        require_once __DIR__ .  '/vendor/autoload.php';
+        $client = new \GuzzleHttp\Client();
+        $response = $client->post(
+            'https://cms.digooh.com:8082/api/v1/campaigns/least',
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ],
+                'json' => [
+                    'start_date' => $start_date,
+                    'end_date' => $end_date,
+                    'players' => $playarr
+                ]
+            ]
+        );
+        $body = $response->getBody();
+        $data = json_decode((string) $body);
+        
+        for($i=0; $i<$anz; $i++) {
+            $arr2[] = [$data->players[$i]->id => $data->players[$i]->free];
+        }
+        foreach($arr2 as $key => $value) {
+            foreach($value as $key => $d) {
+                $arr[$key] = $d;
+            }
+        }
+    }
+    catch (Exception $e) {
+        echo $e->getMessage();
+    }
+}
+
 // get players
 $sql = "SELECT a.players, a.id, a.deleted, a.lfsph, b.name, a.custom_sn2 "
         . "FROM playerbuchung AS a"
@@ -355,55 +405,24 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
         require_once __DIR__ .  '/vendor/autoload.php';
 
         $client = new \GuzzleHttp\Client();
-
-        // get entries from least
-        if ($start_date != '' && $end_date >= date("Y-m-d")) {
-            try {
-                $response = $client->post(
-                    'https://cms.digooh.com:8082/api/v1/campaigns/least',
-                    [
-                        'headers' => [
-                            'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
-                            'Content-Type' => 'application/json',
-                            'Accept' => 'application/json',
-                        ],
-                        'json' => [
-                            'start_date' => $start_date,
-                            'end_date' => $end_date,
-                            'players' => $players
-                        ]
-                    ]
-                );
-                $body = $response->getBody();
-                $data = json_decode((string) $body);
-
-                foreach ($data as $key=>$value) {
-                    if ($key == "least_free_seconds_per_hour") {
-                        $lfsphjetzt = (int)$value / 10;
-                    }
-                }
         
-                $restzeit = ($lfsphjetzt);
-            }
-            catch (Exception $e) {
-                echo $e->getMessage();
-            }
-
-            if ($restzeit <= 0) {
-                $problem = 1;
-                $gesproblem = 1;
-                $probleme[] = $playerid;
-            }
-            elseif (floor($restzeit) < $play_times) {
-                $problem = 2;
-                $gesproblem = 1;
-                $teilprobleme[] = $playerid;
-                $gelbeb[] = (int)$restzeit;
-            }
-            else {
-                $problem = 0;
-                $gruen = $gruen + 1;
-            }
+        $lfsphjetzt = (int)$arr[$players] / 10;
+        $restzeit = ($lfsphjetzt);
+        
+        if ($restzeit <= 0) {
+            $problem = 1;
+            $gesproblem = 1;
+            $probleme[] = $playerid;
+        }
+        elseif (floor($restzeit) < $play_times) {
+            $problem = 2;
+            $gesproblem = 1;
+            $teilprobleme[] = $playerid;
+            $gelbeb[] = (int)$restzeit;
+        }
+        else {
+            $problem = 0;
+            $gruen = $gruen + 1;
         }
     
         $buchungen[] = array('agentur' => $agentur, 'name' => $name,
@@ -595,6 +614,17 @@ if ($error) {
                size="40" required>
         <?php } else { 
             echo $name;
+        } ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="zelle">AB-Nummer:</td>
+                        <td colspan="2" class="zelle">
+        <?php if ($_POST['bearbeiten'] == 1) { ?>
+        <input type="text" name="abnummer" value="<?php echo $abnummer; ?>" 
+               size="40" required>
+        <?php } else { 
+            echo abnummer;
         } ?>
                         </td>
                     </tr>
