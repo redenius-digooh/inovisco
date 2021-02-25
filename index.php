@@ -87,8 +87,8 @@ if(isset($_GET['login'])) {
                     'Accept' => 'application/json',
                 ],
                 'json' => [
-                    'username' => $_POST['username'],
-                    'password' => $_POST['password'],
+                    'username' => 'dig-redenius',
+                    'password' => 'dig-redenius',
                 ],
             ]
         );
@@ -98,29 +98,15 @@ if(isset($_GET['login'])) {
         $user = $a->user->name;
         $email = $a->user->email;
         $_SESSION['token_direct'] = $access_token;
-        $_SESSION['user'] = $user;
-        $_SESSION['useremail'] = $email;
         
-        // username
-        $client = new \GuzzleHttp\Client();
-        $response = $client->get(
-            'https://cms.digooh.com:8082/api/v1/users',
-            [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                ],
-                'query' => [
-                    'include'=> 'criteria',
-                    'filter[name]'=> $_SESSION['user'],
-                ]
-            ]
-        );
-        $body = $response->getBody();
-        $data = json_decode((string) $body);
-        foreach ($data->data as $key => $value) {
-            $_SESSION['company'] = $value->company->name;
+        $sql = "SELECT user, email, company FROM user WHERE user = '"
+                . $_POST['user'] . "' AND password = '"
+                . $_POST['password'] . "'";
+        $db_erg = mysqli_query($conn, $sql);
+        while ($row = mysqli_fetch_array( $db_erg)) {
+            $_SESSION['user'] = $row['user'];
+            $_SESSION['useremail'] = $row['email'];
+            $_SESSION['company'] = $row['company'];
         }
 
         header("Location: http://88.99.184.137/inovisco_direct/uebersicht.php");

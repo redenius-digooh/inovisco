@@ -569,7 +569,7 @@ if ($error) {
                     <tr>
                         <td width="280" class="zelle">Buchung durch:</td>
                         <td><?php echo $_SESSION['company']; ?> / 
-                            <?php echo $user; ?>
+                            <?php echo $_SESSION['user']; ?>
                         </td>
                         <td class="zelle">
                             <?php if ($_POST['bearbeiten'] != 1 
