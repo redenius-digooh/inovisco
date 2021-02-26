@@ -7,7 +7,6 @@ session_start();
 require_once 'db.php';
 
 require_once __DIR__ .  '/vendor/autoload.php';
-
 // set user
 if ($_SESSION['company'] != 'DIGOOH' && $_SESSION['company'] != 'Update Test') {
     $whereuser = "WHERE user = '" . $_SESSION['user'] . "'";
@@ -61,7 +60,7 @@ if ($_POST['sendschlecht'] == 1) {
 }
 
 // update
-if ($_POST['speichern'] == 1) {
+if ($_POST['speichernx'] == 1) {
     $sd = explode("-", $_POST['start_date']);
     $ed = explode("-", $_POST['end_date']);
     $checks = checkdate($sd[1],$sd[2],$sd[0]);
@@ -140,6 +139,32 @@ if ($_POST['speichern'] == 1) {
             }
         }
         
+        if ($_POST['sammelplayer'] != '') {
+            $_POST['player'] = explode(", ", $_POST['sammelplayer']);
+            
+            // delete all players
+            $del = "DELETE FROM playerbuchung WHERE angebot = " 
+                    . $_POST['angebot'];
+            $erg = @mysqli_query($conn, $del);
+
+            // insert all players for the offer
+            foreach($_POST['player'] as $insplayer) {
+                $sql = "SELECT custom_sn2 FROM player WHERE id = " . $insplayer;
+                $db = mysqli_query($conn, $sql);
+                while ($row = mysqli_fetch_array($db)) {
+                    $custom_sn2 = $row['custom_sn2'];
+                }
+
+                $sql = "INSERT INTO playerbuchung (players, custom_sn2, "
+                        . "angebot)"
+                    . " VALUES ("
+                    . "'" . $insplayer . "', "
+                    . "'" . $custom_sn2 . "', "
+                    . "'" . $_POST['angebot'] . "')";
+                $erg = mysqli_query($conn, $sql);
+            }
+        }
+        
         $binarr = explode(", ", $_POST['bindkriterium']);
         $bind = array();
         if (is_array($binarr)) {
@@ -200,7 +225,7 @@ if ($_POST['speichern'] == 1) {
         . "criterien = '" . $kritstr . "', "
         . "and_criteria = '" . $bindstr . "', "
         . "exclude_criteria = '" . $ausstr . "', "
-        . "abnummer = '" . $abnummer . "', "
+        . "abnummer = '" . $_POST['abnummer'] . "', "
         . "kunde = '" . $_POST['kunde'] . "' WHERE id = " . $_POST['id'];
         $erg = mysqli_query($conn, $sql);
     }
@@ -345,7 +370,6 @@ if ($start_date != '' && $end_date >= date("Y-m-d")) {
     while ($row2 = mysqli_fetch_array($erg)) {
         $playarr[] = $row2['players'];
     }
-    $playerstr = implode(",", $playarr);
     $anz = count($playarr);
     
     try {
@@ -372,6 +396,7 @@ if ($start_date != '' && $end_date >= date("Y-m-d")) {
         for($i=0; $i<$anz; $i++) {
             $arr2[] = [$data->players[$i]->id => $data->players[$i]->free];
         }
+        
         foreach($arr2 as $key => $value) {
             foreach($value as $key => $d) {
                 $arr[$key] = $d;
@@ -392,7 +417,7 @@ $db_erg2 = mysqli_query($conn, $sql);
 $gruen = 0;
 $alleplayer = array();
 while ($row2 = mysqli_fetch_array($db_erg2)) {
-    if (!in_array($row2['custom_sn2'], $alleplayer)) {
+//    if (!in_array($row2['custom_sn2'], $alleplayer)) {
         $deleted = $row2['deleted'];
         $lfsph = $row2['lfsph'];
         $players = $row2['players'];
@@ -403,8 +428,6 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
         $custom_sn2 = $row2['custom_sn2'];
         $alleplayer[] = $custom_sn2;
         require_once __DIR__ .  '/vendor/autoload.php';
-
-        $client = new \GuzzleHttp\Client();
         
         $lfsphjetzt = (int)$arr[$players] / 10;
         $restzeit = ($lfsphjetzt);
@@ -434,7 +457,7 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
             $lfsphjetzt, 'playerid' => $playerid, 'criterien' => $criterien,
             'text' => $text, 'send_digooh' => $send_digooh, 'custom_sn2' =>
             $custom_sn2);
-    }
+//    }
 }
 
 // Digooh approved
@@ -491,6 +514,7 @@ if ($_POST['send_digooh'] == 1) {
                 'Telefon' => $_POST['telefon'],
                 'E-Mail' => $_POST['email'],
                 'Kunde' => $_POST['kunde'],
+                'AB-Nummer' => $_POST['abnummer'],
                 'Zeitraum' => $_POST['zeitraum'],
                 'Anzahl Tage' => $_POST['tage'],
                 'Displays (Anzahl, Einblendungen)' => $_POST['displayeinblendungen'],
@@ -624,7 +648,7 @@ if ($error) {
         <input type="text" name="abnummer" value="<?php echo $abnummer; ?>" 
                size="40" required>
         <?php } else { 
-            echo abnummer;
+            echo $abnummer;
         } ?>
                         </td>
                     </tr>
@@ -778,7 +802,7 @@ if ($error) {
                         <td class="zelle">
                         <?php if ($_POST['bearbeiten'] == 1
                                 && $digooh != 1) { ?>
-                            <button type="submit" name="speichern" 
+                            <button type="submit" name="speichernx" 
                                 class="gruen" value="1">Speichern
                         </button>
                         <?php
@@ -901,6 +925,7 @@ if ($export == 1) {
         <input type="hidden" name="telefon" value="<?php echo ''; ?>">
         <input type="hidden" name="email" value="<?php echo $_SESSION['email']; ?>">
         <input type="hidden" name="kunde" value="<?php echo $kunde; ?>">
+        <input type="hidden" name="abnummer" value="<?php echo $abnummer; ?>">
         <input type="hidden" name="zeitraum" value="<?php echo $start_date 
                 . " - " . $end_date; ?>">
         <input type="hidden" name="tage" value="<?php echo (string)$tage; ?>">
