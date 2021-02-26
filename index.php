@@ -87,20 +87,18 @@ if(isset($_GET['login'])) {
                     'Accept' => 'application/json',
                 ],
                 'json' => [
-                    'username' => 'dig-redenius',
-                    'password' => 'dig-redenius',
+                    'username' => 'livecms',
+                    'password' => 'livecms',
                 ],
             ]
         );
         $body = $response->getBody();
         $a = json_decode((string) $body);
         $access_token = $a->access_token;
-        $user = $a->user->name;
-        $email = $a->user->email;
         $_SESSION['token_direct'] = $access_token;
         
         $sql = "SELECT user, email, company FROM user WHERE user = '"
-                . $_POST['user'] . "' AND password = '"
+                . $_POST['username'] . "' AND password = '"
                 . $_POST['password'] . "'";
         $db_erg = mysqli_query($conn, $sql);
         while ($row = mysqli_fetch_array( $db_erg)) {
