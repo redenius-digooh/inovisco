@@ -116,7 +116,7 @@ if ($_POST['speichern'] == 1) {
             if ($playerarr[0] != '') {
                 foreach ($playerarr as $playe) {
                     // get player id with given name
-                    $$sql = "SELECT id FROM player WHERE name = " . $playe;
+                    $sql = "SELECT id FROM player WHERE name = '" . $playe . "'";
                     $db = mysqli_query($conn, $sql);
                     while ($row = mysqli_fetch_array($db)) {
                         if (!in_array($row['id'], $_POST['player'])) {
@@ -159,6 +159,7 @@ if ($_POST['speichern'] == 1) {
         
         // insert into buchung
         if ($_POST['player'][0] == '') $_POST['player'][] = 0;
+        
         $player = array_unique($_POST['player']);
         $i = 1;
         foreach ($player as $playerid) {
