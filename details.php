@@ -714,6 +714,10 @@ if ($error) {
                             if ($crit[0] != '') {
                                 $criterienanzeige = implode(", ",$crit);
                                 echo $criterienanzeige;
+                            ?>
+                            <input type="hidden" name="criterien_alt" 
+                                   value="<?php echo $criterien; ?>">                            
+                            <?php
                             }
                             ?>
                             <br>neu: 
@@ -726,8 +730,6 @@ if ($error) {
                                     echo $criterienanzeige;
                                 }
                             } ?>
-                            <input type="hidden" name="criterien_alt" 
-                                   value="<?php echo $criterien; ?>">
                         </td>
                     </tr>
                     <tr>
@@ -741,6 +743,10 @@ if ($error) {
                             if ($bindn[0] != '') {
                                 $bindcriterienanzeige = implode(", ",$bindn);
                                 echo $bindcriterienanzeige;
+                            ?>
+                            <input type="hidden" name="bindcriterien_alt" 
+                                   value="<?php echo $bindcriterien; ?>">
+                            <?php
                             }
                             ?>
                             <br>neu: 
@@ -753,8 +759,6 @@ if ($error) {
                                     echo $bindcriterienanzeige;
                                 }
                             } ?>
-                            <input type="hidden" name="bindcriterien_alt" 
-                                   value="<?php echo $bindcriterien; ?>">
                         </td>
                     </tr>
                     <tr>
@@ -768,6 +772,10 @@ if ($error) {
                             if ($ausn[0] != '') {
                                 $auscriterienanzeige = implode(", ",$ausn);
                                 echo $auscriterienanzeige;
+                            ?>
+                            <input type="hidden" name="auscriterien_alt" 
+                                   value="<?php echo $auscriterien; ?>">
+                            <?php
                             }
                             ?>
                             <br>neu: 
@@ -780,8 +788,6 @@ if ($error) {
                                     echo $auscriterienanzeige;
                                 }
                             } ?>
-                            <input type="hidden" name="auscriterien_alt" 
-                                   value="<?php echo $auscriterien; ?>">
                         </td>
                     </tr>
                     <tr>
