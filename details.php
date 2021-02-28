@@ -5,6 +5,7 @@
  */
 session_start();
 require_once 'db.php';
+mysqli_query($conn, "SET NAMES 'utf8'");
 
 require_once __DIR__ .  '/vendor/autoload.php';
 // set user
@@ -149,16 +150,17 @@ if ($_POST['speichernx'] == 1) {
 
             // insert all players for the offer
             foreach($_POST['player'] as $insplayer) {
-                $sql = "SELECT custom_sn2 FROM player WHERE id = " . $insplayer;
-                $db = mysqli_query($conn, $sql);
-                while ($row = mysqli_fetch_array($db)) {
-                    $custom_sn2 = $row['custom_sn2'];
+                $sql = "SELECT id, custom_sn2 FROM player WHERE name = '" . $insplayer . "'";
+                $db_erg = mysqli_query($conn, $sql);
+                while ($row2 = mysqli_fetch_array( $db_erg)) {
+                    $playid = $row2['id'];
+                    $custom_sn2 = $row2['custom_sn2'];
                 }
 
                 $sql = "INSERT INTO playerbuchung (players, custom_sn2, "
                         . "angebot)"
                     . " VALUES ("
-                    . "'" . $insplayer . "', "
+                    . "'" . $playid . "', "
                     . "'" . $custom_sn2 . "', "
                     . "'" . $_POST['angebot'] . "')";
                 $erg = mysqli_query($conn, $sql);
@@ -296,7 +298,16 @@ $sql = "SELECT id, name FROM criteria ORDER BY name";
 $db_erg = mysqli_query($conn, $sql);
 while ($row = mysqli_fetch_array( $db_erg)) {
     $kriterien[] = array('id' => $row['id'], 'name' => $row['name']);
-    $kritarr[] = utf8_encode($row['name']);
+    $kritarr[] = $row['name'];
+}
+
+// get all players
+$sql = "SELECT id, name FROM player ORDER BY name";
+$db_erg = mysqli_query($conn, $sql);
+$play = array();
+while ($row = mysqli_fetch_array( $db_erg)) {
+    $players[] = array('id' => $row['id'], 'name' => $row['name']);
+    $play[] = $row['name'];
 }
 
 // get all bookings 
@@ -785,7 +796,7 @@ if ($error) {
                             <?php } else { 
                                 if ($displays[0] != '') {
                                     $displayanzeige = implode(",",$displays);
-                                    echo utf8_encode($displayanzeige);
+                                    echo $displayanzeige;
                                 }
                             } ?>
                         </td>
@@ -1056,7 +1067,7 @@ if ($buchungen[0] != '') {
                     }
                     ?>
                                 </td>
-                                <td class="zelle"><?php echo utf8_encode($inhalt['displayname']); ?></td>
+                                <td class="zelle"><?php echo $inhalt['displayname']; ?></td>
                                 <td class="rechts">
                     <?php
                     if ($inhalt['restzeit'] <= 0) {
@@ -1162,6 +1173,16 @@ if ($buchungen[0] != '') {
         $('#search_aus').tokenfield({
             autocomplete: {
               source: <?php echo json_encode($kritarr); ?>,
+              delay: 100
+            },
+            showAutocompleteOnFocus: true
+        })
+        </script>
+        
+        <script type="text/javascript">
+        $('#search_player').tokenfield({
+            autocomplete: {
+              source: <?php echo json_encode($play); ?>,
               delay: 100
             },
             showAutocompleteOnFocus: true

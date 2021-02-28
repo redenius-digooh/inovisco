@@ -5,6 +5,7 @@
 session_start();
 require_once 'db.php';
 require __DIR__ .  '/vendor/autoload.php';
+mysqli_query($conn, "SET NAMES 'utf8'");
 
 $namefehlt = 0;
 
@@ -110,7 +111,6 @@ if ($_POST['speichern'] == 1) {
                 }
             }
         }
-        
         $playerarr = explode(", ", $_POST['sammelplayer']);
         if (is_array($playerarr)) {
             if ($playerarr[0] != '') {
