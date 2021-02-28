@@ -35,7 +35,7 @@ if ($_GET['manuell'] == 1 || $_POST['manuell'] == 1) {
     $db_erg = mysqli_query($conn, $sql);
     while ($row = mysqli_fetch_array( $db_erg)) {
         $kriterien[] = array('id' => $row['id'], 'name' => $row['name']);
-        $kritarr[] = utf8_encode($row['name']);
+        $kritarr[] = $row['name'];
     }
     
     // get max offer
@@ -51,7 +51,7 @@ if ($_GET['manuell'] == 1 || $_POST['manuell'] == 1) {
     $play = array();
     while ($row = mysqli_fetch_array( $db_erg)) {
         $players[] = array('id' => $row['id'], 'name' => $row['name']);
-        $play[] = utf8_encode($row['name']);
+        $play[] = $row['name'];
     }
 }
 
