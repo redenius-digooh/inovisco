@@ -72,6 +72,34 @@ if(isset($_GET['login'])) {
                     $name . "')";
             $db_erg = mysqli_query($conn, $sql);
         }
+        
+        $client = new \GuzzleHttp\Client();
+        $response = $client->get(
+            'https://cms.digooh.com:8082/api/v1/players',
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ],
+                'query' => [
+                    'include'=> 'criteria',
+                    'filter[criteria]'=> '140,',
+                    'limit'=> '130'
+                ]
+            ]
+        );
+        $body = $response->getBody();
+        $data = json_decode((string) $body);
+        $sql = "DELETE FROM specialplayer";
+        $db_erg = mysqli_query($conn, $sql);
+
+        foreach ($data->data as $key => $value) {
+            $id = $value->id;
+
+            $sql = "INSERT INTO specialplayer (id) VALUES ('" . $id . "')";
+            $db_erg = mysqli_query($conn, $sql);
+        }
     }
     catch (Exception $e) {
         echo $e->getMessage();

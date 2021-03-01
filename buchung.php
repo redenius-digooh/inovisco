@@ -106,7 +106,12 @@ if ($_POST['speichern'] == 1) {
                     $body = $response->getBody();
                     $data = json_decode((string) $body);
                     foreach ($data->data as $key => $value) {
-                        $_POST['player'][] = $value->id;
+                    //    $_POST['player'][] = $value->id;
+                        $sql = "SELECT id FROM specialplayer WHERE id = '" . $value->id . "'";
+                        $db = mysqli_query($conn, $sql);
+                        while ($row = mysqli_fetch_array( $db)) {
+                            $_POST['player'][] = $value->id;
+                        }
                     }
                 }
             }
