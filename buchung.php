@@ -114,6 +114,7 @@ if ($_POST['speichern'] == 1) {
         $playerarr = explode(", ", $_POST['sammelplayer']);
         if (is_array($playerarr)) {
             if ($playerarr[0] != '') {
+                $playermark = 1;
                 foreach ($playerarr as $playe) {
                     // get player id with given name
                     $sql = "SELECT id FROM player WHERE name = '" . $playe . "'";
@@ -197,11 +198,12 @@ if ($_POST['speichern'] == 1) {
                 $custom_sn2 = $row['custom_sn2'];
             }
             
-            $sql = "INSERT INTO playerbuchung (players, custom_sn2, angebot)"
-                    . " VALUES ("
+            $sql = "INSERT INTO playerbuchung (players, custom_sn2, angebot, "
+                    . "playermark) VALUES ("
                     . "'" . $playerid . "', "
                     . "'" . $custom_sn2 . "', "
-                    . "'" . $angebot . "')";
+                    . "'" . $angebot . "',"
+                    . "'" . $playermark . "')";
             $erg = mysqli_query($conn, $sql);
             
             $i++;
@@ -372,6 +374,7 @@ else {
                             style="width: 310px; border: 1px solid #FFFFFF;"/>
                         </td>
                     </tr>
+                    <?php /*
                     <tr>
                         <td valign="top" class="zelle">
                             Bind mit Kriterien:
@@ -392,6 +395,7 @@ else {
                             style="width: 310px; border: 1px solid #FFFFFF;"/>
                         </td>
                     </tr>
+                     */ ?>
                     <tr>
                         <td valign="top" class="zelle">
                             Displays:

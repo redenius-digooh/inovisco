@@ -420,7 +420,8 @@ if ($start_date != '' && $end_date >= date("Y-m-d")) {
 }
 
 // get players
-$sql = "SELECT a.players, a.id, a.deleted, a.lfsph, b.name, a.custom_sn2 "
+$sql = "SELECT a.players, a.id, a.deleted, a.lfsph, b.name, a.custom_sn2, "
+        . "a.playermark "
         . "FROM playerbuchung AS a"
         . " LEFT JOIN player AS b ON a.players = b.id"
         . " WHERE a.angebot = " . $angebot . " ORDER BY b.name";
@@ -438,6 +439,7 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
         $displays[] = $row2['name'];
         $custom_sn2 = $row2['custom_sn2'];
         $alleplayer[] = $custom_sn2;
+        $playermark = $row2['playermark'];
         require_once __DIR__ .  '/vendor/autoload.php';
         
         $lfsphjetzt = (int)$arr[$players] / 10;
@@ -732,6 +734,7 @@ if ($error) {
                             } ?>
                         </td>
                     </tr>
+                    <?php /*
                     <tr>
                         <td valign="top" class="zelle">
                             Bind mit Kriterien:
@@ -790,6 +793,7 @@ if ($error) {
                             } ?>
                         </td>
                     </tr>
+                     */ ?>
                     <tr>
                         <td valign="top" class="zelle">
                             Displays:
@@ -800,7 +804,7 @@ if ($error) {
                                    autocomplete="off" name="sammelplayer" 
                             style="width: 310px; border: 1px solid #FFFFFF;"/>
                             <?php } else { 
-                                if ($displays[0] != '') {
+                                if ($displays[0] != '' && $playermark == 1) {
                                     $displayanzeige = implode(",",$displays);
                                     echo $displayanzeige;
                                 }
