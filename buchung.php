@@ -111,6 +111,8 @@ if ($_POST['speichern'] == 1) {
                 }
             }
         }
+        
+        $playermark = 0;
         $playerarr = explode(", ", $_POST['sammelplayer']);
         if (is_array($playerarr)) {
             if ($playerarr[0] != '') {
