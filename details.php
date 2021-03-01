@@ -460,11 +460,9 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
             $problem = 2;
             $gesproblem = 1;
             $teilprobleme[] = $playerid;
-            $gelbeb[] = (int)$restzeit;
         }
         else {
             $problem = 0;
-            $gruen = $gruen + 1;
         }
     
         $buchungen[] = array('agentur' => $agentur, 'name' => $name,
@@ -522,7 +520,52 @@ if ($_POST['gut'] == 1) {
 }
 
 // send email to Digooh
+$sql = "SELECT a.players, a.id, a.deleted, a.lfsph, b.name, a.custom_sn2, "
+            . "a.playermark, b.id AS idplayer "
+            . "FROM playerbuchung AS a"
+            . " LEFT JOIN player AS b ON a.players = b.id"
+            . " WHERE (a.deleted IS NULL OR a.deleted = 0) "
+            . "AND a.angebot = " . $angebot . " ORDER BY b.name";
+$db_erg2 = mysqli_query($conn, $sql);
+$gruen = 0;
+$alleplayer = array();
+while ($row2 = mysqli_fetch_array($db_erg2)) {
+    $deleted = $row2['deleted'];
+    $lfsph = $row2['lfsph'];
+    $players = $row2['players'];
+    $playerid = $row2['id'];
+    $alleid[] = $row2['id'];
+    $displayname = $row2['name'];
+    $displays[] = $row2['name'];
+    $custom_sn2 = $row2['custom_sn2'];
+    $alleplayer[] = $custom_sn2;
+    $playermark = $row2['playermark'];
+    $idplayer[] = $row2['idplayer'];
+    require_once __DIR__ .  '/vendor/autoload.php';
+
+    $lfsphjetzt = (int)$arr[$players] / 10;
+    $restzeit = ($lfsphjetzt);
+
+    if ($restzeit <= 0) {
+        $problem = 1;
+        $gesproblem = 1;
+        $probleme[] = $playerid;
+    }
+    elseif (floor($restzeit) < $play_times) {
+        $problem = 2;
+        $gesproblem = 1;
+        $teilprobleme[] = $playerid;
+        $gelbeb[] = (int)$restzeit;
+    }
+    else {
+        $problem = 0;
+        $gruen = $gruen + 1;
+    }
+}
+
+// send email to Digooh
 if ($_POST['send_digooh'] == 1) {
+    // get players
     $client = new \GuzzleHttp\Client();
     $response = $client->post(
         'https://prod-61.westeurope.logic.azure.com:443/workflows/9c9cd20cdc0f4852b73e4178e263572c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Y3fmlxVqVrtmWdWMp0g6VNWc6ZfcCwmx_MTU0Ao6V4A',

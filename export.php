@@ -73,8 +73,9 @@ while ($row = mysqli_fetch_array($db_erg)) {
     // get 
     $sql2 = "SELECT a.id, a.players, a.deleted, a.lfsph, b.custom_sn2, b.name AS"
         . " displayname FROM playerbuchung AS a"
-        . " LEFT JOIN player AS b ON a.players = b.id WHERE"
-        . " angebot = " . $_POST['angebot'];
+        . " LEFT JOIN player AS b ON a.players = b.id WHERE (a.deleted IS NULL"
+        . " OR a.deleted = 0) AND"
+        . " a.angebot = " . $_POST['angebot'];
     $db_erg2 = mysqli_query($conn, $sql2);
     while ($row2 = mysqli_fetch_array( $db_erg2)) {
         $deleted = $row2['deleted'];
