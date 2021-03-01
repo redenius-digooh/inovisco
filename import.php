@@ -28,7 +28,7 @@ foreach ($worksheet->getRowIterator() AS $row) {
         $cellIterator = $row->getCellIterator();
         $cellIterator->setIterateOnlyExistingCells(true);
         foreach ($cellIterator as $cell) {
-            if ($cell->getValue() == $searchValue) {
+            if (strtolower($cell->getValue()) == strtolower($searchValue)) {
                 $foundInCells = $cell->getCoordinate();
             }
         }
