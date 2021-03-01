@@ -10,8 +10,8 @@ mysqli_query($conn, "SET NAMES 'utf8'");
 require_once __DIR__ .  '/vendor/autoload.php';
 // set user
 if ($_SESSION['company'] != 'DIGOOH' && $_SESSION['company'] != 'Update Test') {
-    $whereuser = "WHERE user = '" . $_SESSION['user'] . "'";
-    $setuser = "user = '" . $_SESSION['user'] . "'";
+    $whereuser = "WHERE a.user = '" . $_SESSION['user'] . "'";
+    $setuser = "a.user = '" . $_SESSION['user'] . "'";
     $user = $_SESSION['user'];
 } else {
     $setuser = "1 = 1";
@@ -290,7 +290,7 @@ if ($_GET['angebot'] || $_POST['angebot']) {
 }
 
 if ($angebot) {
-    $an = " AND angebot = " . $angebot;
+    $an = " AND a.angebot = " . $angebot;
 }
 
 // get all criteria
@@ -311,10 +311,12 @@ while ($row = mysqli_fetch_array( $db_erg)) {
 }
 
 // get all bookings 
-$sql = "SELECT id, kunde, name, start_date, end_date, play_times, text, motive,"
-            . " agentur, angebot, inovisco, digooh, einfrieren, export, criterien,"
-            . " and_criteria, exclude_criteria, send_digooh, abnummer FROM "
-            . "buchung WHERE " . $setuser . $an;
+$sql = "SELECT a.id, a.kunde, a.name, a.start_date, a.end_date, a.play_times, a.text, a.motive,"
+            . " a.agentur, a.angebot, a.inovisco, a.digooh, a.einfrieren, a.export, a.criterien,"
+            . " a.and_criteria, a.exclude_criteria, a.send_digooh, a.abnummer, b.user, b.company, b.email FROM "
+            . "buchung AS a"
+            . " LEFT JOIN user AS b ON a.user = b.user"
+            . " WHERE " . $setuser . $an;
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {
@@ -337,6 +339,9 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     $motive = $row['motive'];
     $send_digooh = $row['send_digooh'];
     $abnummer = $row['abnummer'];
+    $username = $row['user'];
+    $useremail = $row['email'];
+    $company = $row['company'];
 }
 
 // get criterianames
@@ -421,7 +426,7 @@ if ($start_date != '' && $end_date >= date("Y-m-d")) {
 
 // get players
 $sql = "SELECT a.players, a.id, a.deleted, a.lfsph, b.name, a.custom_sn2, "
-        . "a.playermark "
+        . "a.playermark, b.id AS idplayer "
         . "FROM playerbuchung AS a"
         . " LEFT JOIN player AS b ON a.players = b.id"
         . " WHERE a.angebot = " . $angebot . " ORDER BY b.name";
@@ -440,6 +445,7 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
         $custom_sn2 = $row2['custom_sn2'];
         $alleplayer[] = $custom_sn2;
         $playermark = $row2['playermark'];
+        $idplayer[] = $row2['idplayer'];
         require_once __DIR__ .  '/vendor/autoload.php';
         
         $lfsphjetzt = (int)$arr[$players] / 10;
@@ -475,13 +481,12 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
 
 // Digooh approved
 if ($_POST['gut'] == 1) {
-    $sql = "UPDATE buchung SET digooh = 1 WHERE user = '" . $user 
-            . "' AND angebot = '" . $_POST['angebot'] . "'";
+    $sql = "UPDATE buchung SET digooh = 1 WHERE angebot = '" . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
 
     // set new campaign
     require_once __DIR__ .  '/vendor/autoload.php';
-    $alleplayers = implode(",", $alleplayer);
+    $alleplayers = implode(",", $idplayer);
     $client = new \GuzzleHttp\Client();
     $response = $client->post(
         'https://cms.digooh.com:8082/api/v1/campaigns',
@@ -539,7 +544,7 @@ if ($_POST['send_digooh'] == 1) {
     );
     $body = $response->getBody();
     
-    $sql = "UPDATE buchung SET send_digooh = 1, inovisco = 1 WHERE user = '" . $user
+    $sql = "UPDATE buchung SET send_digooh = 1, inovisco = 1 WHERE user = '" . $username
             . "' AND angebot = '" . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
     
@@ -592,7 +597,7 @@ if ($error) {
                     <input type="hidden" name="update" value="1">
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
             <input type="hidden" name="id" value="<?php echo $id; ?>">
-                <input type="hidden" name="user" value="<?php echo $user; ?>">
+                <input type="hidden" name="user" value="<?php echo $username; ?>">
                     <?php
                     if (is_array($alleid)) {
                         foreach ($alleid as $val) {
@@ -605,8 +610,8 @@ if ($error) {
                 <table class="ohnerahmen" style="align: left;">
                     <tr>
                         <td width="280" class="zelle">Buchung durch:</td>
-                        <td><?php echo $_SESSION['company']; ?> / 
-                            <?php echo $_SESSION['user']; ?>
+                        <td><?php echo $company; ?> / 
+                            <?php echo $username; ?>
                         </td>
                         <td class="zelle">
                             <?php if ($_POST['bearbeiten'] != 1 
@@ -854,7 +859,7 @@ if ($error) {
                 </script>
                 <form action="export.php" method="post" target="_new">
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">            
-                <input type="hidden" name="user" value="<?php echo $user; ?>">
+                <input type="hidden" name="user" value="<?php echo $username; ?>">
                 <button type="submit" name="exportieren" 
                                 class="gruen" value="1" onclick="refresh()">Exportieren
                         </button>
@@ -916,7 +921,7 @@ if ($export == 1) {
                                 <td valign="top" class="rechts">
                         <form action="details.php" method="post">                        
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
-        <input type="hidden" name="user" value="<?php echo $user; ?>">
+        <input type="hidden" name="user" value="<?php echo $username; ?>">
                             <button type="submit" name="inogut" 
                                 class="gruen" value="1">
                             Check Verfügbarkeit</button>
@@ -942,9 +947,9 @@ if ($export == 1) {
                                 <td valign="top" class="rechts">
                         <form action="details.php" method="post">                        
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
-        <input type="hidden" name="user" value="<?php echo $_SESSION['user']; ?>">
+        <input type="hidden" name="user" value="<?php echo $username; ?>">
         <input type="hidden" name="telefon" value="<?php echo ''; ?>">
-        <input type="hidden" name="email" value="<?php echo $_SESSION['email']; ?>">
+        <input type="hidden" name="email" value="<?php echo $useremail; ?>">
         <input type="hidden" name="kunde" value="<?php echo $kunde; ?>">
         <input type="hidden" name="abnummer" value="<?php echo $abnummer; ?>">
         <input type="hidden" name="zeitraum" value="<?php echo $start_date 
@@ -966,7 +971,7 @@ if ($export == 1) {
 ?>
                                 <td valign="top" class="rechts">
                         <form action="details.php" method="post">
-                  <input type="hidden" name="user" value="<?php echo $user; ?>">
+                  <input type="hidden" name="user" value="<?php echo $username; ?>">
                   <input type="hidden" name="geprueft" value="1">
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
                             <button type="submit" name="gut" 
@@ -994,7 +999,7 @@ if ($export == 1) {
                     </tr>
                     <tr>
                         <td valign="top" class="rechts" colspan="2">
-                  <input type="hidden" name="user" value="<?php echo $user; ?>">
+                  <input type="hidden" name="user" value="<?php echo $username; ?>">
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
                             <button type="submit" name="sendschlecht" 
                                 class="rot" value="1">
