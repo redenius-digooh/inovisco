@@ -87,8 +87,8 @@ if(isset($_GET['login'])) {
                     'Accept' => 'application/json',
                 ],
                 'json' => [
-                    'username' => 'livecms',
-                    'password' => 'livecms',
+                    'username' => 'dig-redenius',
+                    'password' => '123456789',
                 ],
             ]
         );
