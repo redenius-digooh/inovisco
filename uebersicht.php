@@ -94,8 +94,7 @@ $result = $conn->query($sql);
                     <center>F&uuml;r Details Kampagne anklicken!</center><br>
                     <table class="ohnerahmen">
                         <tr>
-<td class="zelle">
-    Alle Buchungen mit:
+<td class="zelle">Alle Buchungen mit:
     <select name="was">
         <option value="">---</option>
         <option value="upload" <?php if ($_POST['was'] == 'upload') 
@@ -136,9 +135,6 @@ $result = $conn->query($sql);
                 Suchen</button>
 </td>
         </tr>
-    </table>
-</td>
-                            </tr>
                             <tr>
                                 <td class="zelle">
                                     Kunde:
@@ -158,6 +154,9 @@ $result = $conn->query($sql);
             <input type="text" name="angeb" value="<?php echo $_POST['angeb']; ?>">
                                 </td>
                             </tr>
+    </table>
+                                    </td>
+                                    </tr>
                                     </table><br>
                                     <table class="ohnerahmen">
                             <tr>
