@@ -33,16 +33,23 @@ if(isset($_GET['login'])) {
             $id = $value->id;
             $name = $value->name;
             foreach ($value->info as $k => $wert) {
+                if ($k == 'custom_sn1') {
+                    $custom_sn1 = $wert;
+                }
                 if ($k == 'custom_sn2') {
                     $custom_sn2 = $wert;
                 }
             }
 
+            if ($custom_sn1 == '') {
+                $custom_sn1 = 0;
+            }
             if ($custom_sn2 == '') {
                 $custom_sn2 = 0;
             }
-            $sql = "INSERT INTO player (id, name, custom_sn2) VALUES ('" . $id . "', '" . 
-                    $name . "', '" . $custom_sn2 . "')";
+            $sql = "INSERT INTO player (id, name, custom_sn1, custom_sn2) "
+                    . "VALUES ('" . $id . "', '" . $name . "', '" 
+                    . $custom_sn1 . "', '" . $custom_sn2 . "')";
             $db_erg = mysqli_query($conn, $sql);
         }
 
@@ -156,10 +163,9 @@ if(isset($_GET['login'])) {
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="css/style.css">
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-	    <script language="JavaScript" type="text/javascript" src="campaign.js" charset="UTF-8"></script>	
         <title></title>
     </head>
     <body>
