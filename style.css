@@ -58,6 +58,11 @@ h4 {
 	color: white;
 }
 
+button, input, optgroup, select, textarea {
+    font: inherit;
+    font-style: normal;
+}
+
 .button {
 	text-align: right;
 }
@@ -103,6 +108,7 @@ a {
 	color: white;
 	font-size: 20px;
         padding: 5px;
+        font: inherit;
 }
 
 .button_zurueck {
