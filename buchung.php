@@ -199,15 +199,17 @@ if ($_POST['speichern'] == 1) {
             }
             
             // insert into playerbuchung
-            $sql = "SELECT custom_sn2 FROM player WHERE id = " . $playerid;
+            $sql = "SELECT custom_sn1, custom_sn2 FROM player WHERE id = " . $playerid;
             $db = mysqli_query($conn, $sql);
             while ($row = mysqli_fetch_array($db)) {
+                $custom_sn1 = $row['custom_sn1'];
                 $custom_sn2 = $row['custom_sn2'];
             }
             
-            $sql = "INSERT INTO playerbuchung (players, custom_sn2, angebot, "
-                    . "playermark) VALUES ("
+            $sql = "INSERT INTO playerbuchung (players, custom_sn1, custom_sn2,"
+                    . "angebot, playermark) VALUES ("
                     . "'" . $playerid . "', "
+                    . "'" . $custom_sn1 . "', "
                     . "'" . $custom_sn2 . "', "
                     . "'" . $angebot . "',"
                     . "'" . $playermark . "')";
@@ -280,6 +282,13 @@ else {
     <?php
     }
     ?>
+                    <tr>
+                        <td class="zelle">
+                            Buchung mit <input type="radio" name="was" value="1">
+                            SDAW oder <input type="radio" name="was" value="2">
+                            QID
+                        </td>
+                    </tr>
                     <tr>
                         <td class="zelle">
                         Bitte w&auml;hlen Sie eine Exceldatei von Ihrem 

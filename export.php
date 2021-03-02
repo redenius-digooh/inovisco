@@ -76,8 +76,8 @@ $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array($db_erg)) {
     // get all players
-    $sql2 = "SELECT a.id, a.players, a.deleted, a.lfsph, b.custom_sn2, b.name AS"
-        . " displayname FROM playerbuchung AS a"
+    $sql2 = "SELECT a.id, a.players, a.deleted, a.lfsph, b.custom_sn1, "
+        . " b.custom_sn2, b.name AS displayname FROM playerbuchung AS a"
         . " LEFT JOIN player AS b ON a.players = b.id WHERE (a.deleted IS NULL"
         . " OR a.deleted = 0) AND"
         . " a.angebot = " . $_POST['angebot'];
@@ -88,6 +88,7 @@ while ($row = mysqli_fetch_array($db_erg)) {
         $players = $row2['players'];
         $playarr[] = $row2['players'];
         $playerid = $row2['id'];
+        $custom_sn1 = $row2['custom_sn1'];
         $custom_sn2 = $row2['custom_sn2'];
         $displayname = $row2['displayname'];
         
@@ -122,8 +123,9 @@ while ($row = mysqli_fetch_array($db_erg)) {
         $aufdb[] = array('id' => $id, 'playerid' => $playerid,
             'players' => $players, 'problem' => $problem, 'start_date' =>
             $start_date, 'end_date' => $end_date, 'anzeige' => $anzeige, 
-            'custom_sn2' => $custom_sn2, 'displayname' => $displayname, 'lfsph'
-            => $lfsph, 'lfsphjetzt' => $lfsphjetzt);
+            'custom_sn1' => $custom_sn1, 'custom_sn2' => $custom_sn2, 
+            'displayname' => $displayname, 'lfsph'=> $lfsph, 
+            'lfsphjetzt' => $lfsphjetzt);
     }
 }
 
@@ -142,7 +144,13 @@ foreach ($aufdb as $key => $in) {
 
 //set column headers
 $columnHeader = '';
-$columnHeader = "Displayname" . "\t" . "QID" . "\t" . "Einblendungen pro Stunde" . "\t";
+$columnHeader = "Displayname" . "\t";
+if ($custom_sn1 != '') {
+    $columnHeader .= "SDAW" . "\t";
+} else {
+    $columnHeader .= "QID" . "\t";
+}
+$columnHeader .= "Einblendungen pro Stunde" . "\t";
 $setData = '';
 $upper = "Angebotsnummer" . "\t" . '"' . $_POST['angebot'] . '"' . "\n";
 $upper .= "Kundenname" . "\t" . '"' . $kunde . '"' . "\n";
@@ -156,7 +164,11 @@ function umlauteumwandeln($str){
 foreach ($aufdb as $key => $inhalt) {
     $rowData = '';
     $value = '"' . umlauteumwandeln($inhalt['displayname']) . '"' . "\t";
-    $value .= '"' . $inhalt['custom_sn2'] . '"' . "\t";
+    if ($inhalt['custom_sn1'] != '') {
+        $value .= '"' . $inhalt['custom_sn1'] . '"' . "\t";
+    } else {
+        $value .= '"' . $inhalt['custom_sn2'] . '"' . "\t";
+    }
     $value .= '"' . $inhalt['anzeige'] . '"' . "\t";
     $rowData .= $value;
     $setData .= trim($rowData) . "\n";  

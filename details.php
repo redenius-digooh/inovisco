@@ -123,16 +123,19 @@ if ($_POST['speichernx'] == 1) {
                     
                 // insert all players for the offer
                 foreach($_POST['player'] as $insplayer) {
-                    $sql = "SELECT custom_sn2 FROM player WHERE id = " . $insplayer;
+                    $sql = "SELECT custom_sn1, custom_sn2 FROM player WHERE id "
+                            ."= " . $insplayer;
                     $db = mysqli_query($conn, $sql);
                     while ($row = mysqli_fetch_array($db)) {
+                        $custom_sn1 = $row['custom_sn1'];
                         $custom_sn2 = $row['custom_sn2'];
                     }
                 
-                    $sql = "INSERT INTO playerbuchung (players, custom_sn2, "
-                            . "angebot)"
+                    $sql = "INSERT INTO playerbuchung (players, custom_sn1, "
+                            . "custom_sn2, angebot)"
                         . " VALUES ("
                         . "'" . $insplayer . "', "
+                        . "'" . $custom_sn1 . "', "
                         . "'" . $custom_sn2 . "', "
                         . "'" . $_POST['angebot'] . "')";
                     $erg = mysqli_query($conn, $sql);
@@ -150,17 +153,20 @@ if ($_POST['speichernx'] == 1) {
 
             // insert all players for the offer
             foreach($_POST['player'] as $insplayer) {
-                $sql = "SELECT id, custom_sn2 FROM player WHERE name = '" . $insplayer . "'";
+                $sql = "SELECT id, custom_sn1, custom_sn2 FROM player WHERE "
+                        . "name = '" . $insplayer . "'";
                 $db_erg = mysqli_query($conn, $sql);
                 while ($row2 = mysqli_fetch_array( $db_erg)) {
                     $playid = $row2['id'];
+                    $custom_sn1 = $row2['custom_sn1'];
                     $custom_sn2 = $row2['custom_sn2'];
                 }
 
-                $sql = "INSERT INTO playerbuchung (players, custom_sn2, "
-                        . "angebot)"
+                $sql = "INSERT INTO playerbuchung (players, custom_sn1, "
+                        . "custom_sn2, angebot)"
                     . " VALUES ("
                     . "'" . $playid . "', "
+                    . "'" . $custom_sn1 . "', "
                     . "'" . $custom_sn2 . "', "
                     . "'" . $_POST['angebot'] . "')";
                 $erg = mysqli_query($conn, $sql);
@@ -425,8 +431,8 @@ if ($start_date != '' && $end_date >= date("Y-m-d")) {
 }
 
 // get players
-$sql = "SELECT a.players, a.id, a.deleted, a.lfsph, b.name, a.custom_sn2, "
-        . "a.playermark, b.id AS idplayer "
+$sql = "SELECT a.players, a.id, a.deleted, a.lfsph, b.name, a.custom_sn1, "
+        . "a.custom_sn2, a.playermark, b.id AS idplayer "
         . "FROM playerbuchung AS a"
         . " LEFT JOIN player AS b ON a.players = b.id"
         . " WHERE a.angebot = " . $angebot . " ORDER BY b.name";
@@ -441,7 +447,9 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
     $alleid[] = $row2['id'];
     $displayname = $row2['name'];
     $displays[] = $row2['name'];
+    $custom_sn1 = $row2['custom_sn1'];
     $custom_sn2 = $row2['custom_sn2'];
+    $alleplayer1[] = $custom_sn1;
     $alleplayer[] = $custom_sn2;
     $playermark = $row2['playermark'];
     $idplayer[] = $row2['idplayer'];
@@ -471,8 +479,12 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
         'play_times' => $play_times, 'displayname' => $displayname,
         'inovisco' => $inovisco, 'digooh' => $digooh, 'lfsphjetzt' => 
         $lfsphjetzt, 'playerid' => $playerid, 'criterien' => $criterien,
-        'text' => $text, 'send_digooh' => $send_digooh, 'custom_sn2' =>
-        $custom_sn2);
+        'text' => $text, 'send_digooh' => $send_digooh, 'custom_sn1' =>
+        $custom_sn1, 'custom_sn2' => $custom_sn2);
+}
+
+if ($custom_sn1 != '') {
+    $was = 1;
 }
 
 // Digooh approved
@@ -518,8 +530,8 @@ if ($_POST['gut'] == 1) {
 }
 
 // send email to Digooh
-$sql = "SELECT a.players, a.id, a.deleted, a.lfsph, b.name, a.custom_sn2, "
-            . "a.playermark, b.id AS idplayer "
+$sql = "SELECT a.players, a.id, a.deleted, a.lfsph, b.name, a.custom_sn1, "
+            . "a.custom_sn2, a.playermark, b.id AS idplayer "
             . "FROM playerbuchung AS a"
             . " LEFT JOIN player AS b ON a.players = b.id"
             . " WHERE (a.deleted IS NULL OR a.deleted = 0) "
@@ -535,7 +547,9 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
     $alleid[] = $row2['id'];
     $displayname = $row2['name'];
     $displays[] = $row2['name'];
+    $custom_sn1 = $row2['custom_sn1'];
     $custom_sn2 = $row2['custom_sn2'];
+    $alleplayer1[] = $custom_sn1;
     $alleplayer[] = $custom_sn2;
     $playermark = $row2['playermark'];
     $idplayer[] = $row2['idplayer'];
@@ -1082,7 +1096,13 @@ if ($_POST['bearbeiten'] != 1) {
             <tr>
                 <td valign="bottom" class="rahmenunten">Aktion</td>
                 <td valign="bottom" class="rahmenunten">Displayname</td>
-                <td valign="bottom" class="rahmenrechts">QID</td>
+                <td valign="bottom" class="rahmenrechts">
+                    <?php if ($was == 1) { ?>
+                        SDAW
+                    <?php } else { ?>
+                    QID
+                    <?php } ?>
+                </td>
                 <td class="rahmenrechts">verf&uuml;gbare Einblendungen<br>pro Stunde</td>
                 <?php
                 if ($export == 1) {
@@ -1137,7 +1157,13 @@ if ($buchungen[0] != '') {
                     } else {
                         $prob = '';
                     }
-                    echo $prob . $inhalt['custom_sn2'] . '</font>';
+                    echo $prob;
+                    if ($was == 1) {
+                        echo $inhalt['custom_sn1'];
+                    } else {
+                        echo $inhalt['custom_sn2'];
+                    }
+                    echo '</font>';
                     ?>
                                 </td>
                 <?php

@@ -11,16 +11,18 @@ $worksheet = $spreadsheet->getActiveSheet();
 $i = 0;
 $j = 1;
 
-// get the hihighest offer
 $sql = "SELECT MAX(angebot) AS id FROM buchung";
 $db_erg = mysqli_query($conn, $sql);
 while ($row = mysqli_fetch_array( $db_erg)) {
     $angebotsid = $row['id'] + 1;
 }
 
-// get the column width QID
 $foundInCells = array();
-$searchValue = 'QID';
+if ($_POST['was'] == 1) {
+    $searchValue = 'SDAW';
+} else {
+    $searchValue = 'QID';
+}
 foreach ($worksheet->getRowIterator() AS $row) {
     $highestRow = $worksheet->getHighestRow();
     $cellIterator = $row->getCellIterator();
@@ -37,7 +39,6 @@ foreach ($worksheet->getRowIterator() AS $row) {
     }
 }
 
-// drop in buchung and playerbuchung
 $buchstabe = substr($foundInCells, 0, 1);
 for ($row = 2; $row <= $highestRow; $row++){
     $cell = $worksheet->getCell($buchstabe . $row);
@@ -50,15 +51,23 @@ for ($row = 2; $row <= $highestRow; $row++){
         $erg = mysqli_query($conn, $query);
     }
     
-    $sql = "SELECT id FROM player WHERE custom_sn2 = " . $player;
+    if ($_POST['was'] == 1) {
+        $sql = "SELECT id FROM player WHERE custom_sn1 = " . $player;
+    } else {
+        $sql = "SELECT id FROM player WHERE custom_sn2 = " . $player;
+    }
     $erg = mysqli_query($conn, $sql);
     while ($row2 = mysqli_fetch_array($erg)) {
         $players = $row2['id'];
     }
 
-    $query = "INSERT INTO playerbuchung (players, custom_sn2, angebot) VALUES ('" 
+    if ($_POST['was'] == 1) {
+        $query = "INSERT INTO playerbuchung (players, custom_sn1, angebot) VALUES ('" 
             . $players . "', '" . $player . "', '" . $angebotsid . "')";
-
+    } else {
+        $query = "INSERT INTO playerbuchung (players, custom_sn2, angebot) VALUES ('" 
+            . $players . "', '" . $player . "', '" . $angebotsid . "')";
+    }
     $erg = mysqli_query($conn, $query);
     
     $j++;
