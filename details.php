@@ -434,47 +434,45 @@ $db_erg2 = mysqli_query($conn, $sql);
 $gruen = 0;
 $alleplayer = array();
 while ($row2 = mysqli_fetch_array($db_erg2)) {
-//    if (!in_array($row2['custom_sn2'], $alleplayer)) {
-        $deleted = $row2['deleted'];
-        $lfsph = $row2['lfsph'];
-        $players = $row2['players'];
-        $playerid = $row2['id'];
-        $alleid[] = $row2['id'];
-        $displayname = $row2['name'];
-        $displays[] = $row2['name'];
-        $custom_sn2 = $row2['custom_sn2'];
-        $alleplayer[] = $custom_sn2;
-        $playermark = $row2['playermark'];
-        $idplayer[] = $row2['idplayer'];
-        require_once __DIR__ .  '/vendor/autoload.php';
-        
-        $lfsphjetzt = (int)$arr[$players] / 10;
-        $restzeit = ($lfsphjetzt);
-        
-        if ($restzeit <= 0) {
-            $problem = 1;
-            $gesproblem = 1;
-            $probleme[] = $playerid;
-        }
-        elseif (floor($restzeit) < $play_times) {
-            $problem = 2;
-            $gesproblem = 1;
-            $teilprobleme[] = $playerid;
-        }
-        else {
-            $problem = 0;
-        }
-    
-        $buchungen[] = array('agentur' => $agentur, 'name' => $name,
-            'players' => $players, 'problem' => $problem, 'start_date' =>
-            $start_date, 'end_date' => $end_date, 'id' => $id, 
-            'deleted' => $deleted, 'restzeit' => $restzeit, 'lfsph' => $lfsph,
-            'play_times' => $play_times, 'displayname' => $displayname,
-            'inovisco' => $inovisco, 'digooh' => $digooh, 'lfsphjetzt' => 
-            $lfsphjetzt, 'playerid' => $playerid, 'criterien' => $criterien,
-            'text' => $text, 'send_digooh' => $send_digooh, 'custom_sn2' =>
-            $custom_sn2);
-//    }
+    $deleted = $row2['deleted'];
+    $lfsph = $row2['lfsph'];
+    $players = $row2['players'];
+    $playerid = $row2['id'];
+    $alleid[] = $row2['id'];
+    $displayname = $row2['name'];
+    $displays[] = $row2['name'];
+    $custom_sn2 = $row2['custom_sn2'];
+    $alleplayer[] = $custom_sn2;
+    $playermark = $row2['playermark'];
+    $idplayer[] = $row2['idplayer'];
+    require_once __DIR__ .  '/vendor/autoload.php';
+
+    $lfsphjetzt = (int)$arr[$players] / 10;
+    $restzeit = ($lfsphjetzt);
+
+    if ($restzeit <= 0) {
+        $problem = 1;
+        $gesproblem = 1;
+        $probleme[] = $playerid;
+    }
+    elseif (floor($restzeit) < $play_times) {
+        $problem = 2;
+        $gesproblem = 1;
+        $teilprobleme[] = $playerid;
+    }
+    else {
+        $problem = 0;
+    }
+
+    $buchungen[] = array('agentur' => $agentur, 'name' => $name,
+        'players' => $players, 'problem' => $problem, 'start_date' =>
+        $start_date, 'end_date' => $end_date, 'id' => $id, 
+        'deleted' => $deleted, 'restzeit' => $restzeit, 'lfsph' => $lfsph,
+        'play_times' => $play_times, 'displayname' => $displayname,
+        'inovisco' => $inovisco, 'digooh' => $digooh, 'lfsphjetzt' => 
+        $lfsphjetzt, 'playerid' => $playerid, 'criterien' => $criterien,
+        'text' => $text, 'send_digooh' => $send_digooh, 'custom_sn2' =>
+        $custom_sn2);
 }
 
 // Digooh approved

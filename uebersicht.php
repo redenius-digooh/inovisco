@@ -47,6 +47,7 @@ elseif ($_POST['wo'] == 'down') {
 }
 else {}
 
+// get the agency
 $sql = "SELECT agentur FROM buchung " . $whereuser;
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
@@ -58,6 +59,7 @@ if ($result->num_rows > 0) {
     }
 }
 
+// get the customer
 $sql = "SELECT kunde FROM buchung " . $whereuser;
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
@@ -69,6 +71,7 @@ if ($result->num_rows > 0) {
     }
 }
 
+// get all bookings
 $sql = "SELECT DISTINCT(angebot), name, agentur, upload, inovisco, digooh, "
         . "datum, kunde FROM buchung WHERE " . $user . $was . $agent . $kund 
         . $angeb . $order;

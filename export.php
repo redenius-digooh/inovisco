@@ -1,4 +1,7 @@
 <?php
+/*
+ * Export the player.
+ */
 header('Content-Encoding: UTF-8');
 header("Content-type: application/x-msexcel; charset=utf-8");
 header("Content-type: application/octet-stream");
@@ -15,19 +18,21 @@ if ($_SESSION['company'] != 'DIGOOH' && $_SESSION['company'] != 'Update Test') {
     $whereuser = "user = '" . $user . "' AND";
 }
 
+// Select the players from the offer
 $sql = "SELECT a.players, c.start_date, c.end_date "
         . "FROM playerbuchung AS a"
         . " LEFT JOIN player AS b ON a.players = b.id"
         . " LEFT JOIN buchung AS c ON a.angebot = c.angebot"
         . " WHERE a.angebot = " . $_POST['angebot'] . " ORDER BY b.name";
-    $erg = mysqli_query($conn, $sql);
-    while ($row2 = mysqli_fetch_array($erg)) {
-        $playarr[] = $row2['players'];
-        $start_date = $row2['start_date'];
-        $end_date = $row2['end_date'];
-    }
-    $anz = count($playarr);
+$erg = mysqli_query($conn, $sql);
+while ($row2 = mysqli_fetch_array($erg)) {
+    $playarr[] = $row2['players'];
+    $start_date = $row2['start_date'];
+    $end_date = $row2['end_date'];
+}
+$anz = count($playarr);
     
+// get the times of the player
 try {
     require_once __DIR__ .  '/vendor/autoload.php';
     $client = new \GuzzleHttp\Client();
@@ -70,7 +75,7 @@ $sql = "SELECT id, start_date, end_date, play_times, kunde, name FROM buchung"
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array($db_erg)) {
-    // get 
+    // get all players
     $sql2 = "SELECT a.id, a.players, a.deleted, a.lfsph, b.custom_sn2, b.name AS"
         . " displayname FROM playerbuchung AS a"
         . " LEFT JOIN player AS b ON a.players = b.id WHERE (a.deleted IS NULL"
@@ -122,6 +127,7 @@ while ($row = mysqli_fetch_array($db_erg)) {
     }
 }
 
+// update buchung
 foreach ($aufdb as $key => $in) {
     $sql = "UPDATE buchung SET "
             . "export = 1"

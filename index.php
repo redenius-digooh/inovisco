@@ -1,9 +1,13 @@
 <?php
+/*
+ * Home page, this is where the session is formed.
+ */
 session_start();
 require_once 'datenbank.php';
 if(isset($_GET['login'])) {
     require __DIR__ .  '/vendor/autoload.php';
-
+    
+    // get all players
     try {
         $client = new \GuzzleHttp\Client();
         $response = $client->get(
@@ -42,6 +46,7 @@ if(isset($_GET['login'])) {
             $db_erg = mysqli_query($conn, $sql);
         }
 
+        // get all criteria
         $client = new \GuzzleHttp\Client();
         $response = $client->get(
             'https://cms.digooh.com:8082/api/v1/criteria',
@@ -73,6 +78,7 @@ if(isset($_GET['login'])) {
             $db_erg = mysqli_query($conn, $sql);
         }
         
+        // get all players from AA
         $client = new \GuzzleHttp\Client();
         $response = $client->get(
             'https://cms.digooh.com:8082/api/v1/players',
@@ -105,6 +111,7 @@ if(isset($_GET['login'])) {
         echo $e->getMessage();
     }
         
+    // always log in with the same access
     try {
         $client = new GuzzleHttp\Client();
         $response = $client->post(
@@ -125,6 +132,7 @@ if(isset($_GET['login'])) {
         $access_token = $a->access_token;
         $_SESSION['token_direct'] = $access_token;
         
+        // check login internally
         $sql = "SELECT user, email, company FROM user WHERE user = '"
                 . $_POST['username'] . "' AND password = '"
                 . $_POST['password'] . "'";

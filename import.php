@@ -11,12 +11,14 @@ $worksheet = $spreadsheet->getActiveSheet();
 $i = 0;
 $j = 1;
 
+// get the hihighest offer
 $sql = "SELECT MAX(angebot) AS id FROM buchung";
 $db_erg = mysqli_query($conn, $sql);
 while ($row = mysqli_fetch_array( $db_erg)) {
     $angebotsid = $row['id'] + 1;
 }
 
+// get the column width QID
 $foundInCells = array();
 $searchValue = 'QID';
 foreach ($worksheet->getRowIterator() AS $row) {
@@ -35,6 +37,7 @@ foreach ($worksheet->getRowIterator() AS $row) {
     }
 }
 
+// drop in buchung and playerbuchung
 $buchstabe = substr($foundInCells, 0, 1);
 for ($row = 2; $row <= $highestRow; $row++){
     $cell = $worksheet->getCell($buchstabe . $row);
