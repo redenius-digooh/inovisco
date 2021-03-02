@@ -131,8 +131,6 @@ $result = $conn->query($sql);
     </select>
 </td>
 <td>
-    <button type="submit" name="neu" class="grau" value="1">
-                Suchen</button>
 </td>
         </tr>
                             <tr>
@@ -152,6 +150,10 @@ $result = $conn->query($sql);
                                 <td colspan="2" class="zelle">
                                     Angebotsnummer:
             <input type="text" name="angeb" value="<?php echo $_POST['angeb']; ?>">
+                                </td>
+                                <td>
+                        <button type="submit" name="neu" class="grau" value="1">
+                                                Suchen</button>
                                 </td>
                             </tr>
     </table>
