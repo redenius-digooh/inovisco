@@ -62,10 +62,20 @@ if ($_POST['sendschlecht'] == 1) {
 
 // update
 if ($_POST['speichernx'] == 1) {
-    $sd = explode("-", $_POST['start_date']);
-    $ed = explode("-", $_POST['end_date']);
-    $checks = checkdate($sd[1],$sd[2],$sd[0]);
-    $checke = checkdate($ed[1],$ed[2],$ed[0]);
+    $d1 = substr($_POST['firstinput'], 3, 2);
+    $m1 = substr($_POST['firstinput'], 0, 2);
+    $y1 = substr($_POST['firstinput'], 6, 4);
+    $d2 = substr($_POST['secondinput'], 3, 2);
+    $m2 = substr($_POST['secondinput'], 0, 2);
+    $y2 = substr($_POST['secondinput'], 6, 4);
+        
+    $start_date = $y1 . "-" . $m1 . "-" . $d1;
+    $end_date = $y2 . "-" . $m2 . "-" . $d2;
+    
+    $sd = explode("/", $_POST['start_date']);
+    $ed = explode("/", $_POST['end_date']);
+    $checks = checkdate($m1,$d1,$y1);
+    $checke = checkdate($m2,$d2,$y2);
     if (!$checks || !$checke) {
         $error = "Das Startdatum oder Enddatum war nicht korrekt!";
     }
@@ -223,8 +233,8 @@ if ($_POST['speichernx'] == 1) {
         
         // update booking
         $sql = "UPDATE buchung SET "
-        . "start_date = '" . $_POST['start_date'] . "', "
-        . "end_date = '" . $_POST['end_date'] . "', "
+        . "start_date = '" . $start_date . "', "
+        . "end_date = '" . $end_date . "', "
         . "play_times = '" . $_POST['play_times'] . "', "
         . "name = '" . $_POST['name'] . "', "
         . "agentur = '" . $_POST['agentur'] . "', "                
@@ -729,10 +739,30 @@ if ($error) {
                         <td class="zelle">Zeitraum:</td>
                         <td colspan="2" class="zelle">
         <?php if ($_POST['bearbeiten'] == 1) { ?>
-        <input type="text" name="start_date" value="<?php echo $start_date; ?>" 
-        size="10" required>
-    - <input type="text" name="end_date" value="<?php echo $end_date; ?>" 
-        size="10" required> (z.B. 2021-01-20)
+                            <script>
+                                $( function() {
+                                  $( "#datepicker" ).datepicker();
+                                } );
+                                $( function() {
+                                  $( "#datepick" ).datepicker();
+                                } );
+                            </script>
+                            <?php
+                            $d1 = substr($start_date, 8, 2);
+                            $m1 = substr($start_date, 5, 2);
+                            $y1 = substr($start_date, 0, 4);
+                            $d2 = substr($end_date, 8, 2);
+                            $m2 = substr($end_date, 5, 2);
+                            $y2 = substr($end_date, 0, 4);
+
+                            $start_date = $m1 . "/" . $d1 . "/" . $y1;
+                            $end_date = $m2 . "/" . $d2 . "/" . $y2;
+                            ?>
+        <input type="text" id="datepicker" name="firstinput" size="10" 
+               value="<?php echo $start_date; ?>" required>
+         - <input type="text" id="datepick" name="secondinput" size="10" 
+          value="<?php echo $end_date; ?>" required> 
+        (MM/DD/YYYY)
         <?php } else { 
             echo $start_date . "  -  " . $end_date;
         } ?>

@@ -168,6 +168,16 @@ if ($_POST['speichern'] == 1) {
         // insert into buchung
         if ($_POST['player'][0] == '') $_POST['player'][] = 0;
         
+        $d1 = substr($_POST['firstinput'], 3, 2);
+        $m1 = substr($_POST['firstinput'], 0, 2);
+        $y1 = substr($_POST['firstinput'], 6, 4);
+        $d2 = substr($_POST['secondinput'], 3, 2);
+        $m2 = substr($_POST['secondinput'], 0, 2);
+        $y2 = substr($_POST['secondinput'], 6, 4);
+        
+        $start_date = $y1 . "-" . $m1 . "-" . $d1;
+        $end_date = $y2 . "-" . $m2 . "-" . $d2;
+        
         $player = array_unique($_POST['player']);
         $i = 1;
         foreach ($player as $playerid) {
@@ -179,8 +189,8 @@ if ($_POST['speichern'] == 1) {
                         . "agentur, kunde, angebot, user, useremail, criterien, "
                         . "and_criteria, exclude_criteria, text, motive, abnummer,"
                         . " upload) VALUES ("
-                        . "'" . $_POST['start_date'] . "', "
-                        . "'" . $_POST['end_date'] . "', "
+                        . "'" . $start_date . "', "
+                        . "'" . $end_date . "', "
                         . "'" . $_POST['play_times'] . "', "
                         . "'" . $_POST['name'] . "', "
                         . "'" . $_POST['agentur'] . "', "
@@ -312,7 +322,7 @@ else {
     }
     if ($_GET['manuell'] == 1) {
 ?>
-                <form action="buchung.php" method="post">
+                <form action="buchung.php" name="buchung" method="post">
                     <table class="ohnerahmen">
                         <tr>
                         <td width="280" class="zelle">Buchung durch:</td>
@@ -355,10 +365,17 @@ else {
                     <tr>
                         <td class="zelle">Zeitraum:</td>
                         <td class="zelle">
-        <input type="text" name="start_date" value="<?php echo $start_date; ?>" 
-        size="10" required>
-    - <input type="text" name="end_date" value="<?php echo $end_date; ?>" 
-        size="10" required> (z.B. 2021-01-20)
+                            <script>
+                                $( function() {
+                                  $( "#datepicker" ).datepicker();
+                                } );
+                                $( function() {
+                                  $( "#datepick" ).datepicker();
+                                } );
+                            </script>
+        <input type="text" id="datepicker" name="firstinput" size="10" required>
+ - <input type="text" id="datepick" name="secondinput" size="10" required> 
+ (MM/DD/YYYY)
                         </td>
                     </tr>
                     <tr>
