@@ -157,10 +157,12 @@ if ($_POST['speichernx'] == 1) {
         if ($_POST['pps1'] > 0 || $_POST['pps2'] > 0) {
             if ($_POST['pps1'] > 0) {
                 $ppsf = " WHERE a.pps >= " . $_POST['pps1'];
+                $pps = $_POST['pps1'];
             }
             
             if ($_POST['pps2'] > 0) {
                 $ppsf = " WHERE a.pps >= " . $_POST['pps2'];
+                $pps = $_POST['pps2'];
             }
             
             $sql = "SELECT a.id FROM player AS a"
@@ -291,6 +293,7 @@ if ($_POST['speichernx'] == 1) {
         . "and_criteria = '" . $bindstr . "', "
         . "exclude_criteria = '" . $ausstr . "', "
         . "abnummer = '" . $_POST['abnummer'] . "', "
+        . "pps = '" . $pps . "', "
         . "kunde = '" . $_POST['kunde'] . "' WHERE id = " . $_POST['id'];
         $erg = mysqli_query($conn, $sql);
     }
@@ -374,9 +377,11 @@ while ($row = mysqli_fetch_array( $db_erg)) {
 }
 
 // get all bookings 
-$sql = "SELECT a.id, a.kunde, a.name, a.start_date, a.end_date, a.play_times, a.text, a.motive,"
-            . " a.agentur, a.angebot, a.inovisco, a.digooh, a.einfrieren, a.export, a.criterien,"
-            . " a.and_criteria, a.exclude_criteria, a.send_digooh, a.abnummer, b.user, b.company, b.email FROM "
+$sql = "SELECT a.id, a.kunde, a.name, a.start_date, a.end_date, a.play_times, "
+        . "a.text, a.motive, a.agentur, a.angebot, a.inovisco, a.digooh, "
+        . "a.einfrieren, a.export, a.criterien, a.and_criteria, "
+        . "a.exclude_criteria, a.send_digooh, a.abnummer, b.user, b.company, "
+        . "b.email, a.pps FROM "
             . "buchung AS a"
             . " LEFT JOIN user AS b ON a.user = b.user"
             . " WHERE " . $setuser . $an;
@@ -405,6 +410,7 @@ while ($row = mysqli_fetch_array( $db_erg)) {
     $username = $row['user'];
     $useremail = $row['email'];
     $company = $row['company'];
+    $pps = $row['pps'];
 }
 
 // get criterianames
@@ -537,7 +543,7 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
         'inovisco' => $inovisco, 'digooh' => $digooh, 'lfsphjetzt' => 
         $lfsphjetzt, 'playerid' => $playerid, 'criterien' => $criterien,
         'text' => $text, 'send_digooh' => $send_digooh, 'custom_sn1' =>
-        $custom_sn1, 'custom_sn2' => $custom_sn2);
+        $custom_sn1, 'custom_sn2' => $custom_sn2, 'pps' => $pps);
 }
 
 if ($custom_sn1 != '') {
@@ -936,6 +942,7 @@ if ($error) {
                             Displays mit pps-Wert gr&ouml;&szlig;er:
                         </td>
                         <td class="zelle">
+                            <?php if ($_POST['bearbeiten'] == 1) { ?>
                             <select name="pps1">
                                 <option value=""></option>
                                 <option value="10000">10.000</option>
@@ -943,7 +950,10 @@ if ($error) {
                                 <option value="30000">30.000</option>
                                 <option value="40000">40.000</option>
                             </select>
-                            <input type="text" name="pps2">
+            <input type="text" name="pps2" value="<?php echo $pps; ?>" size="17">
+                            <?php } else {
+                                echo $pps;
+                            } ?>
                         </td>
                     </tr>
                     <tr>

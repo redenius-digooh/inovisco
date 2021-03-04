@@ -120,10 +120,12 @@ if ($_POST['speichern'] == 1) {
         if ($_POST['pps1'] > 0 || $_POST['pps2'] > 0) {
             if ($_POST['pps1'] > 0) {
                 $ppsf = " WHERE a.pps >= " . $_POST['pps1'];
+                $pps = $_POST['pps1'];
             }
             
             if ($_POST['pps2'] > 0) {
                 $ppsf = " WHERE a.pps >= " . $_POST['pps2'];
+                $pps = $_POST['pps2'];
             }
             
             $sql = "SELECT a.id FROM player AS a"
@@ -208,7 +210,7 @@ if ($_POST['speichern'] == 1) {
                 $sql = "INSERT INTO buchung (start_date, end_date, play_times, name,"
                         . "agentur, kunde, angebot, user, useremail, criterien, "
                         . "and_criteria, exclude_criteria, text, motive, abnummer,"
-                        . " upload) VALUES ("
+                        . " pps, upload) VALUES ("
                         . "'" . $start_date . "', "
                         . "'" . $end_date . "', "
                         . "'" . $_POST['play_times'] . "', "
@@ -224,6 +226,7 @@ if ($_POST['speichern'] == 1) {
                         . "'" . $_POST['text'] . "', "
                         . "'" . $_POST['motive'] . "', "
                         . "'" . $_POST['abnummer'] . "', "
+                        . "'" . $pps . "', "
                         . "'2')";
                 $erg = mysqli_query($conn, $sql);
             }
@@ -461,7 +464,7 @@ else {
                                 <option value="30000">30.000</option>
                                 <option value="40000">40.000</option>
                             </select>
-                            <input type="text" name="pps2">
+                            <input type="text" name="pps2" size="17">
                         </td>
                     </tr>
                     <tr>
