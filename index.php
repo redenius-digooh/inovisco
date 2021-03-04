@@ -39,6 +39,9 @@ if(isset($_GET['login'])) {
                 if ($k == 'custom_sn2') {
                     $custom_sn2 = $wert;
                 }
+                if ($k == 'pps') {
+                    $pps = $wert;
+                }
             }
 
             if ($custom_sn1 == '') {
@@ -47,9 +50,9 @@ if(isset($_GET['login'])) {
             if ($custom_sn2 == '') {
                 $custom_sn2 = 0;
             }
-            $sql = "INSERT INTO player (id, name, custom_sn1, custom_sn2) "
+            $sql = "INSERT INTO player (id, name, custom_sn1, custom_sn2, pps) "
                     . "VALUES ('" . $id . "', '" . $name . "', '" 
-                    . $custom_sn1 . "', '" . $custom_sn2 . "')";
+                    . $custom_sn1 . "', '" . $custom_sn2 . "', '" . $pps . "')";
             $db_erg = mysqli_query($conn, $sql);
         }
 

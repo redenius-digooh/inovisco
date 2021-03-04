@@ -105,14 +105,34 @@ if ($_POST['speichern'] == 1) {
                     );
                     $body = $response->getBody();
                     $data = json_decode((string) $body);
+                    // only player width AA-criterion
                     foreach ($data->data as $key => $value) {
-                    //    $_POST['player'][] = $value->id;
                         $sql = "SELECT id FROM specialplayer WHERE id = '" . $value->id . "'";
                         $db = mysqli_query($conn, $sql);
                         while ($row = mysqli_fetch_array( $db)) {
                             $_POST['player'][] = $value->id;
                         }
                     }
+                }
+            }
+        }
+        
+        if ($_POST['pps1'] > 0 || $_POST['pps2'] > 0) {
+            if ($_POST['pps1'] > 0) {
+                $ppsf = " WHERE a.pps >= " . $_POST['pps1'];
+            }
+            
+            if ($_POST['pps2'] > 0) {
+                $ppsf = " WHERE a.pps >= " . $_POST['pps2'];
+            }
+            
+            $sql = "SELECT a.id FROM player AS a"
+                    . " LEFT JOIN specialplayer AS b ON a.id = b.id"
+                    . $ppsf;
+            $db = mysqli_query($conn, $sql);
+            while ($row = mysqli_fetch_array($db)) {
+                if (!in_array($row['id'], $_POST['player'])) {
+                    $_POST['player'][] = $row['id'];
                 }
             }
         }
@@ -429,6 +449,21 @@ else {
                         </td>
                     </tr>
                      */ ?>
+                    <tr>
+                        <td valign="top" class="zelle">
+                            Displays mit pps-Wert gr&ouml;&szlig;er:
+                        </td>
+                        <td class="zelle">
+                            <select name="pps1">
+                                <option value=""></option>
+                                <option value="10000">10.000</option>
+                                <option value="20000">20.000</option>
+                                <option value="30000">30.000</option>
+                                <option value="40000">40.000</option>
+                            </select>
+                            <input type="text" name="pps2">
+                        </td>
+                    </tr>
                     <tr>
                         <td valign="top" class="zelle">
                             Displays:

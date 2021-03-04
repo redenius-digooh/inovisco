@@ -62,6 +62,8 @@ if ($_POST['sendschlecht'] == 1) {
 
 // update
 if ($_POST['speichernx'] == 1) {
+    $_POST['player'] = array();
+            
     $d1 = substr($_POST['firstinput'], 3, 2);
     $m1 = substr($_POST['firstinput'], 0, 2);
     $y1 = substr($_POST['firstinput'], 6, 4);
@@ -88,7 +90,6 @@ if ($_POST['speichernx'] == 1) {
             $inscria = "criterien = '" . $_POST['sammelkriterium'] . "', ";
             $kriarr = explode(", ", $_POST['sammelkriterium']);
             $krit = array();
-            $_POST['player'] = array();
             if (is_array($kriarr)) {
                 if (count($kriarr) > 0 && $kriarr[0] != '') {
                     foreach ($kriarr as $kriteri) {
@@ -150,6 +151,52 @@ if ($_POST['speichernx'] == 1) {
                         . "'" . $_POST['angebot'] . "')";
                     $erg = mysqli_query($conn, $sql);
                 }
+            }
+        }
+        
+        if ($_POST['pps1'] > 0 || $_POST['pps2'] > 0) {
+            if ($_POST['pps1'] > 0) {
+                $ppsf = " WHERE a.pps >= " . $_POST['pps1'];
+            }
+            
+            if ($_POST['pps2'] > 0) {
+                $ppsf = " WHERE a.pps >= " . $_POST['pps2'];
+            }
+            
+            $sql = "SELECT a.id FROM player AS a"
+                    . " LEFT JOIN specialplayer AS b ON a.id = b.id"
+                    . $ppsf;
+            $db = mysqli_query($conn, $sql);
+            while ($row = mysqli_fetch_array($db)) {
+                if (!in_array($row['id'], $_POST['player'])) {
+                    $_POST['player'][] = $row['id'];
+                }
+            }
+            
+            // delete all players
+            $del = "DELETE FROM playerbuchung WHERE angebot = " 
+                    . $_POST['angebot'];
+            $erg = @mysqli_query($conn, $del);
+
+            // insert all players for the offer
+            foreach($_POST['player'] as $insplayer) {
+                $sql = "SELECT id, custom_sn1, custom_sn2 FROM player WHERE "
+                        . "id = '" . $insplayer . "'";
+                $db_erg = mysqli_query($conn, $sql);
+                while ($row2 = mysqli_fetch_array( $db_erg)) {
+                    $playid = $row2['id'];
+                    $custom_sn1 = $row2['custom_sn1'];
+                    $custom_sn2 = $row2['custom_sn2'];
+                }
+
+                $sql = "INSERT INTO playerbuchung (players, custom_sn1, "
+                        . "custom_sn2, angebot)"
+                    . " VALUES ("
+                    . "'" . $playid . "', "
+                    . "'" . $custom_sn1 . "', "
+                    . "'" . $custom_sn2 . "', "
+                    . "'" . $_POST['angebot'] . "')";
+                $erg = mysqli_query($conn, $sql);
             }
         }
         
@@ -884,6 +931,21 @@ if ($error) {
                         </td>
                     </tr>
                      */ ?>
+                    <tr>
+                        <td valign="top" class="zelle">
+                            Displays mit pps-Wert gr&ouml;&szlig;er:
+                        </td>
+                        <td class="zelle">
+                            <select name="pps1">
+                                <option value=""></option>
+                                <option value="10000">10.000</option>
+                                <option value="20000">20.000</option>
+                                <option value="30000">30.000</option>
+                                <option value="40000">40.000</option>
+                            </select>
+                            <input type="text" name="pps2">
+                        </td>
+                    </tr>
                     <tr>
                         <td valign="top" class="zelle">
                             Displays:
