@@ -121,11 +121,15 @@ if ($_POST['speichern'] == 1) {
             if ($_POST['pps1'] > 0) {
                 $ppsf = " WHERE a.pps >= " . $_POST['pps1'];
                 $pps = $_POST['pps1'];
+            } else {
+                $pps = 0;
             }
             
             if ($_POST['pps2'] > 0) {
                 $ppsf = " WHERE a.pps >= " . $_POST['pps2'];
                 $pps = $_POST['pps2'];
+            } else {
+                $pps = 0;
             }
             
             $sql = "SELECT a.id FROM player AS a"
@@ -137,6 +141,8 @@ if ($_POST['speichern'] == 1) {
                     $_POST['player'][] = $row['id'];
                 }
             }
+        } else {
+            $pps = 0;
         }
         
         $playermark = 0;
@@ -245,7 +251,7 @@ if ($_POST['speichern'] == 1) {
                     . "'" . $custom_sn1 . "', "
                     . "'" . $custom_sn2 . "', "
                     . "'" . $angebot . "',"
-                    . "'" . $playermark . "')";
+                    . "'" . $playermark . "')";echo $sql . "<br>";
             $erg = mysqli_query($conn, $sql);
             
             $i++;
