@@ -7,6 +7,43 @@ require_once 'datenbank.php';
 if(isset($_GET['login'])) {
     require __DIR__ .  '/vendor/autoload.php';
     
+    // always log in with the same access
+    try {
+        $client = new GuzzleHttp\Client();
+        $response = $client->post(
+            'https://cms.digooh.com:8082/api/v1/authorizations',
+            [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ],
+                'json' => [
+                    'username' => 'dig-redenius',
+                    'password' => '123456789',
+                ],
+            ]
+        );
+        $body = $response->getBody();
+        $a = json_decode((string) $body);
+        $access_token = $a->access_token;
+        $_SESSION['token_direct'] = $access_token;
+        
+        // check login internally
+        $sql = "SELECT user, email, company FROM user WHERE user = '"
+                . $_POST['username'] . "' AND password = '"
+                . $_POST['password'] . "'";
+        $db_erg = mysqli_query($conn, $sql);
+        while ($row = mysqli_fetch_array( $db_erg)) {
+            $_SESSION['user'] = $row['user'];
+            $_SESSION['useremail'] = $row['email'];
+            $_SESSION['company'] = $row['company'];
+        }
+    }
+    catch (Exception $e) {
+        $nichtangemeldet = 1;
+        // echo $e->getMessage();
+    }
+    
     // get all players
     try {
         $client = new \GuzzleHttp\Client();
@@ -120,45 +157,8 @@ if(isset($_GET['login'])) {
     catch (Exception $e) {
         echo $e->getMessage();
     }
-        
-    // always log in with the same access
-    try {
-        $client = new GuzzleHttp\Client();
-        $response = $client->post(
-            'https://cms.digooh.com:8082/api/v1/authorizations',
-            [
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                ],
-                'json' => [
-                    'username' => 'dig-redenius',
-                    'password' => '123456789',
-                ],
-            ]
-        );
-        $body = $response->getBody();
-        $a = json_decode((string) $body);
-        $access_token = $a->access_token;
-        $_SESSION['token_direct'] = $access_token;
-        
-        // check login internally
-        $sql = "SELECT user, email, company FROM user WHERE user = '"
-                . $_POST['username'] . "' AND password = '"
-                . $_POST['password'] . "'";
-        $db_erg = mysqli_query($conn, $sql);
-        while ($row = mysqli_fetch_array( $db_erg)) {
-            $_SESSION['user'] = $row['user'];
-            $_SESSION['useremail'] = $row['email'];
-            $_SESSION['company'] = $row['company'];
-        }
-
-        header("Location: http://88.99.184.137/inovisco_direct/uebersicht.php");
-    }
-    catch (Exception $e) {
-        $nichtangemeldet = 1;
-        // echo $e->getMessage();
-    }
+    
+    header("Location: http://88.99.184.137/inovisco_direct/uebersicht.php");
 }
 ?>
 <!doctype html>
