@@ -86,9 +86,57 @@ if ($_POST['speichernx'] == 1) {
                 . " 0 und 360 haben!";
     }
     else {
-        if ($_POST['sammelkriterium'] != '') {
+        if ($_POST['sammelkriterium'] != '' || $_POST['criterien_alt'] != '') {
+            if ($_POST['sammelkriterium'] == '') {
+                $_POST['sammelkriterium'] = $_POST['criterien_alt'];
+            }
+            $pps = 0;
+            
+            $binarr = explode(", ", $_POST['bindkriterium']);
+            $bind = array();
+            if (is_array($binarr)) {
+                if (count($binarr) > 0 && $binarr[0] != '') {
+                    foreach ($binarr as $bineri) {
+                        // get criteria id with given name
+                        $sql = "SELECT id FROM criteria WHERE name = '" . $bineri . "'";
+                        $db_erg = mysqli_query($conn, $sql);
+                        while ($row = mysqli_fetch_array( $db_erg)) {
+                            $bind[] = $row['id'];
+                        }
+                    }
+                }
+            }
+
+            $ausarr = explode(", ", $_POST['auskriterium']);
+            $aus = array();
+            if (is_array($ausarr)) {
+                if (count($ausarr) > 0 && $ausarr[0] != '') {
+                    foreach ($ausarr as $auseri) {
+                        // get criteria id with given name
+                        $sql = "SELECT id FROM criteria WHERE name = '" . $auseri . "'";
+                        $db_erg = mysqli_query($conn, $sql);
+                        while ($row = mysqli_fetch_array( $db_erg)) {
+                            $aus[] = $row['id'];
+                        }
+                    }
+                }
+            }
+            
+            if ($bind[0] != '') {
+                $bindstr = implode(", ", $bind);
+            } else {
+                $bindstr = $_POST['bindcriterien_alt'];
+            }
+
+            if ($aus[0] != '') {
+                $ausstr = implode(", ", $aus);
+            } else {
+                $ausstr = $_POST['auscriterien_alt'];
+            }
+            
             $inscria = "criterien = '" . $_POST['sammelkriterium'] . "', ";
             $kriarr = explode(", ", $_POST['sammelkriterium']);
+            
             $krit = array();
             if (is_array($kriarr)) {
                 if (count($kriarr) > 0 && $kriarr[0] != '') {
@@ -114,6 +162,8 @@ if ($_POST['speichernx'] == 1) {
                                 'query' => [
                                     'include'=> 'criteria',
                                     'filter[criteria]'=> $einzelkriterium,
+                                    'filter[bind_criteria]'=> $bind,
+                                    'filter[ex_criteria]'=> $aus,
                                     'limit'=> '130'
                                 ]
                             ]
@@ -232,52 +282,10 @@ if ($_POST['speichernx'] == 1) {
             }
         }
         
-        $binarr = explode(", ", $_POST['bindkriterium']);
-        $bind = array();
-        if (is_array($binarr)) {
-            if (count($binarr) > 0 && $binarr[0] != '') {
-                foreach ($binarr as $bineri) {
-                    // get criteria id with given name
-                    $sql = "SELECT id FROM criteria WHERE name = '" . $bineri . "'";
-                    $db_erg = mysqli_query($conn, $sql);
-                    while ($row = mysqli_fetch_array( $db_erg)) {
-                        $bind[] = $row['id'];
-                    }
-                }
-            }
-        }
-        
-        $ausarr = explode(", ", $_POST['auskriterium']);
-        $aus = array();
-        if (is_array($ausarr)) {
-            if (count($ausarr) > 0 && $ausarr[0] != '') {
-                foreach ($ausarr as $auseri) {
-                    // get criteria id with given name
-                    $sql = "SELECT id FROM criteria WHERE name = '" . $auseri . "'";
-                    $db_erg = mysqli_query($conn, $sql);
-                    while ($row = mysqli_fetch_array( $db_erg)) {
-                        $aus[] = $row['id'];
-                    }
-                }
-            }
-        }
-        
         if ($krit[0] != '') {
             $kritstr = implode(", ", $krit);
         } else {
             $kritstr = $_POST['criterien_alt'];
-        }
-        
-        if ($bind[0] != '') {
-            $bindstr = implode(", ", $bind);
-        } else {
-            $bindstr = $_POST['bindcriterien_alt'];
-        }
-        
-        if ($aus[0] != '') {
-            $ausstr = implode(", ", $aus);
-        } else {
-            $ausstr = $_POST['auscriterien_alt'];
         }
         
         // update booking
@@ -457,6 +465,8 @@ if ($start_date != '' && $end_date >= date("Y-m-d")) {
     }
     $anz = count($playarr);
     
+    $plastr = implode(",", $playarr);
+    
     try {
         require_once __DIR__ .  '/vendor/autoload.php';
         $client = new \GuzzleHttp\Client();
@@ -471,7 +481,7 @@ if ($start_date != '' && $end_date >= date("Y-m-d")) {
                 'json' => [
                     'start_date' => $start_date,
                     'end_date' => $end_date,
-                    'players' => $playarr
+                    'players' => $plastr
                 ]
             ]
         );
@@ -577,8 +587,8 @@ if ($_POST['gut'] == 1) {
                 'play_times' => $play_times,
         //        'time_flag' => false,
                 'criteria' => $criterien,
-        //        'and_criteria' => $o[0],
-        //        'exclude_criteria' => $o[0],
+        //        'bind_criteria' => $o[0],
+        //        'ex_criteria' => $o[0],
                 'players' => strval($alleplayers),
         //        'tags' => $o[0],
                 'tag_option' => 2,
@@ -877,7 +887,6 @@ if ($error) {
                             } ?>
                         </td>
                     </tr>
-                    <?php /*
                     <tr>
                         <td valign="top" class="zelle">
                             Bind mit Kriterien:
@@ -909,7 +918,7 @@ if ($error) {
                     </tr>
                     <tr>
                         <td valign="top" class="zelle">
-                            auszuschlie&szlig;ende Kriterien:
+                            Auszuschlie&szlig;ende Kriterien:
                         </td>
                         <td class="zelle">
                             <?php if ($_POST['bearbeiten'] == 1) { ?>
@@ -936,7 +945,6 @@ if ($error) {
                             } ?>
                         </td>
                     </tr>
-                     */ ?>
                     <tr>
                         <td valign="top" class="zelle">
                             Displays mit pps-Wert gr&ouml;&szlig;er:
