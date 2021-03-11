@@ -29,7 +29,7 @@ if(isset($_GET['login'])) {
         $_SESSION['token_direct'] = $access_token;
         
         // check login internally
-        $sql = "SELECT user, email, company FROM user WHERE user = '"
+        $sql = "SELECT id, user, email, company FROM user WHERE user = '"
                 . $_POST['username'] . "' AND password = '"
                 . $_POST['password'] . "'";
         $db_erg = mysqli_query($conn, $sql);
@@ -37,12 +37,18 @@ if(isset($_GET['login'])) {
             $_SESSION['user'] = $row['user'];
             $_SESSION['useremail'] = $row['email'];
             $_SESSION['company'] = $row['company'];
+            $id = $row['id'];
         }
     }
     catch (Exception $e) {
         $nichtangemeldet = 1;
         // echo $e->getMessage();
     }
+    
+    // set last login
+    $sql = "Update user SET lastlogin = '" . date("Y-m-d H:m:s") . "' "
+            . "WHERE id = " . $id;
+    $db_erg = mysqli_query($conn, $sql);
     
     // get all players
     try {
