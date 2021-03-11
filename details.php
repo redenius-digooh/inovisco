@@ -171,12 +171,40 @@ if ($_POST['speichernx'] == 1) {
                         $body = $response->getBody();
                         $data = json_decode((string) $body);
                         foreach ($data->data as $key => $value) {
-                            $_POST['player'][] = $value->id;
+                            $_POST['player1'][] = $value->id;
                         }
                     }
                 }
             }
-            if ($_POST['player'][0] != '') {
+            
+            if ($_POST['pps1'] > 0 || $_POST['pps2'] > 0) {
+                $_POST['player2'] = array();
+                if ($_POST['pps1'] > 0) {
+                    $ppsf = " WHERE a.pps >= " . $_POST['pps1'];
+                    $pps = $_POST['pps1'];
+                }
+
+                if ($_POST['pps2'] > 0) {
+                    $ppsf = " WHERE a.pps >= " . $_POST['pps2'];
+                    $pps = $_POST['pps2'];
+                }
+
+                $sql = "SELECT a.id FROM player AS a"
+                        . " LEFT JOIN specialplayer AS b ON a.id = b.id"
+                        . $ppsf;
+                $db = mysqli_query($conn, $sql);
+                while ($row = mysqli_fetch_array($db)) {
+                    if (!in_array($row['id'], $_POST['player2'])) {
+                        $_POST['player2'][] = $row['id'];
+                    }
+                }
+                $_POST['player'] = array_intersect($_POST['player1'], $_POST['player2']);
+            } else {
+                $pps = 0;
+                $_POST['player'] = $_POST['player1'];
+            }
+            
+            if ($_POST['player']) {
                 // delete all players
                 $del = "DELETE FROM playerbuchung WHERE angebot = " 
                         . $_POST['angebot'];
@@ -201,54 +229,6 @@ if ($_POST['speichernx'] == 1) {
                         . "'" . $_POST['angebot'] . "')";
                     $erg = mysqli_query($conn, $sql);
                 }
-            }
-        }
-        
-        if ($_POST['pps1'] > 0 || $_POST['pps2'] > 0) {
-            if ($_POST['pps1'] > 0) {
-                $ppsf = " WHERE a.pps >= " . $_POST['pps1'];
-                $pps = $_POST['pps1'];
-            }
-            
-            if ($_POST['pps2'] > 0) {
-                $ppsf = " WHERE a.pps >= " . $_POST['pps2'];
-                $pps = $_POST['pps2'];
-            }
-            
-            $sql = "SELECT a.id FROM player AS a"
-                    . " LEFT JOIN specialplayer AS b ON a.id = b.id"
-                    . $ppsf;
-            $db = mysqli_query($conn, $sql);
-            while ($row = mysqli_fetch_array($db)) {
-                if (!in_array($row['id'], $_POST['player'])) {
-                    $_POST['player'][] = $row['id'];
-                }
-            }
-            
-            // delete all players
-            $del = "DELETE FROM playerbuchung WHERE angebot = " 
-                    . $_POST['angebot'];
-            $erg = @mysqli_query($conn, $del);
-
-            // insert all players for the offer
-            foreach($_POST['player'] as $insplayer) {
-                $sql = "SELECT id, custom_sn1, custom_sn2 FROM player WHERE "
-                        . "id = '" . $insplayer . "'";
-                $db_erg = mysqli_query($conn, $sql);
-                while ($row2 = mysqli_fetch_array( $db_erg)) {
-                    $playid = $row2['id'];
-                    $custom_sn1 = $row2['custom_sn1'];
-                    $custom_sn2 = $row2['custom_sn2'];
-                }
-
-                $sql = "INSERT INTO playerbuchung (players, custom_sn1, "
-                        . "custom_sn2, angebot)"
-                    . " VALUES ("
-                    . "'" . $playid . "', "
-                    . "'" . $custom_sn1 . "', "
-                    . "'" . $custom_sn2 . "', "
-                    . "'" . $_POST['angebot'] . "')";
-                $erg = mysqli_query($conn, $sql);
             }
         }
         
@@ -677,6 +657,23 @@ if ($_POST['send_digooh'] == 1) {
     $erg = mysqli_query($conn, $sql);
     
     header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $_POST['angebot']);
+}
+
+// send offer
+if ($_POST['send_offer']) {
+    $client = new \GuzzleHttp\Client();
+    $response = $client->post(
+        'https://prod-31.westeurope.logic.azure.com:443/workflows/0bec1b76786846329c1a2cd637f2df0e/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=4iHT7ox6bPeb5YAyB8U_hzUhyNmLUB95_HvzlB4toR0',
+        [
+            'json' => [
+                'Angebotsnummer' => $_POST['angebot'],
+                'Kunde' => $_POST['kunde'],
+                'Besitzer' => $_POST['useremail'],
+                'Kampagne' => $_POST['name']
+            ]
+        ]
+    );
+    $body = $response->getBody();
 }
     
 require_once 'oben2.php';
@@ -1145,6 +1142,14 @@ if ($export == 1) {
                             <button type="submit" name="schlecht" 
                                 class="rot" value="1">
                             Digooh: Buchung ablehnen</button>
+                        </form>
+                        <form action="details.php" method="post">
+            <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
+            <input type="hidden" name="kunde" value="<?php echo $kunde; ?>">
+            <input type="hidden" name="useremail" value="<?php echo $useremail; ?>">
+            <input type="hidden" name="name" value="<?php echo $name; ?>">
+            <button type="submit" name="send_offer" class="gruen" value="1">
+                Angebot erstellen</button>
                         </form>
                                 </td>
 <?php
