@@ -72,6 +72,36 @@ if ($_POST['speichern'] == 1) {
                 . " 0 und 360 haben!";
     }
     else {
+        $binarr = explode(", ", $_POST['bindkriterium']);
+        $bind = array();
+        if (is_array($binarr)) {
+            if (count($binarr) > 0 && $binarr[0] != '') {
+                foreach ($binarr as $bineri) {
+                    // get criteria id with given name
+                    $sql = "SELECT id FROM criteria WHERE name = '" . $bineri . "'";
+                    $db_erg = mysqli_query($conn, $sql);
+                    while ($row = mysqli_fetch_array( $db_erg)) {
+                        $bind[] = $row['id'];
+                    }
+                }
+            }
+        }
+        
+        $ausarr = explode(", ", $_POST['auskriterium']);
+        $aus = array();
+        if (is_array($ausarr)) {
+            if (count($ausarr) > 0 && $ausarr[0] != '') {
+                foreach ($ausarr as $auseri) {
+                    // get criteria id with given name
+                    $sql = "SELECT id FROM criteria WHERE name = '" . $auseri . "'";
+                    $db_erg = mysqli_query($conn, $sql);
+                    while ($row = mysqli_fetch_array( $db_erg)) {
+                        $aus[] = $row['id'];
+                    }
+                }
+            }
+        }
+        
         $kriarr = explode(", ", $_POST['sammelkriterium']);
         $krit = array();
         $_POST['player'] = array();
@@ -99,6 +129,8 @@ if ($_POST['speichern'] == 1) {
                             'query' => [
                                 'include'=> 'criteria',
                                 'filter[criteria]'=> $einzelkriterium,
+                                'filter[bind_criteria]'=> $bind,
+                                'filter[ex_criteria]'=> $aus,
                                 'limit'=> '130'
                             ]
                         ]
@@ -117,19 +149,16 @@ if ($_POST['speichern'] == 1) {
             }
         }
         
+        $pps = 0;
         if ($_POST['pps1'] > 0 || $_POST['pps2'] > 0) {
             if ($_POST['pps1'] > 0) {
                 $ppsf = " WHERE a.pps >= " . $_POST['pps1'];
                 $pps = $_POST['pps1'];
-            } else {
-                $pps = 0;
             }
             
             if ($_POST['pps2'] > 0) {
                 $ppsf = " WHERE a.pps >= " . $_POST['pps2'];
                 $pps = $_POST['pps2'];
-            } else {
-                $pps = 0;
             }
             
             $sql = "SELECT a.id FROM player AS a"
@@ -141,8 +170,6 @@ if ($_POST['speichern'] == 1) {
                     $_POST['player'][] = $row['id'];
                 }
             }
-        } else {
-            $pps = 0;
         }
         
         $playermark = 0;
@@ -158,36 +185,6 @@ if ($_POST['speichern'] == 1) {
                         if (!in_array($row['id'], $_POST['player'])) {
                             $_POST['player'][] = $row['id'];
                         }
-                    }
-                }
-            }
-        }
-        
-        $binarr = explode(", ", $_POST['bindkriterium']);
-        $bin = array();
-        if (is_array($binarr)) {
-            if (count($binarr) > 0 && $binarr[0] != '') {
-                foreach ($binarr as $bineri) {
-                    // get criteria id with given name
-                    $sql = "SELECT id FROM criteria WHERE name = '" . $bineri . "'";
-                    $db_erg = mysqli_query($conn, $sql);
-                    while ($row = mysqli_fetch_array( $db_erg)) {
-                        $bin[] = $row['id'];
-                    }
-                }
-            }
-        }
-        
-        $ausarr = explode(", ", $_POST['auskriterium']);
-        $aus = array();
-        if (is_array($ausarr)) {
-            if (count($ausarr) > 0 && $ausarr[0] != '') {
-                foreach ($ausarr as $auseri) {
-                    // get criteria id with given name
-                    $sql = "SELECT id FROM criteria WHERE name = '" . $auseri . "'";
-                    $db_erg = mysqli_query($conn, $sql);
-                    while ($row = mysqli_fetch_array( $db_erg)) {
-                        $aus[] = $row['id'];
                     }
                 }
             }
@@ -211,7 +208,7 @@ if ($_POST['speichern'] == 1) {
         foreach ($player as $playerid) {
             if ($i == 1) {
                 $kritstr = implode(", ", $krit);
-                $binstr = implode(", ", $bin);
+                $binstr = implode(", ", $bind);
                 $ausstr = implode(", ", $aus);
                 $sql = "INSERT INTO buchung (start_date, end_date, play_times, name,"
                         . "agentur, kunde, angebot, user, useremail, criterien, "
@@ -251,7 +248,7 @@ if ($_POST['speichern'] == 1) {
                     . "'" . $custom_sn1 . "', "
                     . "'" . $custom_sn2 . "', "
                     . "'" . $angebot . "',"
-                    . "'" . $playermark . "')";echo $sql . "<br>";
+                    . "'" . $playermark . "')";
             $erg = mysqli_query($conn, $sql);
             
             $i++;
@@ -436,7 +433,6 @@ else {
                             style="width: 310px; border: 1px solid #FFFFFF;"/>
                         </td>
                     </tr>
-                    <?php /*
                     <tr>
                         <td valign="top" class="zelle">
                             Bind mit Kriterien:
@@ -457,7 +453,6 @@ else {
                             style="width: 310px; border: 1px solid #FFFFFF;"/>
                         </td>
                     </tr>
-                     */ ?>
                     <tr>
                         <td valign="top" class="zelle">
                             Displays mit pps-Wert gr&ouml;&szlig;er:
