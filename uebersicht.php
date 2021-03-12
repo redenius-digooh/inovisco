@@ -135,7 +135,7 @@ $result = $conn->query($sql);
         </tr>
                             <tr>
                                 <td class="zelle">
-                                    Kunde:
+                                    Kunde:<br>
                                     <select name="kund">
                                         <option value="">---</option>
                     <?php
@@ -148,10 +148,10 @@ $result = $conn->query($sql);
                     ?>
                                 </td>
                                 <td colspan="2" class="zelle">
-                                    Angebotsnummer:
+                                    Angebotsnummer:<br>
             <input type="text" name="angeb" value="<?php echo $_POST['angeb']; ?>">
                                 </td>
-                                <td>
+                                <td valign="bottom">
                         <button type="submit" name="neu" class="grau" value="1">
                                                 Suchen</button>
                                 </td>
