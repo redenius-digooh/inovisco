@@ -61,6 +61,7 @@ if ($_POST['sendschlecht'] == 1) {
 }
 
 // update
+$pps = 0;
 if ($_POST['speichernx'] == 1) {
     $_POST['player'] = array();
             
@@ -90,48 +91,61 @@ if ($_POST['speichernx'] == 1) {
             if ($_POST['sammelkriterium'] == '') {
                 $_POST['sammelkriterium'] = $_POST['criterien_alt'];
             }
-            $pps = 0;
             
-            $binarr = explode(", ", $_POST['bindkriterium']);
-            $bind = array();
-            if (is_array($binarr)) {
-                if (count($binarr) > 0 && $binarr[0] != '') {
-                    foreach ($binarr as $bineri) {
-                        // get criteria id with given name
-                        $sql = "SELECT id FROM criteria WHERE name = '" . $bineri . "'";
-                        $db_erg = mysqli_query($conn, $sql);
-                        while ($row = mysqli_fetch_array( $db_erg)) {
-                            $bind[] = $row['id'];
+            if ($_POST['bindkriterium'] != '') {
+                $habbind = 1;
+                $binarr = explode(", ", $_POST['bindkriterium']);
+                $bind = array();
+                if (is_array($binarr)) {
+                    if (count($binarr) > 0 && $binarr[0] != '') {
+                        foreach ($binarr as $bineri) {
+                            // get criteria id with given name
+                            $sql = "SELECT id FROM criteria WHERE name = '" . $bineri . "'";
+                            $db_erg = mysqli_query($conn, $sql);
+                            while ($row = mysqli_fetch_array( $db_erg)) {
+                                $bind[] = $row['id'];
+                            }
                         }
                     }
                 }
             }
 
-            $ausarr = explode(", ", $_POST['auskriterium']);
-            $aus = array();
-            if (is_array($ausarr)) {
-                if (count($ausarr) > 0 && $ausarr[0] != '') {
-                    foreach ($ausarr as $auseri) {
-                        // get criteria id with given name
-                        $sql = "SELECT id FROM criteria WHERE name = '" . $auseri . "'";
-                        $db_erg = mysqli_query($conn, $sql);
-                        while ($row = mysqli_fetch_array( $db_erg)) {
-                            $aus[] = $row['id'];
+            if ($_POST['auskriterium'] != '') {
+                $habaus = 1;
+                $ausarr = explode(", ", $_POST['auskriterium']);
+                $aus = array();
+                if (is_array($ausarr)) {
+                    if (count($ausarr) > 0 && $ausarr[0] != '') {
+                        foreach ($ausarr as $auseri) {
+                            // get criteria id with given name
+                            $sql = "SELECT id FROM criteria WHERE name = '" . $auseri . "'";
+                            $db_erg = mysqli_query($conn, $sql);
+                            while ($row = mysqli_fetch_array( $db_erg)) {
+                                $aus[] = $row['id'];
+                            }
                         }
                     }
                 }
             }
             
-            if ($bind[0] != '') {
+            if ($habbind == 1) {
                 $bindstr = implode(", ", $bind);
             } else {
                 $bindstr = $_POST['bindcriterien_alt'];
+                if (substr($bindstr, -1, 1) == ',') {
+                    $bindstr = substr($bindstr, 0, -1);
+                }
+                $bind = explode(", ", $bindstr);
             }
 
-            if ($aus[0] != '') {
+            if ($habaus == 1) {
                 $ausstr = implode(", ", $aus);
             } else {
                 $ausstr = $_POST['auscriterien_alt'];
+                if (substr($ausstr, -1, 1) == ',') {
+                    $ausstr = substr($ausstr, 0, -1);
+                }
+                $aus = explode(", ", $ausstr);
             }
             
             $inscria = "criterien = '" . $_POST['sammelkriterium'] . "', ";
@@ -170,6 +184,7 @@ if ($_POST['speichernx'] == 1) {
                         );
                         $body = $response->getBody();
                         $data = json_decode((string) $body);
+
                         foreach ($data->data as $key => $value) {
                             $_POST['player1'][] = $value->id;
                         }
@@ -405,7 +420,7 @@ while ($row = mysqli_fetch_array( $db_erg)) {
 $criteriaarr = explode(",", $criterien);
 if ($criteriaarr[0] != '') {
     foreach ($criteriaarr as $cri) {
-        $sql = "SELECT name FROM criteria WHERE id = " . $cri;
+        $sql = "SELECT name FROM criteria WHERE id = " . (int)$cri;
         $db = mysqli_query($conn, $sql);
         while ($row = mysqli_fetch_array( $db)) {
             $crit[] = $row['name'];
@@ -415,7 +430,7 @@ if ($criteriaarr[0] != '') {
 $bindcriteriaarr = explode(",", $bindcriterien);
 if ($bindcriteriaarr[0] != '') {
     foreach ($bindcriteriaarr as $bindcri) {
-        $sql = "SELECT name FROM criteria WHERE id = " . $bindcri;
+        $sql = "SELECT name FROM criteria WHERE id = " . (int)$bindcri;
         $db = mysqli_query($conn, $sql);
         while ($row = mysqli_fetch_array( $db)) {
             $bindn[] = $row['name'];
@@ -425,7 +440,7 @@ if ($bindcriteriaarr[0] != '') {
 $auscriteriaarr = explode(",", $auscriterien);
 if ($auscriteriaarr[0] != '') {
     foreach ($auscriteriaarr as $auscri) {
-        $sql = "SELECT name FROM criteria WHERE id = " . $auscri;
+        $sql = "SELECT name FROM criteria WHERE id = " . (int)$auscri;
         $db = mysqli_query($conn, $sql);
         while ($row = mysqli_fetch_array( $db)) {
             $ausn[] = $row['name'];
@@ -441,7 +456,9 @@ if ($start_date != '' && $end_date >= date("Y-m-d")) {
         . " WHERE a.angebot = " . $angebot . " ORDER BY b.name";
     $erg = mysqli_query($conn, $sql);
     while ($row2 = mysqli_fetch_array($erg)) {
-        $playarr[] = $row2['players'];
+        if ($row2['players'] != 0) {
+            $playarr[] = $row2['players'];
+        }
     }
     $anz = count($playarr);
     
@@ -461,7 +478,7 @@ if ($start_date != '' && $end_date >= date("Y-m-d")) {
                 'json' => [
                     'start_date' => $start_date,
                     'end_date' => $end_date,
-                    'players' => $plastr
+                    'players' => $playarr
                 ]
             ]
         );
@@ -1230,6 +1247,7 @@ if ($_POST['bearbeiten'] != 1) {
 <?php
 if ($buchungen[0] != '') {
     foreach ($buchungen as $key => $inhalt) {
+        if ($inhalt['displayname'] != '') {
         if ($inhalt['deleted']) {
             echo '<tr class="strikeout">';
         } else {
@@ -1336,6 +1354,7 @@ if ($buchungen[0] != '') {
                 ?>
                             </tr>
 <?php
+        }
     }
 }
 ?>
