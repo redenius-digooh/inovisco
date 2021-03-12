@@ -143,22 +143,8 @@ if ($angebot) {
     $an = " AND a.angebot = " . $angebot;
 }
 
-// get all criteria
-$sql = "SELECT id, name FROM criteria ORDER BY name";
-$db_erg = mysqli_query($conn, $sql);
-while ($row = mysqli_fetch_array( $db_erg)) {
-    $kriterien[] = array('id' => $row['id'], 'name' => $row['name']);
-    $kritarr[] = $row['name'];
-}
-
-// get all players
-$sql = "SELECT id, name FROM player ORDER BY name";
-$db_erg = mysqli_query($conn, $sql);
-$play = array();
-while ($row = mysqli_fetch_array( $db_erg)) {
-    $players[] = array('id' => $row['id'], 'name' => $row['name']);
-    $play[] = $row['name'];
-}
+// get all criteria and player
+require_once 'getall.php';
 
 // get all bookings 
 $sql = "SELECT a.id, a.kunde, a.name, a.start_date, a.end_date, a.play_times, "

@@ -30,28 +30,14 @@ if (isset($_FILES['datei']) && $_POST['neu'] == 1) {
 if ($_GET['manuell'] == 1 || $_POST['manuell'] == 1) {
     require_once __DIR__ .  '/vendor/autoload.php';
 
-    // get all criteria
-    $sql = "SELECT id, name FROM criteria ORDER BY name";
-    $db_erg = mysqli_query($conn, $sql);
-    while ($row = mysqli_fetch_array( $db_erg)) {
-        $kriterien[] = array('id' => $row['id'], 'name' => $row['name']);
-        $kritarr[] = $row['name'];
-    }
+    // get all criteria and player
+    require_once 'getall.php';
     
     // get max offer
     $sql = "SELECT MAX(angebot) AS angebot FROM buchung";
     $db_erg = mysqli_query($conn, $sql);
     while ($row = mysqli_fetch_array( $db_erg)) {
         $angebot = $row['angebot'] + 1;
-    }
-    
-    // get all players
-    $sql = "SELECT id, name FROM player ORDER BY name";
-    $db_erg = mysqli_query($conn, $sql);
-    $play = array();
-    while ($row = mysqli_fetch_array( $db_erg)) {
-        $players[] = array('id' => $row['id'], 'name' => $row['name']);
-        $play[] = $row['name'];
     }
 }
 
