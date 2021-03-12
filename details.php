@@ -140,12 +140,14 @@ if ($_POST['speichernx'] == 1) {
 
             if ($habaus == 1) {
                 $ausstr = implode(", ", $aus);
+                $ausstrk = $ausstr . ",";
             } else {
                 $ausstr = $_POST['auscriterien_alt'];
                 if (substr($ausstr, -1, 1) == ',') {
                     $ausstr = substr($ausstr, 0, -1);
                 }
                 $aus = explode(", ", $ausstr);
+                $ausstrk = $ausstr . ",";
             }
             
             $inscria = "criterien = '" . $_POST['sammelkriterium'] . "', ";
@@ -176,8 +178,8 @@ if ($_POST['speichernx'] == 1) {
                                 'query' => [
                                     'include'=> 'criteria',
                                     'filter[criteria]'=> $einzelkriterium,
-                                    'filter[bind_criteria]'=> $bind,
-                                    'filter[ex_criteria]'=> $aus,
+                                    'filter[bind_criteria]'=> $bindstr,
+                                    'filter[ex_criteria]'=> $ausstrk,
                                     'limit'=> '130'
                                 ]
                             ]
@@ -1230,9 +1232,9 @@ if ($_POST['bearbeiten'] != 1) {
                 <td valign="bottom" class="rahmenunten">Displayname</td>
                 <td valign="bottom" class="rahmenrechts">
                     <?php if ($was == 1) { ?>
-                        SDAW
+                        SDAW / QID
                     <?php } else { ?>
-                    QID
+                    SDAW / QID
                     <?php } ?>
                 </td>
                 <td class="rahmenrechts">verf&uuml;gbare Einblendungen<br>pro Stunde</td>
