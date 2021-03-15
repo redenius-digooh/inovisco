@@ -12,9 +12,11 @@ require_once __DIR__ .  '/vendor/autoload.php';
 if ($_SESSION['company'] != 'DIGOOH' && $_SESSION['company'] != 'Update Test') {
     $whereuser = "WHERE a.user = '" . $_SESSION['user'] . "'";
     $setuser = "a.user = '" . $_SESSION['user'] . "'";
+    $setcompany = "b.company = '" . $_SESSION['company'] . "'";
     $user = $_SESSION['user'];
 } else {
     $setuser = "1 = 1";
+    $setcompany = "b.company = '" . $_SESSION['company'] . "'";
 }
 
 // new booking upload
@@ -24,8 +26,8 @@ if ($_POST['neuupload'] == 1) {
 
 // Inovisco declined
 if ($_POST['inoschlecht'] == 1) {
-    $sql = "UPDATE buchung SET inovisco = 0 WHERE user = '" . $_POST['user'] 
-            . "' AND angebot = '" . $_POST['angebot'] . "'";
+    $sql = "UPDATE buchung SET inovisco = 0 WHERE angebot = '" 
+            . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
 }
 
@@ -154,7 +156,7 @@ $sql = "SELECT a.id, a.kunde, a.name, a.start_date, a.end_date, a.play_times, "
         . "b.email, a.pps FROM "
             . "buchung AS a"
             . " LEFT JOIN user AS b ON a.user = b.user"
-            . " WHERE " . $setuser . $an;
+            . " WHERE " . $setcompany . $an;
 $db_erg = mysqli_query($conn, $sql);
 
 while ($row = mysqli_fetch_array( $db_erg)) {
@@ -436,8 +438,8 @@ if ($_POST['send_digooh'] == 1) {
     );
     $body = $response->getBody();
     
-    $sql = "UPDATE buchung SET send_digooh = 1, inovisco = 1 WHERE user = '" . $username
-            . "' AND angebot = '" . $_POST['angebot'] . "'";
+    $sql = "UPDATE buchung SET send_digooh = 1, inovisco = 1 WHERE angebot = '" 
+            . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
     
     header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $_POST['angebot']);

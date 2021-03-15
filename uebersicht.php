@@ -8,9 +8,11 @@ require_once 'oben.php';
 if ($_SESSION['company'] != 'DIGOOH' && $_SESSION['company'] != 'Update Test') {
     $whereuser = "WHERE user = '" . $_SESSION['user'] . "'";
     $user = "user = '" . $_SESSION['user'] . "'";
+    $wherecompany = " WHERE b.company = '" . $_SESSION['company'] . "'";
 }
 else {
     $user = "1=1";
+    $wherecompany = " WHERE b.company = '" . $_SESSION['company'] . "'";
 }
 
 if ($_POST['was'] == 'upload') {
@@ -48,7 +50,9 @@ elseif ($_POST['wo'] == 'down') {
 else {}
 
 // get the agency
-$sql = "SELECT agentur FROM buchung " . $whereuser;
+$sql = "SELECT agentur FROM buchung AS a" 
+        . " LEFT JOIN user AS b ON a.user = b.user"
+        . $wherecompany;
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
     $agenturen = array();
@@ -60,7 +64,9 @@ if ($result->num_rows > 0) {
 }
 
 // get the customer
-$sql = "SELECT kunde FROM buchung " . $whereuser;
+$sql = "SELECT kunde FROM buchung AS a" 
+        . " LEFT JOIN user AS b ON a.user = b.user"
+        . $wherecompany;
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
     $kundenarr = array();
@@ -73,7 +79,9 @@ if ($result->num_rows > 0) {
 
 // get all bookings
 $sql = "SELECT DISTINCT(angebot), name, agentur, upload, inovisco, digooh, "
-        . "datum, kunde FROM buchung WHERE " . $user . $was . $agent . $kund 
+        . "datum, kunde FROM buchung AS a" 
+        . " LEFT JOIN user AS b ON a.user = b.user"
+        . $wherecompany . $was . $agent . $kund 
         . $angeb . $order;
 $result = $conn->query($sql);
 ?>
