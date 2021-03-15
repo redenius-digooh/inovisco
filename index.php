@@ -18,8 +18,8 @@ if(isset($_GET['login'])) {
                     'Accept' => 'application/json',
                 ],
                 'json' => [
-                    'username' => 'dig-redenius',
-                    'password' => '123456789',
+                    'username' => 'digoohredenius',
+                    'password' => 'digoohredenius',
                 ],
             ]
         );
