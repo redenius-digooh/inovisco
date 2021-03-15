@@ -169,7 +169,7 @@ foreach ($aufdb as $key => $inhalt) {
     } else {
         $value .= '"' . $inhalt['custom_sn2'] . '"' . "\t";
     }
-    $value .= '"' . $inhalt['anzeige'] . '"' . "\t";
+    $value .= '"' . round($inhalt['anzeige']) . '"' . "\t";
     $rowData .= $value;
     $setData .= trim($rowData) . "\n";  
 }
