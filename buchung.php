@@ -50,12 +50,36 @@ if ($_POST['speichern'] == 1) {
         $angebot = $row['angebot'] + 1;
     }
     
-    if (!$checks || !$checke) {
-        $error = "Das Startdatum oder Enddatum war nicht korrekt!";
+    $d1 = substr($_POST['firstinput'], 3, 2);
+    $m1 = substr($_POST['firstinput'], 0, 2);
+    $y1 = substr($_POST['firstinput'], 6, 4);
+    $d2 = substr($_POST['secondinput'], 3, 2);
+    $m2 = substr($_POST['secondinput'], 0, 2);
+    $y2 = substr($_POST['secondinput'], 6, 4);
+        
+    $start_date = $y1 . "-" . $m1 . "-" . $d1;
+    $end_date = $y2 . "-" . $m2 . "-" . $d2;
+    
+    $sd = explode("/", $_POST['start_date']);
+    $ed = explode("/", $_POST['end_date']);
+    $checks = checkdate($m1,$d1,$y1);
+    $checke = checkdate($m2,$d2,$y2);
+    
+    if (date("$y1-$m1-$d1") > date("Y-m-d")) {echo"1";
+        $error = 'Das Startdatum muss vor dem heutigen Tag liegen!';
     }
-    if ($_POST['play_times'] < 0 || $_POST['play_times'] > 360) {
+    elseif (date("$y2-$m2-$d2") < date("$y1-$m1-$d1")) {echo"2";
+        $error = 'Das Stratdatum muss vor dem Enddatum liegen!';
+    }
+    elseif (!$checks || !$checke) {
+        $error = 'Das Startdatum oder Enddatum war nicht korrekt!';
+    }
+    elseif ($_POST['play_times'] < 0 || $_POST['play_times'] > 360) {
         $error = 'Die "Einblendungen pro Stunde" m&uuml;ssen einen Wert zwischen'
                 . " 0 und 360 haben!";
+    }
+    elseif ($_POST['sammelkriterium'] == '' && $_POST['sammelplayer'] == '') {
+        $error = 'Es muss ein Kriterium oder ein Display ausgew&auml;hlt werden!';
     }
     else {
         $binarr = explode(", ", $_POST['bindkriterium']);
@@ -251,7 +275,7 @@ if ($upload == 1) {
     unlink($uploaded_dir . $filename);
     header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=$angebot");
 }
-elseif ($upload == 2) {
+elseif ($upload == 2 && $error == '') {
     header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=$angebot");
 }
 else {
@@ -265,7 +289,7 @@ else {
                     </tr>
                 </table>
 <?php
-    if ($_GET['datei'] == '' && $_GET['manuell'] == '') {
+    if ($_GET['datei'] == '' && $_GET['manuell'] == '' && $_POST['manuell'] == '') {
 ?>
                 <form action="buchung.php" method="post">
                     <table class="ohnerahmen">
@@ -336,10 +360,22 @@ else {
                 </form>
 <?php
     }
-    if ($_GET['manuell'] == 1) {
+    if ($_GET['manuell'] == 1 || $_POST['manuell'] == 1) {
 ?>
                 <form action="buchung.php" name="buchung" method="post">
+                    <input type="hidden" name="manuell" value="1">
                     <table class="ohnerahmen">
+                        <?php
+                        if ($error != '') {
+                        ?>
+                        <tr>
+                            <td colspan="2" align="center">
+                                <font color="red"><?php echo $error; ?></font>
+                            </td>
+                        </tr>
+                        <?php
+                        }
+                        ?>
                         <tr>
                         <td width="280" class="zelle">Buchung durch:</td>
                         <td class="zelle"><?php echo $_SESSION['company']; ?> / 
@@ -353,28 +389,28 @@ else {
                     <tr>
                         <td class="zelle">Kundenname:</td>
                         <td class="zelle">
-        <input type="text" name="kunde" value="<?php echo $kunde; ?>" 
+        <input type="text" name="kunde" value="<?php echo $_POST['kunde']; ?>" 
                size="40" required>
                         </td>
                     </tr>
                     <tr>
                         <td class="zelle">Agenturname:</td>
                         <td class="zelle">
-    <input type="text" name="agentur" value="<?php echo $agentur; ?>" 
+    <input type="text" name="agentur" value="<?php echo $_POST['agentur']; ?>" 
            size="40" required>
                         </td>
                     </tr>
                     <tr>
                         <td class="zelle">Kampagnenname:</td>
                         <td class="zelle">
-        <input type="text" name="name" value="<?php echo $name; ?>" 
+        <input type="text" name="name" value="<?php echo $_POST['name']; ?>" 
                size="40" required>
                         </td>
                     </tr>
                     <tr>
                         <td class="zelle">AB-Nummer:</td>
                         <td colspan="2" class="zelle">
-        <input type="text" name="abnummer" value="<?php echo $abnummer; ?>" 
+        <input type="text" name="abnummer" value="<?php echo $_POST['abnummer']; ?>" 
                size="40" required>
                         </td>
                     </tr>
@@ -389,15 +425,15 @@ else {
                                   $( "#datepick" ).datepicker();
                                 } );
                             </script>
-        <input type="text" id="datepicker" name="firstinput" size="10" required>
- - <input type="text" id="datepick" name="secondinput" size="10" required> 
+        <input type="text" id="datepicker" name="firstinput" value="<?php echo $_POST['firstinput']; ?>" size="10" required>
+ - <input type="text" id="datepick" name="secondinput" value="<?php echo $_POST['secondinput']; ?>" size="10" required> 
  (MM/DD/YYYY)
                         </td>
                     </tr>
                     <tr>
                         <td class="zelle">Einblendungen pro Stunde:</td>
                         <td class="zelle">
-        <input type="text" name="play_times" value="<?php echo $play_times; ?>" 
+        <input type="text" name="play_times" value="<?php echo $_POST['play_times']; ?>" 
             size="10" required>
                         </td>
                     </tr>
@@ -409,7 +445,7 @@ else {
             $motive = 1;
         }
         ?>
-        <input type="text" name="motive" value="<?php echo $motive; ?>" 
+        <input type="text" name="motive" value="<?php echo $_POST['motive']; ?>" 
             size="10" required>
                         </td>
                     </tr>
@@ -473,7 +509,7 @@ else {
                             Infos:
                         </td>
                         <td class="zelle">
-        <textarea name="text" rows="4" cols="42"><?php echo $text; ?></textarea>
+        <textarea name="text" rows="4" cols="42"><?php echo $_POST['text']; ?></textarea>
                         </td>
                     </tr>
                     <tr>
