@@ -16,7 +16,8 @@ if ($_SESSION['company'] != 'DIGOOH' && $_SESSION['company'] != 'Update Test') {
     $user = $_SESSION['user'];
 } else {
     $setuser = "1 = 1";
-    $setcompany = "b.company = '" . $_SESSION['company'] . "'";
+    $setcompany = "1 = 1";
+//    $setcompany = "b.company = '" . $_SESSION['company'] . "'";
 }
 
 // new booking upload
