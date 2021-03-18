@@ -12,7 +12,7 @@ if ($_SESSION['company'] != 'DIGOOH' && $_SESSION['company'] != 'Update Test') {
 }
 else {
     $user = "1=1";
-    $wherecompany = " WHERE b.company = '" . $_SESSION['company'] . "'";
+//    $wherecompany = " WHERE b.company = '" . $_SESSION['company'] . "'";
 }
 
 if ($_POST['was'] == 'upload') {
