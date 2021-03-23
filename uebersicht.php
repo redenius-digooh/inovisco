@@ -104,7 +104,7 @@ $result = $conn->query($sql);
                     <table class="ohnerahmen">
                         <tr>
 <td class="zelle">Alle Buchungen mit:
-    <select name="was">
+    <select name="was" style="width: 240px;">
         <option value="">---</option>
         <option value="upload" <?php if ($_POST['was'] == 'upload') 
             echo "selected"; ?>>Upload Buchung</option>
@@ -118,7 +118,7 @@ $result = $conn->query($sql);
 </td>
 <td class="zelle">
     Agentur:
-    <select name="agent">
+    <select name="agent" style="width: 240px;">
         <option value="">---</option>
         <?php
         foreach ($agenturen as $value) {
@@ -131,7 +131,7 @@ $result = $conn->query($sql);
 </td>
 <td class="zelle">
     Sortierung:
-    <select name="wo">
+    <select name="wo" style="width: 240px;">
         <option value="">---</option>
         <option value="up" <?php if ($_POST['wo'] == 'up') 
             echo "selected"; ?>>Erstelldatum aufsteigend</option>
@@ -145,7 +145,7 @@ $result = $conn->query($sql);
                             <tr>
                                 <td class="zelle">
                                     Kunde:<br>
-                                    <select name="kund">
+                                    <select name="kund" style="width: 240px;">
                                         <option value="">---</option>
                     <?php
                     foreach ($kundenarr as $value) {
