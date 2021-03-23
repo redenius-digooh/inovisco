@@ -5,7 +5,6 @@
  */
 session_start();
 require_once 'db.php';
-mysqli_query($conn, "SET NAMES 'utf8'");
 
 require_once __DIR__ .  '/vendor/autoload.php';
 // set user
@@ -448,6 +447,7 @@ if ($_POST['send_digooh'] == 1) {
 
 // send offer
 if ($_POST['send_offer']) {
+    $erstellangebot = 1;
     $client = new \GuzzleHttp\Client();
     $response = $client->post(
         'https://prod-31.westeurope.logic.azure.com:443/workflows/0bec1b76786846329c1a2cd637f2df0e/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=4iHT7ox6bPeb5YAyB8U_hzUhyNmLUB95_HvzlB4toR0',
@@ -483,6 +483,11 @@ if ($inovisco != 1) {
                 <tr>
                     <td class="zelle">
 <?php
+if ($erstellangebot == 1) {
+?>
+            <p><font style="color: green">Das Angebot wurde erstellt.</font></p>
+<?php
+}
 if ($gesproblem == 1) {
 ?>
 Das Hochladen war erfolgreich. Nicht alle Displays oder Slots sind verf&uuml;gbar!
