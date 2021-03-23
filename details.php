@@ -456,7 +456,8 @@ if ($_POST['send_offer']) {
                 'Angebotsnummer' => $_POST['angebot'],
                 'Kunde' => $_POST['kunde'],
                 'Besitzer' => $_POST['useremail'],
-                'Kampagne' => $_POST['name']
+                'Kampagne' => $_POST['name'],
+                'Benutzermail' => $_SESSION['useremail']
             ]
         ]
     );
