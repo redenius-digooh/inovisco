@@ -455,7 +455,7 @@ else {
                         <td class="zelle">
                             <input type="text" id="search_data" placeholder="" 
                                    autocomplete="off" name="sammelkriterium" 
-                            style="width: 310px; border: 1px solid #FFFFFF;"/>
+                            style="width: 448px; border: 1px solid #FFFFFF;"/>
                         </td>
                     </tr>
                     <tr>
@@ -465,7 +465,7 @@ else {
                         <td class="zelle">
                             <input type="text" id="search_bind" placeholder="" 
                                    autocomplete="off" name="bindkriterium" 
-                            style="width: 310px; border: 1px solid #FFFFFF;"/>
+                            style="width: 448px; border: 1px solid #FFFFFF;"/>
                         </td>
                     </tr>
                     <tr>
@@ -475,7 +475,7 @@ else {
                         <td class="zelle">
                             <input type="text" id="search_aus" placeholder="" 
                                    autocomplete="off" name="auskriterium" 
-                            style="width: 310px; border: 1px solid #FFFFFF;"/>
+                            style="width: 448px; border: 1px solid #FFFFFF;"/>
                         </td>
                     </tr>
                     <tr>
@@ -490,7 +490,7 @@ else {
                                 <option value="30000">30.000</option>
                                 <option value="40000">40.000</option>
                             </select>
-                            <input type="text" name="pps2" size="17">
+                            <input type="text" name="pps2" size="31">
                         </td>
                     </tr>
                     <tr>
@@ -500,7 +500,7 @@ else {
                         <td class="zelle">
                             <input type="text" id="search_player" placeholder="" 
                                    autocomplete="off" name="sammelplayer" 
-                            style="width: 310px; border: 1px solid #FFFFFF;"/>
+                            style="width: 448px; border: 1px solid #FFFFFF;"/>
                         </td>
                     </tr>
                     <tr>
@@ -508,7 +508,7 @@ else {
                             Infos:
                         </td>
                         <td class="zelle">
-        <textarea name="text" rows="4" cols="42"><?php echo $_POST['text']; ?></textarea>
+        <textarea name="text" rows="4" cols="43"><?php echo $_POST['text']; ?></textarea>
                         </td>
                     </tr>
                     <tr>

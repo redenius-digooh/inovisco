@@ -158,7 +158,8 @@ $result = $conn->query($sql);
                                 </td>
                                 <td colspan="2" class="zelle">
                                     Angebotsnummer:<br>
-            <input type="text" name="angeb" value="<?php echo $_POST['angeb']; ?>">
+        <input type="text" name="angeb" value="<?php echo $_POST['angeb']; ?>" 
+            style="width: 240px;">
                                 </td>
                                 <td valign="bottom">
                         <button type="submit" name="neu" class="grau" value="1">
