@@ -64,11 +64,11 @@ if ($_POST['speichern'] == 1) {
     $checks = checkdate($m1,$d1,$y1);
     $checke = checkdate($m2,$d2,$y2);
     
-    if (date("$y1-$m1-$d1") > date("Y-m-d")) {echo"1";
-        $error = 'Das Startdatum muss vor dem heutigen Tag liegen!';
+    if (date("$y2-$m2-$d2") < date("Y-m-d")) {
+        $error = 'Das Enddatum muss in der Zukunft liegen!';
     }
-    elseif (date("$y2-$m2-$d2") < date("$y1-$m1-$d1")) {echo"2";
-        $error = 'Das Stratdatum muss vor dem Enddatum liegen!';
+    elseif (date("$y2-$m2-$d2") < date("$y1-$m1-$d1")) {
+        $error = 'Das Startdatum muss vor dem Enddatum liegen!';
     }
     elseif (!$checks || !$checke) {
         $error = 'Das Startdatum oder Enddatum war nicht korrekt!';
