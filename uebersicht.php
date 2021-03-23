@@ -4,6 +4,7 @@
  */
 require_once 'db.php';
 require_once 'oben.php';
+mysqli_query($conn, "SET NAMES 'utf8'");
 
 if ($_SESSION['company'] != 'DIGOOH' && $_SESSION['company'] != 'Update Test') {
     $whereuser = "WHERE user = '" . $_SESSION['user'] . "'";
