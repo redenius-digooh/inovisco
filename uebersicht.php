@@ -203,8 +203,8 @@ if ($result->num_rows > 0) {
                                         </tr>
                                     </table>
                                 </td>
-                                <td class="zelle">&#10132;</td>
-                                <td width="90px" class="zelle">
+                                <td class="zelle" valign="bottom">&#10132;</td>
+                                <td width="90px" class="zelle" valign="bottom">
                                     <table class="table_klein">
                                         <tr>
                                             <?php if ($row['inovisco'] == 1) 
@@ -217,8 +217,8 @@ if ($result->num_rows > 0) {
                                         </tr>
                                     </table>
                                 </td>
-                                <td class="zelle">&#10132;</td>
-                                <td width="90px" class="zelle">
+                                <td class="zelle" valign="bottom">&#10132;</td>
+                                <td width="90px" class="zelle" valign="bottom">
                                     <table class="table_klein">
                                         <tr>                                                
                                             <?php if ($row['digooh'] == 1) 
@@ -231,8 +231,8 @@ if ($result->num_rows > 0) {
                                         </tr>
                                     </table>
                                 </td>
-                                <td class="zelle">&#10132;</td>
-                                <td width="90px" class="zelle">
+                                <td class="zelle" valign="bottom">&#10132;</td>
+                                <td width="90px" class="zelle" valign="bottom">
                                     <table class="table_klein">
                                         <tr>
                                             <?php if (($row['upload'] == 1 || 
