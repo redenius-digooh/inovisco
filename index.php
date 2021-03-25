@@ -18,8 +18,8 @@ if(isset($_GET['login'])) {
                     'Accept' => 'application/json',
                 ],
                 'json' => [
-                    'username' => 'binnemann',
-                    'password' => 'binnemann',
+                    'username' => 'livecms',
+                    'password' => 'livecms',
                 ],
             ]
         );
@@ -87,6 +87,12 @@ if(isset($_GET['login'])) {
                 }
                 if ($k == 'pps') {
                     $pps = $wert;
+                }
+                if ($k == 'city') {
+                    $city = $wert;
+                }
+                if ($k == 'state') {
+                    $state = $wert;
                 }
             }
 
