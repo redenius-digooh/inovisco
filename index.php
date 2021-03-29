@@ -94,17 +94,21 @@ if(isset($_GET['login'])) {
                 if ($k == 'state') {
                     $state = $wert;
                 }
+                if ($k == 'address') {
+                    $address = $wert;
+                }
             }
-
             if ($custom_sn1 == '') {
                 $custom_sn1 = 0;
             }
             if ($custom_sn2 == '') {
                 $custom_sn2 = 0;
             }
-            $sql = "INSERT INTO player (id, name, custom_sn1, custom_sn2, pps) "
+            $sql = "INSERT INTO player (id, name, custom_sn1, custom_sn2, pps,"
+                    . "address, state) "
                     . "VALUES ('" . $id . "', '" . $name . "', '" 
-                    . $custom_sn1 . "', '" . $custom_sn2 . "', '" . $pps . "')";
+                    . $custom_sn1 . "', '" . $custom_sn2 . "', '" . $pps 
+                     . "', '" . $address  . "', '" . $state . "')";
             $db_erg = mysqli_query($conn, $sql);
         }
 
