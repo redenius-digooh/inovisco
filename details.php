@@ -5,6 +5,7 @@
  */
 session_start();
 require_once 'db.php';
+mysqli_query($conn, "SET NAMES 'utf8'");
 
 require_once __DIR__ .  '/vendor/autoload.php';
 // set user

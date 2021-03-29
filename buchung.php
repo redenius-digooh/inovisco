@@ -4,6 +4,7 @@
  */
 session_start();
 require_once 'db.php';
+mysqli_query($conn, "SET NAMES 'utf8'");
 require __DIR__ .  '/vendor/autoload.php';
 
 $namefehlt = 0;
