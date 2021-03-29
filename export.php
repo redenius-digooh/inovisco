@@ -77,7 +77,8 @@ $db_erg = mysqli_query($conn, $sql);
 while ($row = mysqli_fetch_array($db_erg)) {
     // get all players
     $sql2 = "SELECT a.id, a.players, a.deleted, a.lfsph, b.custom_sn1, "
-        . " b.custom_sn2, b.name AS displayname FROM playerbuchung AS a"
+        . " b.custom_sn2, b.name AS displayname, b.address, b.state, b.pps"
+        . " FROM playerbuchung AS a"
         . " LEFT JOIN player AS b ON a.players = b.id WHERE (a.deleted IS NULL"
         . " OR a.deleted = 0) AND"
         . " a.angebot = " . $_POST['angebot'];
@@ -91,6 +92,9 @@ while ($row = mysqli_fetch_array($db_erg)) {
         $custom_sn1 = $row2['custom_sn1'];
         $custom_sn2 = $row2['custom_sn2'];
         $displayname = $row2['displayname'];
+        $address = $row2['address'];
+        $state = $row2['state'];
+        $pps = $row2['pps'];
         
         $id = $row['id'];
         $start_date = $row['start_date'];
@@ -125,7 +129,8 @@ while ($row = mysqli_fetch_array($db_erg)) {
             $start_date, 'end_date' => $end_date, 'anzeige' => $anzeige, 
             'custom_sn1' => $custom_sn1, 'custom_sn2' => $custom_sn2, 
             'displayname' => $displayname, 'lfsph'=> $lfsph, 
-            'lfsphjetzt' => $lfsphjetzt);
+            'lfsphjetzt' => $lfsphjetzt, 'address' => $address, 'state' => 
+            $state, 'pps' => $pps);
     }
 }
 
@@ -145,12 +150,11 @@ foreach ($aufdb as $key => $in) {
 //set column headers
 $columnHeader = '';
 $columnHeader = "Displayname" . "\t";
-if ($custom_sn1 != '') {
-    $columnHeader .= "SDAW" . "\t";
-} else {
-    $columnHeader .= "QID" . "\t";
-}
+$columnHeader .= "SDAW / QID" . "\t";
 $columnHeader .= "Einblendungen pro Stunde" . "\t";
+$columnHeader .= "Adresse" . "\t";
+$columnHeader .= "Bundesland" . "\t";
+$columnHeader .= "pps" . "\t";
 $setData = '';
 $upper = "Angebotsnummer" . "\t" . '"' . $_POST['angebot'] . '"' . "\n";
 $upper .= "Kundenname" . "\t" . '"' . $kunde . '"' . "\n";
@@ -160,7 +164,9 @@ function umlauteumwandeln($str){
     $tempstr = Array("Ä" => "AE", "Ö" => "OE", "Ü" => "UE", "ä" => "ae", "ö" => "oe", "ü" => "ue", "ß" => "ss"); 
     return strtr($str, $tempstr);
 }
-
+foreach ($aufdb as $key => $inhalt) {
+    echo $key . " - " . $inhalt . "<br>";
+}
 foreach ($aufdb as $key => $inhalt) {
     $rowData = '';
     $value = '"' . umlauteumwandeln($inhalt['displayname']) . '"' . "\t";
@@ -170,6 +176,9 @@ foreach ($aufdb as $key => $inhalt) {
         $value .= '"' . $inhalt['custom_sn2'] . '"' . "\t";
     }
     $value .= '"' . round($inhalt['anzeige']) . '"' . "\t";
+    $value .= '"' . $inhalt['address'] . '"' . "\t";
+    $value .= '"' . $inhalt['state'] . '"' . "\t";
+    $value .= '"' . $inhalt['pps'] . '"' . "\t";
     $rowData .= $value;
     $setData .= trim($rowData) . "\n";  
 }
