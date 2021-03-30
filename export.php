@@ -164,9 +164,7 @@ function umlauteumwandeln($str){
     $tempstr = Array("Ä" => "AE", "Ö" => "OE", "Ü" => "UE", "ä" => "ae", "ö" => "oe", "ü" => "ue", "ß" => "ss"); 
     return strtr($str, $tempstr);
 }
-foreach ($aufdb as $key => $inhalt) {
-    echo $key . " - " . $inhalt . "<br>";
-}
+
 foreach ($aufdb as $key => $inhalt) {
     $rowData = '';
     $value = '"' . umlauteumwandeln($inhalt['displayname']) . '"' . "\t";
