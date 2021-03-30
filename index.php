@@ -37,6 +37,7 @@ if(isset($_GET['login'])) {
             $_SESSION['user'] = $row['user'];
             $_SESSION['useremail'] = $row['email'];
             $_SESSION['company'] = $row['company'];
+            $_SESSION['userid'] = $row['id'];
             $id = $row['id'];
             $logins = $row['logins'];
         }

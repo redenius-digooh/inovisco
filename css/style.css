@@ -305,3 +305,7 @@ main {
 .strikeout {
     text-decoration: line-through;
 }
+
+a.white {
+    color: white;
+}

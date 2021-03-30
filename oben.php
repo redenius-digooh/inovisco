@@ -41,7 +41,10 @@
                         </form>
                     </th>
                     <th width="200px" class="obenrechts">
-                        <h4>Angemeldet als:<br><?php echo $_SESSION['user']; ?>
+                        <h4>Angemeldet als:<br>
+                            <a href="person.php" class="white">
+                            <?php echo $_SESSION['user']; ?>
+                            </a>
                             <br>
                             <img src="abbrechenkl.png" alt="abbrechen"> 
                             <a href="abmelden.php" class="weiss">Abmelden</a>
