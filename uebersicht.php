@@ -9,11 +9,15 @@ mysqli_query($conn, "SET NAMES 'utf8'");
 if ($_SESSION['company'] != 'DIGOOH' && $_SESSION['company'] != 'Update Test') {
     $whereuser = "WHERE user = '" . $_SESSION['user'] . "'";
     $user = "user = '" . $_SESSION['user'] . "'";
-    $wherecompany = " WHERE b.company = '" . $_SESSION['company'] . "'";
+    $wherecompany = " AND b.company = '" . $_SESSION['company'] . "'";
 }
 else {
     $user = "1=1";
-//    $wherecompany = " WHERE b.company = '" . $_SESSION['company'] . "'";
+}
+
+if ($_GET['papierkorb'] == 1) {
+    $sql = "UPDATE buchung SET papierkorb = 1 WHERE id = " . $_GET['id'];
+    $erg = mysqli_query($conn, $sql);
 }
 
 if ($_POST['was'] == 'upload') {
@@ -53,7 +57,7 @@ else {}
 // get the agency
 $sql = "SELECT agentur FROM buchung AS a" 
         . " LEFT JOIN user AS b ON a.user = b.user"
-        . $wherecompany;
+        . " WHERE b.company = '" . $_SESSION['company'] . "'";
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
     $agenturen = array();
@@ -67,7 +71,7 @@ if ($result->num_rows > 0) {
 // get the customer
 $sql = "SELECT kunde FROM buchung AS a" 
         . " LEFT JOIN user AS b ON a.user = b.user"
-        . $wherecompany;
+        . " WHERE b.company = '" . $_SESSION['company'] . "'";
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
     $kundenarr = array();
@@ -79,9 +83,10 @@ if ($result->num_rows > 0) {
 }
 
 // get all bookings
-$sql = "SELECT DISTINCT(angebot), name, agentur, upload, inovisco, digooh, "
+$sql = "SELECT DISTINCT(angebot), a.id, name, agentur, upload, inovisco, digooh, "
         . "datum, kunde FROM buchung AS a" 
         . " LEFT JOIN user AS b ON a.user = b.user"
+        . " WHERE papierkorb IS NULL"
         . $wherecompany . $was . $agent . $kund 
         . $angeb . $order;
 $result = $conn->query($sql);
@@ -172,11 +177,19 @@ $result = $conn->query($sql);
                                     </table><br>
                                     <table class="ohnerahmen">
                             <tr>
-                                <td class="rahmenunten" valign="bottom">Kampagne</td>
-                                <td class="rahmenunten" valign="bottom">Agentur</td>
-                                <td class="rahmenunten" valign="bottom">Angebots-nummer</td>
-                                <td class="rahmenunten" valign="bottom">Kunde</td>
-                                <td class="rahmenunten" valign="bottom">Erstelldatum</td>
+                                <td class="rahmenunten" valign="bottom">
+                                    Kampagne</td>
+                                <td class="rahmenunten" valign="bottom">
+                                    Agentur</td>
+                                <td class="rahmenunten" valign="bottom">
+                                    Angebots-nummer</td>
+                                <td class="rahmenunten" valign="bottom">
+                                    Kunde</td>
+                                <td class="rahmenunten" valign="bottom">
+                                    Erstelldatum</td>
+                                <td class="rahmenunten" valign="bottom">
+                                    <img src="papierkorb.png" alt="Papierkorb">
+                                </td>
                                 <td colspan="8"></td>
                             </tr>
 <?php
@@ -190,6 +203,11 @@ if ($result->num_rows > 0) {
             <td class="zelle" valign="bottom"><?php echo $row['angebot']; ?></td>
             <td class="zelle" valign="bottom"><?php echo $row['kunde']; ?></td>
             <td class="zelle" valign="bottom"><?php echo $row['datum']; ?></td>
+            <td class="zelle" valign="bottom">
+                <a href="uebersicht.php?papierkorb=1&id=<?php echo $row['id']; ?>">
+                <img src="papierkorb.png" alt="Papierkorb">
+                </a>
+            </td>
                                 <td width="90px" class="zelle" valign="bottom">
                                     <table class="table_klein">
                                         <tr>
