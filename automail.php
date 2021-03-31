@@ -1,7 +1,11 @@
 <?php
+/*
+ * Send email when times changed
+ */
 session_start();
 require_once 'datenbank.php';
 
+// User
 $sql = "SELECT user FROM user";
 $db_erg = mysqli_query($conn, $sql);
 while ($row = mysqli_fetch_array($db_erg)) {
@@ -9,6 +13,7 @@ while ($row = mysqli_fetch_array($db_erg)) {
 }
 foreach ($userarr as $user) {
     echo " ";
+    // Bookingtimes
     $sql = "SELECT a.start_date, a.end_date, a.angebot FROM buchung AS a"
         . " WHERE a.user = '" . $user . "'";
     $db_erg = mysqli_query($conn, $sql);
@@ -19,6 +24,8 @@ foreach ($userarr as $user) {
         $end_date = $row['end_date'];
         $angebot = $row['angebot'];
         $playarr = array();
+        
+        // saved times
         $sql = "SELECT b.lfsph, b.players FROM playerbuchung AS b"
             . " WHERE b.angebot = '" . $row['angebot'] . "'";
         $erg = mysqli_query($conn, $sql);
@@ -30,10 +37,11 @@ foreach ($userarr as $user) {
         
         if ($playarr[0] != '' && $start_date >= date("Y-m-d")) {
             try {
+                // present times
                 require_once __DIR__ .  '/vendor/autoload.php';
                 $client = new \GuzzleHttp\Client();
                 $response = $client->post(
-                    'https://cms.digooh.com:8082/api/v1/campaigns/least',
+                    'https://cms.digooh.com:8081/api/v1/campaigns/least',
                     [
                         'headers' => [
                             'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
@@ -69,6 +77,7 @@ foreach ($userarr as $user) {
             }
             
             if ($send == 1) {
+                // When times are different
                 $sql = "SELECT email FROM user WHERE user = '" . $user . "'";
                 $db_erg = mysqli_query($conn, $sql);
                 while ($row = mysqli_fetch_array($db_erg)) {

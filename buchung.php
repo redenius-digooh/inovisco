@@ -129,7 +129,7 @@ if ($_POST['speichern'] == 1) {
                     // get players
                     $client = new \GuzzleHttp\Client();
                     $response = $client->get(
-                        'https://cms.digooh.com:8082/api/v1/players',
+                        'https://cms.digooh.com:8081/api/v1/players',
                         [
                             'headers' => [
                                 'Authorization' => 'Bearer ' . $_SESSION['token_direct'],

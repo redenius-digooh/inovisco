@@ -204,9 +204,11 @@ if ($result->num_rows > 0) {
             <td class="zelle" valign="bottom"><?php echo $row['kunde']; ?></td>
             <td class="zelle" valign="bottom"><?php echo $row['datum']; ?></td>
             <td class="zelle" valign="bottom">
+                <?php if ($row['inovisco'] != 1) { ?>
                 <a href="uebersicht.php?papierkorb=1&id=<?php echo $row['id']; ?>">
                 <img src="papierkorb.png" alt="Papierkorb">
                 </a>
+                <?php } ?>
             </td>
                                 <td width="90px" class="zelle" valign="bottom">
                                     <table class="table_klein">

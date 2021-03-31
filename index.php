@@ -11,7 +11,7 @@ if(isset($_GET['login'])) {
     try {
         $client = new GuzzleHttp\Client();
         $response = $client->post(
-            'https://cms.digooh.com:8082/api/v1/authorizations',
+            'https://cms.digooh.com:8081/api/v1/authorizations',
             [
                 'headers' => [
                     'Content-Type' => 'application/json',
@@ -58,7 +58,7 @@ if(isset($_GET['login'])) {
     try {
         $client = new \GuzzleHttp\Client();
         $response = $client->get(
-            'https://cms.digooh.com:8082/api/v1/players',
+            'https://cms.digooh.com:8081/api/v1/players',
             [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
@@ -116,7 +116,7 @@ if(isset($_GET['login'])) {
         // get all criteria
         $client = new \GuzzleHttp\Client();
         $response = $client->get(
-            'https://cms.digooh.com:8082/api/v1/criteria',
+            'https://cms.digooh.com:8081/api/v1/criteria',
             [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
@@ -148,7 +148,7 @@ if(isset($_GET['login'])) {
         // get all players from AA
         $client = new \GuzzleHttp\Client();
         $response = $client->get(
-            'https://cms.digooh.com:8082/api/v1/players',
+            'https://cms.digooh.com:8081/api/v1/players',
             [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $_SESSION['token_direct'],

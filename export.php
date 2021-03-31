@@ -35,7 +35,7 @@ try {
     require_once __DIR__ .  '/vendor/autoload.php';
     $client = new \GuzzleHttp\Client();
     $response = $client->post(
-        'https://cms.digooh.com:8082/api/v1/campaigns/least',
+        'https://cms.digooh.com:8081/api/v1/campaigns/least',
         [
             'headers' => [
                 'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
