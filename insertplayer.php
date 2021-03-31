@@ -89,7 +89,6 @@ else {
             $ausstrk = $ausstr . ",";
         }
 
-        $inscria = "criterien = '" . $_POST['sammelkriterium'] . "', ";
         $kriarr = explode(", ", $_POST['sammelkriterium']);
 
         $krit = array();
