@@ -3,11 +3,9 @@
  * Export the player.
  */
 header('Content-Encoding: UTF-8');
-header("Content-type: application/x-msexcel; charset=utf-8");
-header("Content-type: application/octet-stream");
-header("Content-Disposition: attachment; filename=User_Detail.xls");
-header("Pragma: no-cache");
-header("Expires: 0");
+header('Content-Type: application/vnd.ms-excel');
+header('Content-Disposition: attachment;filename="User_Detail.xls"');
+header('Cache-Control: max-age=0');
 
 session_start();
 require_once 'db.php';
@@ -31,7 +29,7 @@ while ($row2 = mysqli_fetch_array($erg)) {
     $end_date = $row2['end_date'];
 }
 $anz = count($playarr);
-    
+
 // get the times of the player
 try {
     require_once __DIR__ .  '/vendor/autoload.php';
@@ -63,14 +61,14 @@ try {
             $arr[$key] = $d;
         }
     }
-    
 }
 catch (Exception $e) {
     echo $e->getMessage();
 }
+
 // get all bookings from the user
 $sql = "SELECT id, start_date, end_date, play_times, kunde, name FROM buchung"
-        . " WHERE " . $whereuser . " angebot = " 
+        . " WHERE " . $whereuser . " angebot = "
             . $_POST['angebot'];
 $db_erg = mysqli_query($conn, $sql);
 
@@ -95,14 +93,14 @@ while ($row = mysqli_fetch_array($db_erg)) {
         $address = $row2['address'];
         $state = $row2['state'];
         $pps = $row2['pps'];
-        
+
         $id = $row['id'];
         $start_date = $row['start_date'];
         $end_date = $row['end_date'];
         $play_times = $row['play_times'];
         $kunde = $row['kunde'];
         $name = $row['name'];
-    
+
         $anz = count($playarr);
 
         $lfsphjetzt = (int)$arr[$players] / 10;
@@ -180,6 +178,5 @@ foreach ($aufdb as $key => $inhalt) {
     $rowData .= $value;
     $setData .= trim($rowData) . "\n";  
 }
-
+ob_end_clean();
 echo $upper . $columnHeader . "\n" . $setData . "\n";
-?>
