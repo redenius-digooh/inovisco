@@ -4,7 +4,7 @@
  */
 header('Content-Encoding: UTF-8');
 header('Content-Type: application/vnd.ms-excel');
-header('Content-Disposition: attachment;filename="User_Detail.xls"');
+header('Content-Disposition: attachment;filename="Displays.xls"');
 header('Cache-Control: max-age=0');
 
 session_start();
