@@ -6,6 +6,7 @@ session_start();
 require_once 'db.php';
 mysqli_query($conn, "SET NAMES 'utf8'");
 
+// update
 if ($_POST['speichern'] == 1) {
     $sql = "UPDATE user SET "
             . "user = '" . $_POST['user'] . "',"
@@ -17,6 +18,7 @@ if ($_POST['speichern'] == 1) {
     $erfolg = 1;
 }
 
+// User data
 $sql = "SELECT user, email, password, telefon FROM user WHERE "
             . "id = " . $_SESSION['userid'];
 $db_erg = mysqli_query($conn, $sql);
