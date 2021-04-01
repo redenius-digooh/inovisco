@@ -44,7 +44,6 @@ if(isset($_GET['login'])) {
     }
     catch (Exception $e) {
         $nichtangemeldet = 1;
-        // echo $e->getMessage();
     }
     
     // set last login

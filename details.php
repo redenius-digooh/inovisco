@@ -25,13 +25,6 @@ if ($_POST['neuupload'] == 1) {
     header("Location: http://88.99.184.137/inovisco_direct/buchung.php");
 }
 
-// Inovisco declined
-if ($_POST['inoschlecht'] == 1) {
-    $sql = "UPDATE buchung SET inovisco = 0 WHERE angebot = '" 
-            . $_POST['angebot'] . "'";
-    $erg = mysqli_query($conn, $sql);
-}
-
 // Digooh declined
 if ($_POST['sendschlecht'] == 1) {
     $sql = "UPDATE buchung SET inovisco = NULL, send_digooh = NULL, einfrieren "
@@ -350,52 +343,6 @@ if ($_POST['gut'] == 1) {
     $body = $response->getBody();
     
     header("Location: http://88.99.184.137/inovisco_direct/details.php?angebot=" . $_POST['angebot']);
-}
-
-// send email to Digooh
-$sql = "SELECT a.players, a.id, a.deleted, a.lfsph, b.name, a.custom_sn1, "
-            . "a.custom_sn2, a.playermark, b.id AS idplayer "
-            . "FROM playerbuchung AS a"
-            . " LEFT JOIN player AS b ON a.players = b.id"
-            . " WHERE (a.deleted IS NULL OR a.deleted = 0) "
-            . "AND a.angebot = " . $angebot . " ORDER BY b.name";
-$db_erg2 = mysqli_query($conn, $sql);
-$gruen = 0;
-$alleplayer = array();
-while ($row2 = mysqli_fetch_array($db_erg2)) {
-    $deleted = $row2['deleted'];
-    $lfsph = $row2['lfsph'];
-    $players = $row2['players'];
-    $playerid = $row2['id'];
-    $alleid[] = $row2['id'];
-    $displayname = $row2['name'];
-    $displays[] = $row2['name'];
-    $custom_sn1 = $row2['custom_sn1'];
-    $custom_sn2 = $row2['custom_sn2'];
-    $alleplayer1[] = $custom_sn1;
-    $alleplayer[] = $custom_sn2;
-    $playermark = $row2['playermark'];
-    $idplayer[] = $row2['idplayer'];
-    require_once __DIR__ .  '/vendor/autoload.php';
-
-    $lfsphjetzt = (int)$arr[$players] / 10;
-    $restzeit = ($lfsphjetzt);
-
-    if ($restzeit <= 0) {
-        $problem = 1;
-        $gesproblem = 1;
-        $probleme[] = $playerid;
-    }
-    elseif (floor($restzeit) < $play_times) {
-        $problem = 2;
-        $gesproblem = 1;
-        $teilprobleme[] = $playerid;
-        $gelbeb[] = (int)$restzeit;
-    }
-    else {
-        $problem = 0;
-        $gruen = $gruen + 1;
-    }
 }
 
 // send email to Digooh
