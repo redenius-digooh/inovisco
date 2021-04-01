@@ -149,11 +149,7 @@ if ($_POST['speichern'] == 1) {
                     $data = json_decode((string) $body);
                     // only player width AA-criterion
                     foreach ($data->data as $key => $value) {
-                        $sql = "SELECT id FROM specialplayer WHERE id = '" . $value->id . "'";
-                        $db = mysqli_query($conn, $sql);
-                        while ($row = mysqli_fetch_array( $db)) {
-                            $_POST['player1'][] = $value->id;
-                        }
+                        $_POST['player1'][] = $value->id;
                     }
                 }
             }
@@ -171,16 +167,7 @@ if ($_POST['speichern'] == 1) {
                 $pps = $_POST['pps2'];
             }
 
-            $sql = "SELECT a.id FROM player AS a"
-                    . " LEFT JOIN specialplayer AS b ON a.id = b.id"
-                    . $ppsf;
-            $db = mysqli_query($conn, $sql);
-            while ($row = mysqli_fetch_array($db)) {
-                if (!in_array($row['id'], $_POST['player2'])) {
-                    $_POST['player2'][] = $row['id'];
-                }
-            }
-            $_POST['player'] = array_intersect($_POST['player1'], $_POST['player2']);
+            $_POST['player'] = $_POST['player1'];
         } else {
             $pps = 0;
             $_POST['player'] = $_POST['player1'];

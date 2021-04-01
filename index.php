@@ -53,7 +53,7 @@ if(isset($_GET['login'])) {
             . " WHERE id = " . $id;
     $db_erg = mysqli_query($conn, $sql);
     
-    // get all players
+    // get all players from AA
     try {
         $client = new \GuzzleHttp\Client();
         $response = $client->get(
@@ -63,6 +63,11 @@ if(isset($_GET['login'])) {
                     'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
+                ],
+                'query' => [
+                    'include'=> 'criteria',
+                    'filter[criteria]'=> '140,',
+                    'limit'=> '130'
                 ]
             ]
         );
@@ -119,7 +124,6 @@ if(isset($_GET['login'])) {
             [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
-        //            'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wvY21zLmRpZ29vaC5jb206ODA4MVwvYXBpXC92MVwvYXV0aG9yaXphdGlvbnMiLCJpYXQiOjE2MTQwOTQ3MjcsImV4cCI6MTYxNTMwNDMyNywibmJmIjoxNjE0MDk0NzI3LCJqdGkiOiJSZm5qbEFGRmN5TnNXbnJ1Iiwic3ViIjo2MSwicHJ2IjoiODdlMGFmMWVmOWZkMTU4MTJmZGVjOTcxNTNhMTRlMGIwNDc1NDZhYSJ9.AwPqtztUIf1qykrKGRZBJ0d71yx3uXow_Bu1QRh8jIM',
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
                 ]
@@ -141,35 +145,6 @@ if(isset($_GET['login'])) {
 
             $sql = "INSERT INTO criteria (id, name) VALUES ('" . $id . "', '" . 
                     $name . "')";
-            $db_erg = mysqli_query($conn, $sql);
-        }
-        
-        // get all players from AA
-        $client = new \GuzzleHttp\Client();
-        $response = $client->get(
-            'https://cms.digooh.com:8081/api/v1/players',
-            [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $_SESSION['token_direct'],
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                ],
-                'query' => [
-                    'include'=> 'criteria',
-                    'filter[criteria]'=> '140,',
-                    'limit'=> '130'
-                ]
-            ]
-        );
-        $body = $response->getBody();
-        $data = json_decode((string) $body);
-        $sql = "DELETE FROM specialplayer";
-        $db_erg = mysqli_query($conn, $sql);
-
-        foreach ($data->data as $key => $value) {
-            $id = $value->id;
-
-            $sql = "INSERT INTO specialplayer (id) VALUES ('" . $id . "')";
             $db_erg = mysqli_query($conn, $sql);
         }
     }

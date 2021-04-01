@@ -126,11 +126,7 @@ else {
                     $data = json_decode((string) $body);
 
                     foreach ($data->data as $key => $value) {
-                        $sql = "SELECT id FROM specialplayer WHERE id = '" . $value->id . "'";
-                        $db = mysqli_query($conn, $sql);
-                        while ($row = mysqli_fetch_array( $db)) {
-                            $_POST['player1'][] = $value->id;
-                        }
+                        $_POST['player1'][] = $value->id;
                     }
                 }
             }
@@ -149,7 +145,6 @@ else {
             }
 
             $sql = "SELECT a.id FROM player AS a"
-                    . " LEFT JOIN specialplayer AS b ON a.id = b.id"
                     . $ppsf;
             $db = mysqli_query($conn, $sql);
             while ($row = mysqli_fetch_array($db)) {

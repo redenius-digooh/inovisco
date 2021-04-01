@@ -283,11 +283,13 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
         $problem = 2;
         $gesproblem = 1;
         $teilprobleme[] = $playerid;
+        $gelbeb[] = (int)$restzeit;
     }
     else {
         $problem = 0;
+        $gruen = $gruen + 1;
     }
-
+    
     $buchungen[] = array('agentur' => $agentur, 'name' => $name,
         'players' => $players, 'problem' => $problem, 'start_date' =>
         $start_date, 'end_date' => $end_date, 'id' => $id, 
