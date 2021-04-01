@@ -67,23 +67,6 @@ if ($_POST['sendschlecht'] == 1) {
 $pps = 0;
 if ($_POST['speichernx'] == 1) {
     require_once 'insertplayer.php';
-    //    exit();
-    // update booking
-    $sql = "UPDATE buchung SET "
-    . "start_date = '" . $start_date . "', "
-    . "end_date = '" . $end_date . "', "
-    . "play_times = '" . $_POST['play_times'] . "', "
-    . "name = '" . $_POST['name'] . "', "
-    . "agentur = '" . $_POST['agentur'] . "', "                
-    . "text = '" . $_POST['text'] . "', "
-    . "motive = '" . $_POST['motive'] . "', " 
-    . "criterien = '" . $kritstr . "', "
-    . "and_criteria = '" . $bindstr . "', "
-    . "exclude_criteria = '" . $ausstr . "', "
-    . "abnummer = '" . $_POST['abnummer'] . "', "
-    . "pps = '" . $pps . "', "
-    . "kunde = '" . $_POST['kunde'] . "' WHERE id = " . $_POST['id'];
-    $erg = mysqli_query($conn, $sql);
 }
 
 // freeze booking
