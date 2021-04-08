@@ -1,6 +1,6 @@
 <?php
 /*
- * It is checked whether there are still enough slots that are needed in the 
+ * It is checked whether there are still enough slots that are needed in the
  * campaign.
  */
 session_start();
@@ -34,10 +34,10 @@ if ($_POST['sendschlecht'] == 1) {
     $erg = mysqli_query($conn, $sql);
     
     $sql = "SELECT name, useremail FROM buchung WHERE "
-            . "user = '" . $_POST['user'] . "' AND angebot = '" . 
+            . "user = '" . $_POST['user'] . "' AND angebot = '" .
             $_POST['angebot'] . "'";
     $db_erg = mysqli_query($conn, $sql);
-    while ($row = mysqli_fetch_array( $db_erg)) {
+    while ($row = mysqli_fetch_array($db_erg)) {
         $name = $row['name'];
         $useremail = $row['useremail'];
     }
@@ -70,7 +70,7 @@ if ($_POST['einfrieren'] == 1) {
     $erg = mysqli_query($conn, $sql);
 }
 
-// partial player deletion 
+// partial player deletion
 if ($_POST['teildelete'] == 1) {
     foreach ($_POST['delete_teilkampagne'] as $delid) {
         $sql = "UPDATE playerbuchung SET deleted = 1 WHERE id = " . $delid;
@@ -81,7 +81,7 @@ if ($_POST['teildelete'] == 1) {
 // player deletion
 if ($_GET['delete'] == 1 || $_POST['delete'] == 1) {
     if ($_GET['playerid'] != '') {
-        $sql = "UPDATE playerbuchung SET deleted = 1 WHERE id = " 
+        $sql = "UPDATE playerbuchung SET deleted = 1 WHERE id = "
                 . $_GET['playerid'];
         $erg = mysqli_query($conn, $sql);
     } else {
@@ -113,7 +113,7 @@ if ($_GET['angebot'] || $_POST['angebot']) {
 } else {
     $sql = "SELECT MAX(angebot) AS angebot FROM buchung";
     $db_erg = mysqli_query($conn, $sql);
-    while ($row = mysqli_fetch_array( $db_erg)) {
+    while ($row = mysqli_fetch_array($db_erg)) {
         $angebot = $row['angebot'];
     }
 }
@@ -125,7 +125,7 @@ if ($angebot) {
 // get all criteria and player
 require_once 'getall.php';
 
-// get all bookings 
+// get all bookings
 $sql = "SELECT a.id, a.kunde, a.name, a.start_date, a.end_date, a.play_times, "
         . "a.text, a.motive, a.agentur, a.angebot, a.inovisco, a.digooh, "
         . "a.einfrieren, a.export, a.criterien, a.and_criteria, "
@@ -136,7 +136,7 @@ $sql = "SELECT a.id, a.kunde, a.name, a.start_date, a.end_date, a.play_times, "
             . " WHERE " . $setcompany . $an;
 $db_erg = mysqli_query($conn, $sql);
 
-while ($row = mysqli_fetch_array( $db_erg)) {
+while ($row = mysqli_fetch_array($db_erg)) {
     $id = $row['id'];
     $start_date = $row['start_date'];
     $end_date = $row['end_date'];
@@ -168,7 +168,7 @@ if ($criteriaarr[0] != '') {
     foreach ($criteriaarr as $cri) {
         $sql = "SELECT name FROM criteria WHERE id = " . (int)$cri;
         $db = mysqli_query($conn, $sql);
-        while ($row = mysqli_fetch_array( $db)) {
+        while ($row = mysqli_fetch_array($db)) {
             $crit[] = $row['name'];
         }
     }
@@ -178,7 +178,7 @@ if ($bindcriteriaarr[0] != '') {
     foreach ($bindcriteriaarr as $bindcri) {
         $sql = "SELECT name FROM criteria WHERE id = " . (int)$bindcri;
         $db = mysqli_query($conn, $sql);
-        while ($row = mysqli_fetch_array( $db)) {
+        while ($row = mysqli_fetch_array($db)) {
             $bindn[] = $row['name'];
         }
     }
@@ -188,7 +188,7 @@ if ($auscriteriaarr[0] != '') {
     foreach ($auscriteriaarr as $auscri) {
         $sql = "SELECT name FROM criteria WHERE id = " . (int)$auscri;
         $db = mysqli_query($conn, $sql);
-        while ($row = mysqli_fetch_array( $db)) {
+        while ($row = mysqli_fetch_array($db)) {
             $ausn[] = $row['name'];
         }
     }
@@ -231,17 +231,16 @@ if ($start_date != '' && $end_date >= date("Y-m-d")) {
         $body = $response->getBody();
         $data = json_decode((string) $body);
         
-        for($i=0; $i<$anz; $i++) {
+        for ($i=0; $i<$anz; $i++) {
             $arr2[] = [$data->players[$i]->id => $data->players[$i]->free];
         }
         
-        foreach($arr2 as $key => $value) {
-            foreach($value as $key => $d) {
+        foreach ($arr2 as $key => $value) {
+            foreach ($value as $key => $d) {
                 $arr[$key] = $d;
             }
         }
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
         echo $e->getMessage();
     }
 }
@@ -278,24 +277,22 @@ while ($row2 = mysqli_fetch_array($db_erg2)) {
         $problem = 1;
         $gesproblem = 1;
         $probleme[] = $playerid;
-    }
-    elseif (floor($restzeit) < $play_times) {
+    } elseif (floor($restzeit) < $play_times) {
         $problem = 2;
         $gesproblem = 1;
         $teilprobleme[] = $playerid;
         $gelbeb[] = (int)$restzeit;
-    }
-    else {
+    } else {
         $problem = 0;
         $gruen = $gruen + 1;
     }
     
     $buchungen[] = array('agentur' => $agentur, 'name' => $name,
         'players' => $players, 'problem' => $problem, 'start_date' =>
-        $start_date, 'end_date' => $end_date, 'id' => $id, 
+        $start_date, 'end_date' => $end_date, 'id' => $id,
         'deleted' => $deleted, 'restzeit' => $restzeit, 'lfsph' => $lfsph,
         'play_times' => $play_times, 'displayname' => $displayname,
-        'inovisco' => $inovisco, 'digooh' => $digooh, 'lfsphjetzt' => 
+        'inovisco' => $inovisco, 'digooh' => $digooh, 'lfsphjetzt' =>
         $lfsphjetzt, 'playerid' => $playerid, 'criterien' => $criterien,
         'text' => $text, 'send_digooh' => $send_digooh, 'custom_sn1' =>
         $custom_sn1, 'custom_sn2' => $custom_sn2, 'pps' => $pps);
@@ -371,7 +368,7 @@ if ($_POST['send_digooh'] == 1) {
     );
     $body = $response->getBody();
     
-    $sql = "UPDATE buchung SET send_digooh = 1, inovisco = 1 WHERE angebot = '" 
+    $sql = "UPDATE buchung SET send_digooh = 1, inovisco = 1 WHERE angebot = '"
             . $_POST['angebot'] . "'";
     $erg = mysqli_query($conn, $sql);
     
@@ -403,39 +400,39 @@ require_once 'oben2.php';
                 <tr>
 <?php
 if ($inovisco != 1) {
-?>
+    ?>
                     <td class="blau">Prozessschritt: Pr&uuml;fung Inovisco</td>
 <?php
 } else {
-?>
+        ?>
                     <td class="blau">Prozessschritt: Pr&uuml;fung Digooh</td>
 <?php
-}
+    }
 ?>
                 </tr>
                 <tr>
                     <td class="zelle">
 <?php
 if ($erstellangebot == 1) {
-?>
+    ?>
             <p><font style="color: green">Das Angebot wurde erstellt.</font></p>
 <?php
 }
 if ($gesproblem == 1) {
-?>
+    ?>
 Das Hochladen war erfolgreich. Nicht alle Displays oder Slots sind verf&uuml;gbar!
 F&uuml;r eine Buchung muss die Kampagne ge&auml;ndert und die Verf&uuml;gbarkeit 
 erneut gepr&uuml;ft werden!
 <?php
 } else {
-?>
+        ?>
 Das Hochladen war erfolgreich. Alle Displays und Slots sind verf&uuml;gbar, 
 die Kampagne kann zur Pr&uuml;fung an Digooh gesendet werden!
 <?php
-}
+    }
 
 if ($error) {
-?>
+    ?>
 <p><span style="color: red"><?php echo $error; ?></span></p>
 <?php
 }
@@ -452,7 +449,7 @@ if ($error) {
                     <?php
                     if (is_array($alleid)) {
                         foreach ($alleid as $val) {
-                    ?>
+                            ?>
                 <input type="hidden" name="ids[]" value="<?php echo $val; ?>">
                     <?php
                         }
@@ -465,7 +462,7 @@ if ($error) {
                             <?php echo $username; ?>
                         </td>
                         <td class="zelle">
-                            <?php if ($_POST['bearbeiten'] != 1 
+                            <?php if ($_POST['bearbeiten'] != 1
                                     && $digooh != 1 && $einfrieren != 1) { ?>
                             <button type="submit" name="bearbeiten" 
                                 class="grau" value="1">
@@ -483,9 +480,9 @@ if ($error) {
         <?php if ($_POST['bearbeiten'] == 1) { ?>
                             <input type="text" name="kunde" value="<?php echo $kunde; ?>" 
                size="40" required>
-        <?php } else { 
-            echo $kunde;
-        } ?>
+        <?php } else {
+                                        echo $kunde;
+                                    } ?>
                         </td>
                     </tr>
                     <tr>
@@ -494,9 +491,9 @@ if ($error) {
         <?php if ($_POST['bearbeiten'] == 1) { ?>
     <input type="text" name="agentur" value="<?php echo $agentur; ?>" 
            size="40" required>
-    <?php } else { 
-            echo $agentur;
-        } ?>
+    <?php } else {
+                                        echo $agentur;
+                                    } ?>
                         </td>
                     </tr>
                     <tr>
@@ -505,9 +502,9 @@ if ($error) {
         <?php if ($_POST['bearbeiten'] == 1) { ?>
         <input type="text" name="name" value="<?php echo $name; ?>" 
                size="40" required>
-        <?php } else { 
-            echo $name;
-        } ?>
+        <?php } else {
+                                        echo $name;
+                                    } ?>
                         </td>
                     </tr>
                     <tr>
@@ -516,9 +513,9 @@ if ($error) {
         <?php if ($_POST['bearbeiten'] == 1) { ?>
         <input type="text" name="abnummer" value="<?php echo $abnummer; ?>" 
                size="40" required>
-        <?php } else { 
-            echo $abnummer;
-        } ?>
+        <?php } else {
+                                        echo $abnummer;
+                                    } ?>
                         </td>
                     </tr>
                     <tr>
@@ -549,9 +546,9 @@ if ($error) {
          - <input type="text" id="datepick" name="secondinput" size="10" 
           value="<?php echo $end_date; ?>" required> 
         (MM/DD/YYYY)
-        <?php } else { 
-            echo $start_date . "  -  " . $end_date;
-        } ?>
+        <?php } else {
+                                echo $start_date . "  -  " . $end_date;
+                            } ?>
                         </td>
                     </tr>
                     <tr>
@@ -560,9 +557,9 @@ if ($error) {
         <?php if ($_POST['bearbeiten'] == 1) { ?>
         <input type="text" name="play_times" value="<?php echo $play_times; ?>" 
             size="10" required>
-        <?php } else { 
-            echo $play_times;
-        } ?>
+        <?php } else {
+                                echo $play_times;
+                            } ?>
                         </td>
                     </tr>
                     <tr>
@@ -572,11 +569,11 @@ if ($error) {
         if ($_POST['bearbeiten'] == 1) {
             if ($motive == '') {
                 $motive = 1;
-            }
-        ?>
+            } ?>
         <input type="text" name="motive" value="<?php echo $motive; ?>" 
             size="10" required>
-        <?php } else { 
+        <?php
+        } else {
             echo $motive;
         } ?>
                         </td>
@@ -590,9 +587,8 @@ if ($error) {
                             alt: 
                             <?php
                             if ($crit[0] != '') {
-                                $criterienanzeige = implode(", ",$crit);
-                                echo $criterienanzeige;
-                            ?>
+                                $criterienanzeige = implode(", ", $crit);
+                                echo $criterienanzeige; ?>
                             <input type="hidden" name="criterien_alt" 
                                    value="<?php echo $criterien; ?>">                            
                             <?php
@@ -604,7 +600,7 @@ if ($error) {
                             style="width: 310px; border: 1px solid #FFFFFF;"/>
                             <?php } else {
                                 if ($crit[0] != '') {
-                                    $criterienanzeige = implode(", ",$crit);
+                                    $criterienanzeige = implode(", ", $crit);
                                     echo $criterienanzeige;
                                 }
                             } ?>
@@ -619,9 +615,8 @@ if ($error) {
                             alt: 
                             <?php
                             if ($bindn[0] != '') {
-                                $bindcriterienanzeige = implode(", ",$bindn);
-                                echo $bindcriterienanzeige;
-                            ?>
+                                $bindcriterienanzeige = implode(", ", $bindn);
+                                echo $bindcriterienanzeige; ?>
                             <input type="hidden" name="bindcriterien_alt" 
                                    value="<?php echo $bindcriterien; ?>">
                             <?php
@@ -633,7 +628,7 @@ if ($error) {
                             style="width: 310px; border: 1px solid #FFFFFF;"/>
                             <?php } else {
                                 if ($bindn[0] != '') {
-                                    $bindcriterienanzeige = implode(", ",$bindn);
+                                    $bindcriterienanzeige = implode(", ", $bindn);
                                     echo $bindcriterienanzeige;
                                 }
                             } ?>
@@ -648,9 +643,8 @@ if ($error) {
                             alt: 
                             <?php
                             if ($ausn[0] != '') {
-                                $auscriterienanzeige = implode(", ",$ausn);
-                                echo $auscriterienanzeige;
-                            ?>
+                                $auscriterienanzeige = implode(", ", $ausn);
+                                echo $auscriterienanzeige; ?>
                             <input type="hidden" name="auscriterien_alt" 
                                    value="<?php echo $auscriterien; ?>">
                             <?php
@@ -662,7 +656,7 @@ if ($error) {
                             style="width: 310px; border: 1px solid #FFFFFF;"/>
                             <?php } else {
                                 if ($ausn[0] != '') {
-                                    $auscriterienanzeige = implode(", ",$ausn);
+                                    $auscriterienanzeige = implode(", ", $ausn);
                                     echo $auscriterienanzeige;
                                 }
                             } ?>
@@ -696,9 +690,9 @@ if ($error) {
                             <input type="text" id="search_player" placeholder="" 
                                    autocomplete="off" name="sammelplayer" 
                             style="width: 310px; border: 1px solid #FFFFFF;"/>
-                            <?php } else { 
+                            <?php } else {
                                 if ($displays[0] != '' && $playermark == 1) {
-                                    $displayanzeige = implode(",",$displays);
+                                    $displayanzeige = implode(",", $displays);
                                     echo $displayanzeige;
                                 }
                             } ?>
@@ -709,9 +703,9 @@ if ($error) {
                         <td class="zelle">
         <?php if ($_POST['bearbeiten'] == 1) { ?>
         <textarea name="text" rows="4" cols="42"><?php echo $text; ?></textarea>
-        <?php } else { 
-            echo $text;
-        } ?>
+        <?php } else {
+                                echo $text;
+                            } ?>
                         </td>
                         <td class="zelle">
                         <?php if ($_POST['bearbeiten'] == 1
@@ -722,7 +716,7 @@ if ($error) {
                         <?php
                                 } else {
                                     if ($einfrieren != 1) {
-                        ?>
+                                        ?>
                             <button type="submit" name="einfrieren" 
                                 class="rot" value="1">Einfrieren
                         </button>
@@ -736,7 +730,7 @@ if ($error) {
                 </form>
                 <?php
                 if ($einfrieren == 1) {
-                ?>
+                    ?>
                 <script type="text/javascript">
                     function refresh() {    
                         setTimeout(function () {
@@ -768,7 +762,7 @@ if ($error) {
                             <tr>
 <?php
 if ($gesproblem == 1 && $einfrieren != 1 && $_POST['bearbeiten'] != 1) {
-?>
+                    ?>
                                 <td class="zelle">
                         <form action="details.php" method="post">
                             <button type="submit" name="neuupload" 
@@ -784,28 +778,27 @@ if ($gesproblem == 1 && $einfrieren != 1 && $_POST['bearbeiten'] != 1) {
                             <?php
                             if ($teilprobleme) {
                                 foreach ($teilprobleme as $item) {
-                            ?>
+                                    ?>
                             <input type="hidden" name="delete_teilkampagne[]" 
                                    value="<?php echo $item; ?>">
                             <?php
                                 }
                             }
-                            if ($probleme) {
-                                foreach ($probleme as $item) {
+                    if ($probleme) {
+                        foreach ($probleme as $item) {
                             ?>
                             <input type="hidden" name="delete_kampagne[]" 
                                    value="<?php echo $item; ?>">
                             <?php
-                                }
-                            }
-                            ?>
+                        }
+                    } ?>
                         </form>
                                 </td>
 <?php
-}
+                }
 if ($export == 1) {
     if ($_POST['inogut'] != 1 && $inovisco != 1) {
-?>
+        ?>
                                 <td valign="top" class="rechts">
                         <form action="details.php" method="post">                        
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
@@ -816,8 +809,7 @@ if ($export == 1) {
                         </form>
                                 </td>
 <?php
-    }
-    elseif ($send_digooh != 1) {
+    } elseif ($send_digooh != 1) {
         $firstDate  = new DateTime($start_date);
         $secondDate = new DateTime($end_date);
         $intvl = $firstDate->diff($secondDate);
@@ -825,13 +817,12 @@ if ($export == 1) {
         
         if (is_array($gelbeb)) {
             $anzeb = array_count_values($gelbeb);
-            foreach ($anzeb as $key => $value) {  
+            foreach ($anzeb as $key => $value) {
                 $gelbei .= $value . ' * ' . $key . " | ";
             }
         }
         $displaeb = $gruen . ' * ' . $play_times . " | ";
-        $displaeb .= $gelbei;
-?>
+        $displaeb .= $gelbei; ?>
                                 <td valign="top" class="rechts">
                         <form action="details.php" method="post">                        
             <input type="hidden" name="angebot" value="<?php echo $angebot; ?>">
@@ -840,7 +831,7 @@ if ($export == 1) {
         <input type="hidden" name="email" value="<?php echo $useremail; ?>">
         <input type="hidden" name="kunde" value="<?php echo $kunde; ?>">
         <input type="hidden" name="abnummer" value="<?php echo $abnummer; ?>">
-        <input type="hidden" name="zeitraum" value="<?php echo $start_date 
+        <input type="hidden" name="zeitraum" value="<?php echo $start_date
                 . " - " . $end_date; ?>">
         <input type="hidden" name="tage" value="<?php echo (string)$tage; ?>">
         <input type="hidden" name="displayeinblendungen" value="<?php echo $displaeb; ?>">
@@ -853,10 +844,9 @@ if ($export == 1) {
                         </form>
                                 </td>
 <?php
-    }
-    elseif ($digooh != 1 && ($_SESSION['company'] == 'Update Test' ||
+    } elseif ($digooh != 1 && ($_SESSION['company'] == 'Update Test' ||
             $_SESSION['company'] == 'DIGOOH') && $_POST['schlecht'] != 1) {
-?>
+        ?>
                                 <td valign="top" class="rechts">
                         <form action="details.php" method="post">
                   <input type="hidden" name="user" value="<?php echo $username; ?>">
@@ -879,9 +869,8 @@ if ($export == 1) {
                         </form>
                                 </td>
 <?php
-    }
-    elseif ($_POST['schlecht'] == 1) {
-?>
+    } elseif ($_POST['schlecht'] == 1) {
+        ?>
                                 <td>
                         <form action="details.php" method="post">
                             <table class="ohnerahmen">
@@ -903,9 +892,8 @@ if ($export == 1) {
                         </form>
                                 </td>
 <?php
-    } 
-    else {
-?>
+    } else {
+        ?>
                                 <td class="zelle">
                             <center>Die Pr&uuml;fung ist abgeschlossen.</center>
                                 </td>
@@ -914,7 +902,7 @@ if ($export == 1) {
 }
 
 if ($_POST['sendschlecht'] == 1) {
-?>
+    ?>
                                 <td class="zelle">
                             <center>Die Info-Mail wurde versendet.</center>
                                 </td>
@@ -930,7 +918,7 @@ if ($_POST['sendschlecht'] == 1) {
                 </tr>
 <?php
 if ($_POST['bearbeiten'] != 1) {
-?>
+    ?>
                 <tr>
     <td class="zelle" colspan="5"><center>
         <table class="mitrahmen">
@@ -947,70 +935,66 @@ if ($_POST['bearbeiten'] != 1) {
                 <td class="rahmenrechts">verf&uuml;gbare Einblendungen<br>pro Stunde</td>
                 <?php
                 if ($export == 1) {
-                ?>
+                    ?>
                 <td valign="bottom" class="rahmenrechts">&Auml;nderung seit Export</td>
                 <?php
-                }
-                ?>
+                } ?>
             </tr>
 <?php
 if ($buchungen[0] != '') {
-    foreach ($buchungen as $key => $inhalt) {
-        if ($inhalt['displayname'] != '') {
-        if ($inhalt['deleted']) {
-            echo '<tr class="strikeout">';
-        } else {
-            echo "<tr>";
-        }
-?>
+                    foreach ($buchungen as $key => $inhalt) {
+                        if ($inhalt['displayname'] != '') {
+                            if ($inhalt['deleted']) {
+                                echo '<tr class="strikeout">';
+                            } else {
+                                echo "<tr>";
+                            } ?>
                             
                                 <td class="zelle">
                     <?php
                     if ($einfrieren != 1) {
                         if ($inhalt['problem'] == 1 || $inhalt['problem'] == 2) {
                             if ($inhalt['deleted'] == 1) {
-                    ?>
+                                ?>
 <a href="details.php?playerid=<?php echo $inhalt['playerid']; ?>&undo=1&angebot=<?php echo $angebot; ?>">
                                 <img src="abbrechengr.png" alt="l&ouml;schen">
                                     </a>
                     <?php
                             } else {
-                    ?>
+                                ?>
 <a href="details.php?playerid=<?php echo $inhalt['playerid']; ?>&delete=1&angebot=<?php echo $angebot; ?>">
                                 <img src="abbrechenkl.png" alt="l&ouml;schen">
                                     </a>
                     <?php
                             }
                         }
-                    }
-                    ?>
+                    } ?>
                                 </td>
                                 <td class="zelle"><?php echo $inhalt['displayname']; ?></td>
                                 <td class="rechts">
                     <?php
                     if ($inhalt['restzeit'] <= 0) {
                         $prob = '<font style="color: red">';
-                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] < 
+                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] <
                             $inhalt['play_times']) {
                         $prob = '<font style="color: orange">';
-                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] >= 
-                            $inhalt['play_times']){
+                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] >=
+                            $inhalt['play_times']) {
                         $prob = '<font style="color: green">';
                     } else {
                         $prob = '';
                     }
-                    echo $prob;
-                    if ($was == 1) {
-                        echo $inhalt['custom_sn1'];
-                    } else {
-                        echo $inhalt['custom_sn2'];
-                    }
-                    echo '</font>';
-                    ?>
+                            echo $prob;
+                            if ($was == 1) {
+                                echo $inhalt['custom_sn1'];
+                            } else {
+                                echo $inhalt['custom_sn2'];
+                            }
+                            echo '</font>'; ?>
                                 </td>
                 <?php
                 if ($export == 1) {
-                ?>
+                    ?>
                                 <td class="rechts">
                     <?php
                     if ($inhalt['problem'] == 1) {
@@ -1020,53 +1004,48 @@ if ($buchungen[0] != '') {
                     } else {
                         $prob = '<font style="color: green">';
                     }
-                    echo $prob . (int)$inhalt['lfsph'] . '</font>';
-                    ?>
+                    echo $prob . (int)$inhalt['lfsph'] . '</font>'; ?>
                                 </td>
                                 <td class="rechts">
                     <?php
                     if ($inhalt['restzeit'] <= 0) {
                         $prob = '<font style="color: red">';
-                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] < 
+                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] <
                             $inhalt['play_times']) {
                         $prob = '<font style="color: orange">';
-                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] >= 
-                            $inhalt['play_times']){
+                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] >=
+                            $inhalt['play_times']) {
                         $prob = '<font style="color: green">';
                     } else {
                         $prob = '';
                     }
-                    echo $prob . (int)$inhalt['lfsphjetzt'] . '</font>';
-                    ?>
+                    echo $prob . (int)$inhalt['lfsphjetzt'] . '</font>'; ?>
                                 </td>
                 <?php
                 } else {
-                ?>
+                    ?>
                                 <td class="rechts">
                     <?php
                     if ($inhalt['restzeit'] <= 0) {
                         $prob = '<font style="color: red">';
-                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] < 
+                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] <
                             $inhalt['play_times']) {
                         $prob = '<font style="color: orange">';
-                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] >= 
-                            $inhalt['play_times']){
+                    } elseif ($inhalt['restzeit'] > 0 && $inhalt['restzeit'] >=
+                            $inhalt['play_times']) {
                         $prob = '<font style="color: green">';
                     } else {
                         $prob = '';
                     }
-                    echo $prob . (int)$inhalt['lfsphjetzt'] . '</font>';
-                    ?>
+                    echo $prob . (int)$inhalt['lfsphjetzt'] . '</font>'; ?>
                                 </td>
                     <?php
-                }
-                ?>
+                } ?>
                             </tr>
 <?php
-        }
-    }
-}
-?>
+                        }
+                    }
+                } ?>
                         </table>
                 </center></td>
                 </tr>
