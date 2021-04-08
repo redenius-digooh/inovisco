@@ -1,4 +1,5 @@
 .vscode/launch.json
+vendor
 vendor/autoload.php
 vendor/composer/autoload_classmap.php
 vendor/composer/autoload_files.php
@@ -948,3 +949,15 @@ details_alt.php
 buchung_alt.php
 details2.php
 buchung3.php
+tools/php-cs-fixer/composer.json
+tools/php-cs-fixer/vendor/autoload.php
+tools/php-cs-fixer/vendor/composer/autoload_classmap.php
+tools/php-cs-fixer/vendor/composer/autoload_namespaces.php
+tools/php-cs-fixer/vendor/composer/autoload_psr4.php
+tools/php-cs-fixer/vendor/composer/autoload_real.php
+tools/php-cs-fixer/vendor/composer/autoload_static.php
+tools/php-cs-fixer/vendor/composer/ClassLoader.php
+tools/php-cs-fixer/vendor/composer/installed.json
+tools/php-cs-fixer/vendor/composer/installed.php
+tools/php-cs-fixer/vendor/composer/InstalledVersions.php
+tools/php-cs-fixer/vendor/composer/LICENSE
